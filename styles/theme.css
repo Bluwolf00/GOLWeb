@@ -36,12 +36,34 @@
   /* filter: drop-shadow(2px 5px black); */
 }
 
+.nation-img {
+  height: 2.5em;
+  width: 2.5em;
+  border-radius: 50%;
+  /* filter: drop-shadow(2px 5px black); */
+  display: inline;
+  margin-left: 0.75rem;
+}
+
+.rank-title {
+  font-weight: lighter;
+  padding-bottom: 0.5em;
+}
+
+#hellfish-logo {
+  height: 5em;
+}
+
 .roster-user {
-  font-weight: bolder;
   cursor: pointer;
+  display: inline;
 }
 
 .roster-user:hover {
   color: var(--bs-primary);
   transition: color 0.5s;
+}
+
+.h3 {
+  margin-bottom: 0.5em;
 }
