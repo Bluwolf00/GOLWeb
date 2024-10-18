@@ -1,0 +1,47 @@
+:root {
+  --bs-primary: rgb(7, 91, 201) !important;
+}
+
+.navbar-brand {
+  font-size: 1.8em;
+}
+
+.b-example-divider {
+  width: 100%;
+  height: 3rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: solid rgba(0, 0, 0, 0.15);
+  border-width: 1px 0;
+  box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1), inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
+}
+
+.nav-item:hover {
+  color: white;
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
+
+#front-hero {
+  background-image: "img/FlagGOL.png";
+}/*# sourceMappingURL=theme.css.map */
+
+.rank-icon {
+  height: 3em;
+}
+
+.nation-col > img {
+  height: 3em;
+  width: 3em;
+  border-radius: 50%;
+  /* filter: drop-shadow(2px 5px black); */
+}
+
+.roster-user {
+  font-weight: bolder;
+  cursor: pointer;
+}
+
+.roster-user:hover {
+  color: var(--bs-primary);
+  transition: color 0.5s;
+}
