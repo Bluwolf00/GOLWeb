@@ -1,5 +1,21 @@
 :root {
-  --bs-primary: rgb(7, 91, 201) !important;
+  --bs-primary: #2287ad !important;
+  --bs-btn-bg: #2287ad !important;
+}
+
+.btn-primary {
+  --bs-btn-bg: #2287ad !important;
+  --bs-btn-border-color: #2287ad !important;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #2287ad;
+}
+
+body {
+  background-color: #212529;
+  background-image: linear-gradient(to bottom right,#212529, #0b0c0e);
+  min-height: 100vh;
 }
 
 .navbar-brand {
@@ -23,7 +39,37 @@
 
 #front-hero {
   background-image: "img/FlagGOL.png";
+  height: 90vh;
 }/*# sourceMappingURL=theme.css.map */
+
+#front-logo {
+  filter: drop-shadow(2px 4px 6px black);
+  height: 25vh;
+}
+
+#landingTitle {
+  font-size: 5vh;
+}
+
+.scaleText {
+  font-size: 2vh;
+}
+
+.arma-logos > img {
+  height: 10vh;
+  padding: 1vb 1vb;
+}
+
+#frontButtons {
+  margin-bottom: 5vh;
+}
+
+.feature > p, #icon-grid {
+  color: rgb(119, 136, 153);
+  text-align: justify;
+}
+
+/* Roster Page */
 
 .rank-icon {
   height: 3em;
@@ -51,7 +97,7 @@
 }
 
 #hellfish-logo {
-  height: 5em;
+  height: 10vh;
 }
 
 .roster-user {
