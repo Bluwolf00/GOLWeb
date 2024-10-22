@@ -1,6 +1,7 @@
 :root {
   --bs-primary: #2287ad !important;
   --bs-btn-bg: #2287ad !important;
+  --blu-bg: #212529;
 }
 
 .btn-primary {
@@ -13,7 +14,7 @@
 }
 
 body {
-  background-color: #212529;
+  background-color: var(--blu-bg);
   background-image: linear-gradient(to bottom right,#212529, #0b0c0e);
   min-height: 100vh;
 }
@@ -72,6 +73,20 @@ body {
   font-size: 2vh;
 }
 
+.btn > a {
+  text-decoration: none;
+  color: white;
+}
+
+.btn-secondary {
+  color: #474747;
+  background-color: rgba(0,0,0,0);
+}
+
+.btn-secondary > a {
+  color: #999999;
+}
+
 .arma-logos > img {
   height: 10vh;
   padding: 1vb 1vb;
@@ -84,6 +99,15 @@ body {
 .feature > p, #icon-grid {
   color: rgb(119, 136, 153);
   text-align: justify;
+}
+
+.video-header {
+  align-items: center;
+  text-align: center;
+}
+
+.video-header > p {
+  color: rgb(119, 136, 153);
 }
 
 /* Roster Page */
@@ -114,12 +138,25 @@ body {
 }
 
 #hellfish-logo {
-  height: 10vh;
+  height: 15vh;
 }
 
 .roster-user {
   cursor: pointer;
   display: inline;
+  text-decoration: none;
+  color: white;
+}
+
+p.roster-user > a {
+  text-decoration: none;
+  color: white;
+  display: inline;
+}
+
+p.roster-user > a:hover {
+  color: #2287ad;
+  transition: color 0.3s;
 }
 
 .roster-user:hover {
@@ -135,6 +172,8 @@ footer {
   font-size: 1vh;
   align-items: center;
   text-align: center;
+  background-color: #0f1114;
+  border-top: 1px solid #474747;
 }
 
 .sm-img {
