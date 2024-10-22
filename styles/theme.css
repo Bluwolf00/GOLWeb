@@ -5,8 +5,8 @@
 }
 
 .btn-primary {
-  --bs-btn-bg: #2287ad !important;
-  --bs-btn-border-color: #2287ad !important;
+  --bs-btn-bg: var(--bs-primary) !important;
+  --bs-btn-border-color: var(--bs-primary) !important;
 }
 
 .nav-pills .nav-link.active {
@@ -21,6 +21,10 @@ body {
 
 .navbar-brand {
   font-size: 1.8em;
+}
+
+#navIcon {
+  margin-right: 1rem;
 }
 
 .b-example-divider {
@@ -62,7 +66,12 @@ body {
 
 #front-logo {
   filter: drop-shadow(2px 4px 6px black);
-  height: 25vh;
+  height: 28vh;
+}
+
+#front-logo:hover {
+  scale: 1.1;
+  transition: scale 0.5s;
 }
 
 #landingTitle {
@@ -88,8 +97,14 @@ body {
 }
 
 .arma-logos > img {
-  height: 10vh;
+  height: 7.1vh;
   padding: 1vb 1vb;
+  margin: 1vh 1vb;
+}
+
+.arma-logos-main > img {
+  height: 10vh;
+  margin: 1vh 1vb;
 }
 
 #frontButtons {
@@ -110,10 +125,28 @@ body {
   color: rgb(119, 136, 153);
 }
 
+.card-title {
+  font-size: 1.2rem;
+}
+
+.card-title > a {
+  text-decoration: none;
+  color: white;
+}
+
+.card-text {
+  color: #999999;
+}
+
+.card-author {
+  font-size: 0.85rem;
+  color: #596068;
+}
+
 /* Roster Page */
 
 .rank-icon {
-  height: 3em;
+  height: 4.5rem;
 }
 
 .nation-col > img {
@@ -138,7 +171,7 @@ body {
 }
 
 #hellfish-logo {
-  height: 15vh;
+  height: 8rem;
 }
 
 .roster-user {
@@ -181,5 +214,6 @@ footer {
 }
 
 #footerText {
-  vertical-align: middle;
+  position: relative;
+  top: 25%;
 }

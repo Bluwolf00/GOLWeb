@@ -2,7 +2,7 @@
 function onLogoHover() {
     logo = document.getElementById("front-logo");
 
-    logo.src = "img/logoAnim.gif";
+    logo
 }
 
 function onLogoOut() {
