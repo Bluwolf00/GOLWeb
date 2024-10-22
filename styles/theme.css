@@ -37,6 +37,23 @@ body {
   border-color: var(--bs-btn-hover-border-color);
 }
 
+#video-background {
+  height: 90vh;
+  width: 100vb;
+  position: absolute;
+  /* right: 0; */
+  /* top: 0; */
+  min-width: 100%;
+  min-height: 100%;
+  /* background-color: rgba(0,0,0,0.4); */
+}
+
+#video-background::after {
+  background-color: rgba(0, 0, 0, 0.45);
+  width: 100vb;
+  height: 100vh;
+}
+
 #front-hero {
   background-image: "img/FlagGOL.png";
   height: 90vh;
@@ -112,4 +129,18 @@ body {
 
 .h3 {
   margin-bottom: 0.5em;
+}
+
+footer {
+  font-size: 1vh;
+  align-items: center;
+  text-align: center;
+}
+
+.sm-img {
+  height: 15vh;
+}
+
+#footerText {
+  vertical-align: middle;
 }
