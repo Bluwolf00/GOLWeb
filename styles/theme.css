@@ -143,6 +143,11 @@ body {
   color: #596068;
 }
 
+h3.fs-2:hover {
+  color: #2287ad;
+  transition: color 0.3s;
+}
+
 /* Roster Page */
 
 .rank-icon {
