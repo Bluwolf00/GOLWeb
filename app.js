@@ -34,6 +34,14 @@ app.get('/roster', (req,res) => {
     res.render('pages/roster');
 });
 
+app.get('/SOP', (req,res) => {
+    res.render('pages/sop');
+});
+
+app.get('/discord', (req,res) => {
+    res.redirect('https://discord.gg/fS6AppB8kg');
+});
+
 app.get('*', (req,res) => {
     res.render('pages/error');
 });

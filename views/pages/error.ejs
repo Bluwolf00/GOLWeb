@@ -9,41 +9,19 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/theme.css">
     <script src="scripts/logoHover.js"></script>
-
-    <style>
-        .col-sm-6 {
-            text-align: right;
-        }
-
-        .col-sm-2 {
-            text-align: left;
-        }
-    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
 <div class="container">
-    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-            <span class="fs-4"><img id="navIcon" src="img/logo_new.png" alt="logo" height="40"></span>
-            <span class="fs-4">Guerrillas Of Liberation</span>
-        </a>
-
-        <ul class="nav nav-pills">
-            <li class="nav-item"><a href="/home" class="nav-link">Home</a></li>
-            <li class="nav-item"><a href="/roster" class="nav-link">Roster</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">SOPs</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Join</a></li>
-        </ul>
-    </header>
-</div>
+    <%- include('../partials/headernav', {pageTitle: "Error"}) %>
+  </div>
 
 <body>
     <main>
         <div class="container my-5 text-center">
 
             <img id="front-logo" src="img/logo_new.png" alt="">
-            <h1 class="mb-5 fw-bold">Aw Crap!</h1>
+            <h1 class="mb-5 fw-bold mainHead">Aw Crap!</h1>
             <p class="lead">Looks like you've got the wrong frequency! <br> No worries, try heading back to base for a debrief</p>
             <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/home">RTB</a></button>
 
