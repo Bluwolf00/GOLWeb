@@ -22,7 +22,7 @@ app.get('/', (req,res) => {
     res.render('pages/index');
 });
 
-app.get('/index', (req,res) => {
+app.get('/home', (req,res) => {
     res.render('pages/index');
 });
 
@@ -32,6 +32,10 @@ app.get('/about', (req,res) => {
 
 app.get('/roster', (req,res) => {
     res.render('pages/roster');
+});
+
+app.get('*', (req,res) => {
+    res.render('pages/error');
 });
 
 app.listen(8080);
