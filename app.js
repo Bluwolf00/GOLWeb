@@ -27,7 +27,7 @@ app.get('/home', (req,res) => {
 });
 
 app.get('/about', (req,res) => {
-    res.render('pages/index');
+    res.render('pages/about');
 });
 
 app.get('/roster', (req,res) => {
