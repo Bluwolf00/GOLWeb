@@ -97,7 +97,15 @@ function iterate(data) {
         };
 
         addToRoster(memberName,country,container);
-    })
+    });
+
+    data.reserve_members.forEach(e => {
+        memberName = e.name;
+        country = e.country;
+        container = document.getElementById('rsv-con');
+
+        addToRoster(memberName,country,container);
+    });
 }
 
 function addToRoster(memberName,country,container) {
