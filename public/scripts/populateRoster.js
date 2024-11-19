@@ -107,5 +107,5 @@ function addToRoster(memberName,country,container) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    iterate(JSON.parse(data))
+    iterate(data)
 }, false);
