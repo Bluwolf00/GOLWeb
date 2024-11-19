@@ -11,6 +11,8 @@
     <script src="scripts/logoHover.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+    <script src="scripts/populateRoster.js"></script>
+
     <style>
         .col-sm-6 {
             text-align: right;
@@ -44,16 +46,10 @@
                     <img class="rank-icon" src="img/rank/1LT.png" alt="1LT" />
                     <p class="h3 rank-title border-bottom">First Lieutenant</p>
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Oksman</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img class="nation-img" src="img/nation/sweden.png" alt="sweden">
-                            </div>
-                        </div>
+                    <div class="container" id="1lt-con">
+
                     </div>
+
                 </div>
             </div>
 
@@ -61,16 +57,9 @@
                 <div class="col">
                     <img class="rank-icon" src="img/rank/2LT.png" alt="2LT">
                     <p class="h3 rank-title border-bottom">Second Lieutenant</p>
+                    
+                    <div class="container" id="2lt-con">
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Blu.</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img class="nation-img" src="img/nation/scotland.png" alt="scotland">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -80,33 +69,8 @@
                     <img class="rank-icon" src="img/rank/Sgt.png" alt="SGT">
                     <p class="h3 rank-title border-bottom">Sergeant</p>
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Pilgrim</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img class="nation-img" src="img/nation/england.png" alt="england">
-                            </div>
-                        </div>
+                    <div class="container" id="sgt-con">
 
-                        <div class="row mb-3">
-                            <div class="col-sm-6 ">
-                                <p class="lead roster-user"><a href="#">Juan Sanchez</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/slovakia.png" alt="Slovakia" class="nation-img">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                    <p class="lead roster-user"><a href="#">Joona</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/finland.png" alt="Finalnd" class="nation-img">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -116,24 +80,74 @@
                     <img src="img/rank/Cpl.png" alt="CPL" class="rank-icon">
                     <p class="h3 rank-title border-bottom">Corporal</p>
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Filth</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/germany.png" alt="Germany" class="nation-img">
-                            </div>
-                        </div>
+                    <div class="container" id="cpl-con">
 
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Rutters</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/england.png" alt="England" class="nation-img">
-                            </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/LCpl.png" alt="LCPL" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Lance Corporal</p>
+
+                    <div class="container" id="lcpl-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/SPC.png" alt="SPC" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Specialist</p>
+                    
+                    <div class="container" id="spc-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/PFC.png" alt="PFC" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Private First Class</p>
+
+                    <div class="container" id="pfc-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/PSC.png" alt="PFC" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Private Second Class</p>
+
+                    <div class="container" id="psc-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/P.png" alt="P" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Private</p>
+
+                    <div class="container" id="pvt-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/R.png" alt="R" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Recruit</p>
+
+                    <div class="container" id="rct-con">
+
                     </div>
                 </div>
             </div>
@@ -142,7 +156,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
         </script>
-        <script src="main.js"></script>
     </main>
 </body>
 
