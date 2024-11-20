@@ -4,11 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GOL SOPs</title>
+    <title>GOL Profiles</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/theme.css">
-    <script src="scripts/logoHover.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
@@ -19,12 +18,24 @@
 <body>
     <main>
         <div class="container my-5 text-center">
-            <h1 class="mainHead fw-bold">SOPs</h1>
+            <h1 class="mainHead fw-bold">Member Profile</h1>
         </div>
 
         <div class="container my-5">
-            <h2>We don't currently have any publicly available SOPs</h2>
-            <h3>Though keep an eye out! <br> Updates are coming soon</h3>
+            <div class="row">
+                <div class="col-sm-6">
+                    <img src=<%= countryPath %> alt="" id="countryImg">
+                </div>
+    
+                <div class="col-lg-9">
+                    <h2>Name: <span id="playerName"><%= memberName %></span></h2>
+                    <h3>Country: <span id="playerCountry"><%= memberCountry %></span></h3>
+                    <h3>Status: <span id="playerStatus"><%= memberStatus %></span></h3>
+                    <h3>Joined: <span id="playerJoin"><%= memberJoined %></span></h3>
+                    <h3>Current Rank: <span id="playerRank"><%= memberRank %></span></h3>
+                    <h3>Held Since: <span id="playerPromotion"><%= promoted %></span></h3>
+                </div>
+            </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

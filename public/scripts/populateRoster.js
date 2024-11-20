@@ -17,7 +17,6 @@ data = {
         {"name": "Sophie", "country": "england", "rank": "Private"},
         {"name": "Hoofed", "country": "england", "rank": "Private"},
         {"name": "Henkka", "country": "finland", "rank": "Private"},
-        {"name": "Muki", "country": "finland", "rank": "Private"},
         {"name": "Arron", "country": "england", "rank": "Private"},
         {"name": "Phanatik", "country": "england", "rank": "Private"},
         {"name": "Alquiet", "country": "azerbaijan", "rank": "Recruit"},
@@ -26,6 +25,7 @@ data = {
 
     "reserve_members":
     [
+        {"name": "Muki", "country": "finland"},
         {"name": "Apollo", "country": "netherlands"},
         {"name": "Knight", "country": "ireland"},
         {"name": "Panda", "country": "england"},
@@ -112,6 +112,22 @@ function addToRoster(memberName,country,container) {
     elements = '<div class="row mb-3"><div class="col-sm-6"><p class="lead roster-user"><a href="#">'+memberName+'</a></p></div><div class="col-sm-2"><img class="nation-img" src="img/nation/'+country+'.png" alt="england"></div></div>';
 
     container.innerHTML += elements;
+}
+
+function takeJSON() {
+    const fs = require('fs')
+
+    fs.readFile('./ranks.json','utf-8', (err, jsonS) => {
+        if (err) {
+            console.log(err);
+        } else {
+            try {
+                var data = JSON.parse(jsonS);
+            } catch (err) {
+                console.log("Error Parsing JSON", err);
+            }
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -223,3 +223,11 @@ footer {
   position: relative;
   top: 25%;
 }
+
+/* Profile Pages */
+
+#countryImg {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 100%;
+}
