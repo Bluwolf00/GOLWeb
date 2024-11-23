@@ -1,71 +1,5 @@
 // Org Chart from https://github.com/bumbeishvili/org-chart/tree/master
 
-data2 = [{
-    "name": "Oksman",
-    "image": "img/nation/sweden.png",
-    "rank": "First Lieutenant",
-    "id": "O-0001",
-    "parentId": "",
-    "nick": ""
-},
-{
-    "name": "Blu.",
-    "image": "img/nation/scotland.png",
-    "rank": "Second Lieutenant",
-    "id": "O-0002",
-    "parentId": "O-0001",
-    "nick": ""
-},
-{
-    "name": "Pilgrim",
-    "image": "img/nation/england.png",
-    "rank": "Sergeant",
-    "id": "N-0003",
-    "parentId": "O-0001",
-    "nick": ""
-},
-{
-    "name": "Joona",
-    "image": "img/nation/finland.png",
-    "rank": "Sergeant",
-    "id": "N-0004",
-    "parentId": "O-0001",
-    "nick": "AT Lord"
-},
-{
-    "name": "Filth",
-    "image": "img/nation/germany.png",
-    "rank": "Corporal",
-    "id": "N-0005",
-    "parentId": "O-0001",
-    "nick": ""
-},
-{
-    "name": "Rutters",
-    "image": "img/nation/england.png",
-    "rank": "Corporal",
-    "id": "N-0006",
-    "parentId": "O-0001",
-    "nick": ""
-},
-{
-    "name": "Hoofed",
-    "image": "img/nation/england.png",
-    "rank": "Airman",
-    "id": "E-0007",
-    "parentId": "O-0002",
-    "nick": ""
-},
-{
-    "name": "ThecMaster",
-    "image": "img/nation/sweden.png",
-    "rank": "Airman",
-    "id": "E-0008",
-    "parentId": "O-0002",
-    "nick": ""
-}
-];
-
 function createOrg(data) {
     new d3.OrgChart()
         .nodeHeight((d) => 85 + 25)
@@ -79,20 +13,19 @@ function createOrg(data) {
         .nodeContent(function (d, i, arr, state) {
             const color = 'transparent';
             const imageDiffVert = 25 + 2;
+            const textcolor = "#2287ad";
             return `
-                        <div style='width:${d.width
-                }px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>
-                                <div style="font-family: 'Inter', sans-serif;background-color:${color};  margin-left:-1px;width:${d.width - 2}px;height:${d.height - imageDiffVert}px;border-radius:10px;border: 1px solid #E4E2E9">
-                                    <div style="color:#e07f10;display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${d.data.id
-                }</div>
-                                    <div style="background-color:${color};margin-top:${-imageDiffVert - 20}px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;" ></div>
-                                    <div style="margin-top:${-imageDiffVert - 20
-                }px;">   <img src=" ${d.data.image}" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" /></div>
-                                    <div style="font-size:15px;color:#FFFFFF;margin-left:20px;margin-top:10px">  ${d.data.name
+                        <div style='width:${d.width}px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>
+                            <div style="font-family: 'Inter', sans-serif;background-color:${color};  margin-left:-1px;width:${d.width - 2}px;height:${d.height - imageDiffVert}px;border-radius:10px;border: 1px solid #E4E2E9">
+                                <div style="color:#FFFFFF;display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${d.data.id}</div>
+                                <div style="display:flex;justify-content:flex-end;margin-top:5px">   <img src=" ${d.data.rankImg}" style="margin-right:${8}px;border-radius:0px;width:25px;height:25px;" /></div>
+                                <div style="background-color:${color};margin-top:${-imageDiffVert - 32}px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;" ></div>
+                                <div style="margin-top:${-imageDiffVert - 32}px;">   <img src=" ${d.data.image}" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" /></div>
+                                <div style="font-size:15px;color:#FFFFFF;margin-left:20px;margin-top:10px">  ${d.data.name
                 } </div>
-                                    <div style="color:#e07f10;margin-left:20px;margin-top:3px;font-size:10px;"> ${d.data.rank
+                                    <div style="color:${textcolor};margin-left:20px;margin-top:3px;font-size:10px;"> ${d.data.rank
                 } </div>
-                                    <div style="color:#e07f10;margin-left:20px;margin-top:3px;font-size:10px;"> ${d.data.nick
+                                    <div style="color:${textcolor};margin-left:20px;margin-top:3px;font-size:10px;"> ${d.data.nick
                 } </div>
             
                                 </div>

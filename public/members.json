@@ -50,6 +50,7 @@
             "name": "Oksman",
             "image": "img/nation/sweden.png",
             "rank": "First Lieutenant",
+            "rankImg": "img/rank/1LT.png",
             "id": "O-0001",
             "parentId": "",
             "nick": ""
@@ -58,6 +59,7 @@
             "name": "Blu.",
             "image": "img/nation/scotland.png",
             "rank": "Second Lieutenant",
+            "rankImg": "img/rank/2LT.png",
             "id": "O-0002",
             "parentId": "O-0001",
             "nick": ""
@@ -66,6 +68,7 @@
             "name": "Pilgrim",
             "image": "img/nation/england.png",
             "rank": "Sergeant",
+            "rankImg": "img/rank/Sgt.png",
             "id": "N-0003",
             "parentId": "O-0001",
             "nick": ""
@@ -74,6 +77,7 @@
             "name": "Joona",
             "image": "img/nation/finland.png",
             "rank": "Sergeant",
+            "rankImg": "img/rank/Sgt.png",
             "id": "N-0004",
             "parentId": "O-0001",
             "nick": "AT Lord"
@@ -82,6 +86,7 @@
             "name": "Filth",
             "image": "img/nation/germany.png",
             "rank": "Corporal",
+            "rankImg": "img/rank/Cpl.png",
             "id": "N-0005",
             "parentId": "N-0004",
             "nick": ""
@@ -90,6 +95,7 @@
             "name": "Rutters",
             "image": "img/nation/england.png",
             "rank": "Corporal",
+            "rankImg": "img/rank/Cpl.png",
             "id": "N-0006",
             "parentId": "N-0003",
             "nick": ""
@@ -98,6 +104,7 @@
             "name": "Hoofed",
             "image": "img/nation/england.png",
             "rank": "Airman",
+            "rankImg": "img/rank/Amn.png",
             "id": "E-0007",
             "parentId": "O-0002",
             "nick": ""
@@ -106,6 +113,7 @@
             "name": "ThecMaster",
             "image": "img/nation/sweden.png",
             "rank": "Airman",
+            "rankImg": "img/rank/Amn.png",
             "id": "E-0008",
             "parentId": "O-0002",
             "nick": ""
@@ -114,6 +122,7 @@
             "name": "Juan Sanchez",
             "image": "img/nation/slovakia.png",
             "rank": "Lance Corporal",
+            "rankImg": "img/rank/LCpl.png",
             "id": "E-0009",
             "parentId": "N-0005",
             "nick": ""
@@ -122,6 +131,7 @@
             "name": "Unionjak",
             "image": "img/nation/england.png",
             "rank": "Lance Corporal",
+            "rankImg": "img/rank/LCpl.png",
             "id": "E-0010",
             "parentId": "N-0006",
             "nick": ""
@@ -130,6 +140,7 @@
             "name": "Parker",
             "image": "img/nation/england.png",
             "rank": "Specialist",
+            "rankImg": "img/rank/Spc.png",
             "id": "E-0011",
             "parentId": "N-0005",
             "nick": ""
@@ -138,6 +149,7 @@
             "name": "Eric",
             "image": "img/nation/netherlands.png",
             "rank": "Private Second Class",
+            "rankImg": "img/rank/PSC.png",
             "id": "E-0012",
             "parentId": "N-0005",
             "nick": ""
@@ -146,6 +158,7 @@
             "name": "Sam",
             "image": "img/nation/england.png",
             "rank": "Private Second Class",
+            "rankImg": "img/rank/PSC.png",
             "id": "E-0013",
             "parentId": "N-0006",
             "nick": ""
@@ -154,6 +167,7 @@
             "name": "YeyoMan",
             "image": "img/nation/england.png",
             "rank": "Private",
+            "rankImg": "img/rank/P.png",
             "id": "E-0014",
             "parentId": "N-0006",
             "nick": ""
@@ -162,6 +176,7 @@
             "name": "Sophie",
             "image": "img/nation/england.png",
             "rank": "Private",
+            "rankImg": "img/rank/P.png",
             "id": "E-0015",
             "parentId": "N-0006",
             "nick": ""
@@ -170,6 +185,7 @@
             "name": "Henkka",
             "image": "img/nation/finland.png",
             "rank": "Private",
+            "rankImg": "img/rank/P.png",
             "id": "E-0016",
             "parentId": "N-0005",
             "nick": ""
@@ -178,6 +194,7 @@
             "name": "Arron",
             "image": "img/nation/england.png",
             "rank": "Private",
+            "rankImg": "img/rank/P.png",
             "id": "E-0018",
             "parentId": "N-0006",
             "nick": ""
@@ -186,6 +203,7 @@
             "name": "Phanatik",
             "image": "img/nation/england.png",
             "rank": "Private",
+            "rankImg": "img/rank/P.png",
             "id": "E-0019",
             "parentId": "N-0006",
             "nick": ""
@@ -193,7 +211,8 @@
         {
             "name": "Alquiet",
             "image": "img/nation/azerbaijan.png",
-            "rank": "Private",
+            "rank": "Recruit",
+            "rankImg": "img/rank/R.png",
             "id": "E-0020",
             "parentId": "N-0005",
             "nick": ""
@@ -201,7 +220,8 @@
         {
             "name": "Meeri",
             "image": "img/nation/germany.png",
-            "rank": "Private",
+            "rank": "Recruit",
+            "rankImg": "img/rank/R.png",
             "id": "E-0021",
             "parentId": "N-0005",
             "nick": ""
