@@ -59,7 +59,7 @@
             "name": "Blu.",
             "image": "img/nation/scotland.png",
             "rank": "Second Lieutenant",
-            "rankImg": "img/rank/2LT.png",
+            "rankImg": "img/rank/2LT_new.png",
             "id": "O-0002",
             "parentId": "O-0001",
             "nick": ""
