@@ -147,7 +147,7 @@
             "image": "img/nation/england.png",
             "rank": "Private Second Class",
             "id": "E-0013",
-            "parentId": "N-0005",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -155,7 +155,7 @@
             "image": "img/nation/england.png",
             "rank": "Private",
             "id": "E-0014",
-            "parentId": "N-0005",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -195,7 +195,7 @@
             "image": "img/nation/azerbaijan.png",
             "rank": "Private",
             "id": "E-0020",
-            "parentId": "N-0006",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -203,7 +203,7 @@
             "image": "img/nation/germany.png",
             "rank": "Private",
             "id": "E-0021",
-            "parentId": "N-0006",
+            "parentId": "N-0005",
             "nick": ""
         }
     ]
