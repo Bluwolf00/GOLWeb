@@ -231,3 +231,14 @@ footer {
   height: 2rem;
   border-radius: 100%;
 }
+
+/* ORBAT page */
+
+.chart-container {
+  background-color: #212529;
+  background-image: linear-gradient(to bottom right,#1f2227, #131418);
+  padding: 0;
+  filter: drop-shadow(2px 0px 4px black);
+  margin: 1% 10%;
+  border: 2px solid white;
+}

@@ -1,0 +1,210 @@
+{
+    "active_members":
+    [
+        {"name": "Oksman", "country": "sweden", "rank": "First-Lieutenant"},
+        {"name": "Blu.", "country": "scotland", "rank": "Second-Lieutenant"},
+        {"name": "Pilgrim", "country": "england", "rank": "Sergeant"},
+        {"name": "Joona", "country": "finland", "rank": "Sergeant"},
+        {"name": "Filth", "country": "germany", "rank": "Corporal"},
+        {"name": "Rutters", "country": "england", "rank": "Corporal"},
+        {"name": "Juan Sanchez", "country": "slovakia", "rank": "Lance-Corporal"},
+        {"name": "Unionjak", "country": "england", "rank": "Lance-Corporal"},
+        {"name": "Parker", "country": "england", "rank": "Specialist"},
+        {"name": "Eric", "country": "netherlands", "rank": "Private-Second-Class"},
+        {"name": "ThecMaster", "country": "sweden", "rank": "Private-Second-Class"},
+        {"name": "Sam", "country": "england", "rank": "Private-Second-Class"},
+        {"name": "YeyoMan", "country": "england", "rank": "Private"},
+        {"name": "Sophie", "country": "england", "rank": "Private"},
+        {"name": "Hoofed", "country": "england", "rank": "Private"},
+        {"name": "Henkka", "country": "finland", "rank": "Private"},
+        {"name": "Muki", "country": "finland", "rank": "Private"},
+        {"name": "Arron", "country": "england", "rank": "Private"},
+        {"name": "Phanatik", "country": "england", "rank": "Private"},
+        {"name": "Alquiet", "country": "azerbajan", "rank": "Recruit"},
+        {"name": "Meeri", "country": "germany", "rank": "Recruit"}
+    ],
+
+    "reserve_members":
+    [
+        {"name": "Apollo", "country": "netherlands"},
+        {"name": "Knight", "country": "ireland"},
+        {"name": "Panda", "country": "england"},
+        {"name": "Sputnik", "country": "norway"},
+        {"name": "Dust", "country": "italy"},
+        {"name": "Whyze", "country": "hungary"},
+        {"name": "KristerKry", "country": "germany"},
+        {"name": "Will", "country": "england"},
+        {"name": "Flay", "country": "hungary"},
+        {"name": "Signed", "country": "turkey"},
+        {"name": "Camel", "country": "latvia"},
+        {"name": "Bio", "country": "england"},
+        {"name": "Oslay", "country": "england"},
+        {"name": "Sokkada", "country": "netherlands"},
+        {"name": "IsraelBril", "country": "israel"},
+        {"name": "Jester", "country": "turkey"}
+    ],
+
+    "orbat":
+    [
+        {
+            "name": "Oksman",
+            "image": "img/nation/sweden.png",
+            "rank": "First Lieutenant",
+            "id": "O-0001",
+            "parentId": "",
+            "nick": ""
+        },
+        {
+            "name": "Blu.",
+            "image": "img/nation/scotland.png",
+            "rank": "Second Lieutenant",
+            "id": "O-0002",
+            "parentId": "O-0001",
+            "nick": ""
+        },
+        {
+            "name": "Pilgrim",
+            "image": "img/nation/england.png",
+            "rank": "Sergeant",
+            "id": "N-0003",
+            "parentId": "O-0001",
+            "nick": ""
+        },
+        {
+            "name": "Joona",
+            "image": "img/nation/finland.png",
+            "rank": "Sergeant",
+            "id": "N-0004",
+            "parentId": "O-0001",
+            "nick": "AT Lord"
+        },
+        {
+            "name": "Filth",
+            "image": "img/nation/germany.png",
+            "rank": "Corporal",
+            "id": "N-0005",
+            "parentId": "O-0001",
+            "nick": ""
+        },
+        {
+            "name": "Rutters",
+            "image": "img/nation/england.png",
+            "rank": "Corporal",
+            "id": "N-0006",
+            "parentId": "O-0001",
+            "nick": ""
+        },
+        {
+            "name": "Hoofed",
+            "image": "img/nation/england.png",
+            "rank": "Airman",
+            "id": "E-0007",
+            "parentId": "O-0002",
+            "nick": ""
+        },
+        {
+            "name": "ThecMaster",
+            "image": "img/nation/sweden.png",
+            "rank": "Airman",
+            "id": "E-0008",
+            "parentId": "O-0002",
+            "nick": ""
+        },
+        {
+            "name": "Juan Sanchez",
+            "image": "img/nation/slovakia.png",
+            "rank": "Lance Corporal",
+            "id": "E-0009",
+            "parentId": "N-0003",
+            "nick": ""
+        },
+        {
+            "name": "Unionjak",
+            "image": "img/nation/england.png",
+            "rank": "Lance Corporal",
+            "id": "E-0010",
+            "parentId": "N-0003",
+            "nick": ""
+        },
+        {
+            "name": "Parker",
+            "image": "img/nation/england.png",
+            "rank": "Specialist",
+            "id": "E-0011",
+            "parentId": "E-0010",
+            "nick": ""
+        },
+        {
+            "name": "Eric",
+            "image": "img/nation/netherlands.png",
+            "rank": "Private Second Class",
+            "id": "E-0012",
+            "parentId": "E-0009",
+            "nick": ""
+        },
+        {
+            "name": "Sam",
+            "image": "img/nation/england.png",
+            "rank": "Private Second Class",
+            "id": "E-0013",
+            "parentId": "E-0009",
+            "nick": ""
+        },
+        {
+            "name": "YeyoMan",
+            "image": "img/nation/england.png",
+            "rank": "Private",
+            "id": "E-0014",
+            "parentId": "E-0009",
+            "nick": ""
+        },
+        {
+            "name": "Sophie",
+            "image": "img/nation/england.png",
+            "rank": "Private",
+            "id": "E-0015",
+            "parentId": "E-0009",
+            "nick": ""
+        },
+        {
+            "name": "Henkka",
+            "image": "img/nation/finland.png",
+            "rank": "Private",
+            "id": "E-0016",
+            "parentId": "E-0010",
+            "nick": ""
+        },
+        {
+            "name": "Arron",
+            "image": "img/nation/england.png",
+            "rank": "Private",
+            "id": "E-0018",
+            "parentId": "E-0010",
+            "nick": ""
+        },
+        {
+            "name": "Phanatik",
+            "image": "img/nation/england.png",
+            "rank": "Private",
+            "id": "E-0019",
+            "parentId": "E-0010",
+            "nick": ""
+        },
+        {
+            "name": "Alquiet",
+            "image": "img/nation/azerbaijan.png",
+            "rank": "Private",
+            "id": "E-0020",
+            "parentId": "E-0010",
+            "nick": ""
+        },
+        {
+            "name": "Meeri",
+            "image": "img/nation/germany.png",
+            "rank": "Private",
+            "id": "E-0021",
+            "parentId": "E-0010",
+            "nick": ""
+        }
+    ]
+}

@@ -1,16 +1,16 @@
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const mongo = require('mongodb');
-var url = "mongodb://localhost:27017/";
-var client = new mongo.MongoClient(url);
-var dbname = 'members';
+// const mongo = require('mongodb');
+// var url = "mongodb://localhost:27017/";
+// var client = new mongo.MongoClient(url);
+// var dbname = 'members';
 
-MongoClient.connect(url, function(err,db) {
-    if (err) throw err;
-    console.log("Database Connected!");
-    db.close()
-});
+// MongoClient.connect(url, function(err,db) {
+//     if (err) throw err;
+//     console.log("Database Connected!");
+//     db.close()
+// });
 
 const app = express();
 
@@ -63,6 +63,10 @@ app.get('/discord', (req,res) => {
 app.get('/profile:name', (req,res) => {
     var playerN = req.params.name;
     res.render('pages/profile', {memberName: playerN});
+});
+
+app.get('/orbat', (req,res) => {
+    res.render('pages/roster_new');
 });
 
 app.get('*', (req,res) => {
