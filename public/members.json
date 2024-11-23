@@ -83,7 +83,7 @@
             "image": "img/nation/germany.png",
             "rank": "Corporal",
             "id": "N-0005",
-            "parentId": "O-0001",
+            "parentId": "N-0004",
             "nick": ""
         },
         {
@@ -91,7 +91,7 @@
             "image": "img/nation/england.png",
             "rank": "Corporal",
             "id": "N-0006",
-            "parentId": "O-0001",
+            "parentId": "N-0003",
             "nick": ""
         },
         {
@@ -115,7 +115,7 @@
             "image": "img/nation/slovakia.png",
             "rank": "Lance Corporal",
             "id": "E-0009",
-            "parentId": "N-0003",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -123,7 +123,7 @@
             "image": "img/nation/england.png",
             "rank": "Lance Corporal",
             "id": "E-0010",
-            "parentId": "N-0003",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -131,7 +131,7 @@
             "image": "img/nation/england.png",
             "rank": "Specialist",
             "id": "E-0011",
-            "parentId": "E-0010",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -139,7 +139,7 @@
             "image": "img/nation/netherlands.png",
             "rank": "Private Second Class",
             "id": "E-0012",
-            "parentId": "E-0009",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -147,7 +147,7 @@
             "image": "img/nation/england.png",
             "rank": "Private Second Class",
             "id": "E-0013",
-            "parentId": "E-0009",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -155,7 +155,7 @@
             "image": "img/nation/england.png",
             "rank": "Private",
             "id": "E-0014",
-            "parentId": "E-0009",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -163,7 +163,7 @@
             "image": "img/nation/england.png",
             "rank": "Private",
             "id": "E-0015",
-            "parentId": "E-0009",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -171,7 +171,7 @@
             "image": "img/nation/finland.png",
             "rank": "Private",
             "id": "E-0016",
-            "parentId": "E-0010",
+            "parentId": "N-0005",
             "nick": ""
         },
         {
@@ -179,7 +179,7 @@
             "image": "img/nation/england.png",
             "rank": "Private",
             "id": "E-0018",
-            "parentId": "E-0010",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -187,7 +187,7 @@
             "image": "img/nation/england.png",
             "rank": "Private",
             "id": "E-0019",
-            "parentId": "E-0010",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -195,7 +195,7 @@
             "image": "img/nation/azerbaijan.png",
             "rank": "Private",
             "id": "E-0020",
-            "parentId": "E-0010",
+            "parentId": "N-0006",
             "nick": ""
         },
         {
@@ -203,7 +203,7 @@
             "image": "img/nation/germany.png",
             "rank": "Private",
             "id": "E-0021",
-            "parentId": "E-0010",
+            "parentId": "N-0006",
             "nick": ""
         }
     ]
