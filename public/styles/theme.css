@@ -67,11 +67,11 @@ body {
 #front-logo {
   filter: drop-shadow(2px 4px 6px black);
   height: 28vh;
+  transition: transform 0.5s;
 }
 
 #front-logo:hover {
-  scale: 1.1;
-  transition: scale 0.5s;
+  transform: scale(1.1);
 }
 
 .mainHead {
