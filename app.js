@@ -1,16 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-// const mongo = require('mongodb');
-// var url = "mongodb://localhost:27017/";
-// var client = new mongo.MongoClient(url);
-// var dbname = 'members';
-
-// MongoClient.connect(url, function(err,db) {
-//     if (err) throw err;
-//     console.log("Database Connected!");
-//     db.close()
-// });
+const db = require('./database.js');
 
 const app = express();
 
@@ -27,14 +18,6 @@ app.use(bodyParser.urlencoded({
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
-
-var db;
-
-async function connectDB() {
-    client.connect();
-
-    db = client.db('members');
-}
 
 app.get('/', (req,res) => {
     res.render('pages/index');
@@ -60,13 +43,26 @@ app.get('/discord', (req,res) => {
     res.redirect('https://discord.gg/fS6AppB8kg');
 });
 
-app.get('/profile:name', (req,res) => {
-    var playerN = req.params.name;
-    res.render('pages/profile', {memberName: playerN});
+app.get('/profile', (req,res) => {
+    var playerN = req.query.name;
+    // console.log(req.query.name);
+    res.render('pages/profile');
 });
 
-app.get('/orbat', (req,res) => {
-    res.render('pages/roster_new');
+app.get('/memberinfo', async (req,res) => {
+    var member = await db.getMember(req.query.name);
+    // console.log(req.query.name);
+    res.send(member);
+});
+
+app.get('/getmembers', async (req,res) => {
+    const members = await db.getMembers();
+    res.send(members);
+});
+
+app.get('/orbat', async (req,res) => {
+    const data = await db.getMembers();
+    res.render('pages/roster_new', {data: data});
 });
 
 app.get('*', (req,res) => {

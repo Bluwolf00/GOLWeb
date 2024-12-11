@@ -109,8 +109,12 @@ function iterate(data) {
 }
 
 function addToRoster(memberName,country,container) {
-    elements = '<div class="row mb-3"><div class="col-sm-6"><p class="lead roster-user"><a href="#">'+memberName+'</a></p></div><div class="col-sm-2"><img class="nation-img" src="img/nation/'+country+'.png" alt="england"></div></div>';
-
+    
+    if (container.id != 'rsv-con') {
+    elements = '<div class="row mb-3"><div class="col-sm-6"><p class="lead roster-user"><a href="/profile?name='+memberName+'">'+memberName+'</a></p></div><div class="col-sm-2"><img class="nation-img" src="img/nation/'+country+'.png" alt="england"></div></div>';
+    } else {
+        elements = '<div class="row mb-3"><div class="col-sm-6"><p class="lead roster-user"><a href="#">'+memberName+'</a></p></div><div class="col-sm-2"><img class="nation-img" src="img/nation/'+country+'.png" alt="england"></div></div>';
+    }
     container.innerHTML += elements;
 }
 

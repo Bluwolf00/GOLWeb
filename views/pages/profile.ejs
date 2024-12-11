@@ -12,35 +12,52 @@
 </head>
 
 <div class="container">
-    <%- include('../partials/headernav', {pageTitle: "SOP"}) %>
+    <%- include('../partials/headernav', {pageTitle: "Profile"}) %>
   </div>
 
 <body>
     <main>
         <div class="container my-5 text-center">
-            <h1 class="mainHead fw-bold">Member Profile</h1>
-        </div>
-
-        <div class="container my-5">
             <div class="row">
-                <div class="col-sm-6">
-                    <img src=<%= countryPath %> alt="" id="countryImg">
+                <div class="col-4">
+                    <div id="profileImgDiv">
+                        <img src="" alt="" id="profileImg">
+                        <img src="" alt="" id="rankImg">
+                    </div>
                 </div>
-    
-                <div class="col-lg-9">
-                    <h2>Name: <span id="playerName"><%= memberName %></span></h2>
-                    <h3>Country: <span id="playerCountry"><%= memberCountry %></span></h3>
-                    <h3>Status: <span id="playerStatus"><%= memberStatus %></span></h3>
-                    <h3>Joined: <span id="playerJoin"><%= memberJoined %></span></h3>
-                    <h3>Current Rank: <span id="playerRank"><%= memberRank %></span></h3>
-                    <h3>Held Since: <span id="playerPromotion"><%= promoted %></span></h3>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col" id="pNameElement"><p><span id="playerRank">RANK</span> <span id="playerName">Placeholder</span></p></div>
+                    </div>
+                    <div class="row">
+                        <div class="col pinfoElement leftInfoElement"><p><span class="label">Time in Service:</span> <span id="playerJoin"></span></p></div>
+                        <div class="col pinfoElement"><p><span class="label">Status:</span> <span id="playerStatus">Active</span></p></div>
+                    </div>
+                    <div class="row">
+                        <div class="col pinfoElement leftInfoElement"><p><span class="label">Time in Rank:</span> <span id="playerPromotion"></span></p></div>
+                        <div class="col pinfoElement"><p><span class="label">Country:</span> <span id="playerCountry"></span></p></div>
+                    </div>
                 </div>
+            </div>
+            <div class="row profileHero">
+                <div class="col border-top"><div id="badgeDiv">
+                    <h2>Badges</h2>
+                </div>
+            </div>
+            </div>
+            <div class="row profileHero">
+                <div class="col border-top"><div id="qualDiv">
+                    <h2>Qualifications</h2>
+                </div>
+            </div>
             </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
         </script>
+
+        <script src="scripts/popprofile.js"></script>
     </main>
 </body>
 
