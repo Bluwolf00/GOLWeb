@@ -47,7 +47,7 @@ function getProfile() {
                 } else {
                     playerJoin = getYearsBetween(new Date(data.DateOfJoin), new Date()) + ' Years ' + getMonthsBetween(new Date(data.DateOfJoin), new Date()) + ' Months';
                 }
-                
+
                 if (data.DateOfPromo === null) {
                     playerPromotion = playerJoin;
                 } else {
@@ -56,7 +56,7 @@ function getProfile() {
             } catch (error) {
                 console.log('No Date of Join or Promotion: %d', error);
             }
-            countryPath = 'img/nation/' + data.Country + '.png';
+            countryPath = 'img/nation/' + data.Country.toLowerCase() + '.png';
             rankPath = data.rankPath;
             updateProfile();
         });

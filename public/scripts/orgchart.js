@@ -22,7 +22,7 @@ function createOrg(data) {
                                 <div style="color:#FFFFFF;display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${d.data.nodeId}</div>
                                 <div style="display:flex;justify-content:flex-end;margin-top:5px">   <img src=" ${d.data.rankPath}" style="margin-right:${8}px;border-radius:0px;width:25px;height:25px;" /></div>
                                 <div style="background-color:${color};margin-top:${-imageDiffVert - 32}px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;" ></div>
-                                <div style="margin-top:${-imageDiffVert - 32}px;">   <img src=" ${'img/nation/'+d.data.Country+'.png'}" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" /></div>
+                                <div style="margin-top:${-imageDiffVert - 32}px;">   <img src="${'img/nation/'+d.data.Country.toLowerCase()+'.png'}" style="margin-left:${20}px;border-radius:100px;width:40px;height:40px;" /></div>
                                 <div class='name-div'><a href='/profile?name=${d.data.UName}'>  ${d.data.UName
                 } </a></div>
                                     <div style="color:${textcolor};margin-left:20px;margin-top:3px;font-size:10px;"> ${d.data.rankName
