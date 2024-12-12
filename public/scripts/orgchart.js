@@ -52,6 +52,10 @@ function createOrg(data) {
 fetch('/getmembers')
     .then(res => res.json())
     .then(data => {
-        // console.log(data);
-        createOrg(data)
+        var newdata = data.filter(function (el) {
+            if (el.nodeId != null) {
+                return el;
+            }
+        });
+        createOrg(newdata)
     });
