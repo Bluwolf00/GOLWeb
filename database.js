@@ -41,8 +41,8 @@ async function getMemberBadges(name) {
     try {
         rows = await pool.query(`
             SELECT badgeName,badgePath,isQualification,DateAcquired
-            FROM badges,memberbadges,Members
-            WHERE Members.UName = ? AND Members.MemberID = memberbadges.memberID AND memberbadges.badgeID = badges.badgeID
+            FROM Badges,MemberBadges,Members
+            WHERE Members.UName = ? AND Members.MemberID = MemberBadges.MemberID AND MemberBadges.badgeID = Badges.badgeID
             ORDER BY isQualification ASC`, [name])
         } catch (error) {
             console.log(error);
