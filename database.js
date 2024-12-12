@@ -30,7 +30,27 @@ async function getMember(name) {
             return rows[0]
         }
 }
-module.exports = { getMembers, getMember };
+
+async function getBadges() {
+    const [rows] = await pool.query('SELECT badgeName,badgePath,isQualification FROM badges')
+    return rows
+}
+
+async function getMemberBadges(name) {
+    var rows = [null];
+    try {
+        rows = await pool.query(`
+            SELECT badgeName,badgePath,isQualification,DateAcquired
+            FROM badges,memberbadges,Members
+            WHERE Members.UName = ? AND Members.MemberID = memberbadges.memberID AND memberbadges.badgeID = badges.badgeID
+            ORDER BY isQualification ASC`, [name])
+        } catch (error) {
+            console.log(error);
+        } finally {
+            return rows
+        }
+}
+module.exports = { getMembers, getMember, getMemberBadges };
 
 
 // async function getMember(name) {

@@ -55,6 +55,11 @@ app.get('/memberinfo', async (req,res) => {
     res.send(member);
 });
 
+app.get('/memberbadges', async (req,res) => {
+    var badges = await db.getMemberBadges(req.query.name);
+    res.send(badges);
+});
+
 app.get('/getmembers', async (req,res) => {
     const members = await db.getMembers();
     res.send(members);

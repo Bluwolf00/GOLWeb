@@ -344,6 +344,29 @@ footer {
   filter: drop-shadow(2px 4px 6px black);
 }
 
+.badgeImg {
+  width: 15em;
+  filter: drop-shadow(2px 4px 6px black);
+  transition: transform 0.7s;
+}
+
+.badgeImg:hover {
+  transform: scale(1.1);
+}
+
+.badgeCap {
+  font-size: 0.8rem;
+  font-weight: lighter;
+}
+
+#badgeDiv {
+  margin: 2em 0;
+}
+
+#qualDiv {
+  margin: 2em 0;
+}
+
 
 /* Medias */
 
