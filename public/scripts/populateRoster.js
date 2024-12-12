@@ -1,4 +1,4 @@
-function iterate(data) {
+function iterate() {
 
     fetch('/getmembers')
     .then(res => res.json())
@@ -97,5 +97,5 @@ function takeJSON() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    iterate(data)
+    iterate()
 }, false);
