@@ -37,8 +37,8 @@ function getAllBadges() {
             data.forEach(badge => {
                 badgeName = badge.badgeName;
                 badgeDescription = badge.badgeDescription;
-                if (badge.badgePath === null) {
-                    badge.badgePath = '';
+                if (badge.badgePath === null || badge.badgePath === '') {
+                    badge.badgePath = 'img/badge/Placeholder_Badge.png';
                 }
                 badgePath = badge.badgePath;
                 createCard(badgeName, badgeDescription, badgePath);
