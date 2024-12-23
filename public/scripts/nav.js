@@ -23,6 +23,10 @@ $(document).ready(function () {
             document.getElementById("orbatEntry").classList.add("active");
             break;
 
+        case "Badges":
+            document.getElementById("badgeEntry").classList.add("active");
+            break;
+
         default:
             break;
             // By default the active element won't be on any of the buttons, this includes for any pages that do not appear in the above conditions (error page etc.)

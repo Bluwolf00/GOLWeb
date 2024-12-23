@@ -13,7 +13,11 @@ const pool = mysql.createPool({
 // const result = await pool.query('SELECT * FROM Members')
 
 async function getMembers() {
-    const [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID')
+    var rows = [null];
+    [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID')
+    try {
+    } catch (error) {
+    }
     return rows
 }
 
@@ -32,7 +36,7 @@ async function getMember(name) {
 }
 
 async function getBadges() {
-    const [rows] = await pool.query('SELECT badgeName,badgePath,isQualification FROM badges')
+    const [rows] = await pool.query('SELECT badgeName,badgePath,isQualification,badgeDescription FROM badges ORDER BY isQualification,badgeName ASC')
     return rows
 }
 
@@ -50,7 +54,7 @@ async function getMemberBadges(name) {
             return rows
         }
 }
-module.exports = { getMembers, getMember, getMemberBadges };
+module.exports = { getMembers, getMember, getMemberBadges, getBadges };
 
 
 // async function getMember(name) {

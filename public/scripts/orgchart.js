@@ -8,8 +8,9 @@ function createOrg(data) {
         .compactMarginBetween((d) => 35)
         .compactMarginPair((d) => 30)
         .neighbourMargin((a, b) => 20)
-        .compact(false)
+        .compact(true)
         .pagingStep(10)
+        .initialExpandLevel(3)
         // .nodeId(() => 'orbatID')
         // .parentNodeId(() => "orbatParentID")
         .nodeContent(function (d, i, arr, state) {

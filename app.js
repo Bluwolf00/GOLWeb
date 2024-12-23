@@ -39,6 +39,10 @@ app.get('/SOP', (req,res) => {
     res.render('pages/sop');
 });
 
+app.get('/Badges', (req,res) => {
+    res.render('pages/badges');
+});
+
 app.get('/discord', (req,res) => {
     res.redirect('https://discord.gg/fS6AppB8kg');
 });
@@ -63,6 +67,11 @@ app.get('/memberbadges', async (req,res) => {
 app.get('/getmembers', async (req,res) => {
     const members = await db.getMembers();
     res.send(members);
+});
+
+app.get('/getBadges', async (req,res) => {
+    const badges = await db.getBadges();
+    res.send(badges);
 });
 
 app.get('/orbat', async (req,res) => {
