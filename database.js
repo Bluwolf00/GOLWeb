@@ -36,7 +36,7 @@ async function getMember(name) {
 }
 
 async function getBadges() {
-    const [rows] = await pool.query('SELECT badgeName,badgePath,isQualification,badgeDescription FROM badges ORDER BY isQualification,badgeName ASC')
+    const [rows] = await pool.query('SELECT badgeName,badgePath,isQualification,badgeDescription FROM Badges ORDER BY isQualification,badgeName ASC')
     return rows
 }
 
