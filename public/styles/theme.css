@@ -1,7 +1,19 @@
 :root {
-  --bs-primary: #2287ad !important;
+  --bs-primary: rgb(34, 135, 173) !important;
+  --bs-primary-rgb: transparent !important;
   --bs-btn-bg: #2287ad !important;
   --blu-bg: #212529;
+}
+
+svg.bi {
+  width: 1.5em;
+  height: 1.5em;
+  fill: rgb(222,226,230);
+}
+
+svg.icon-secondary {
+  width: 2em;
+  height: 2em;
 }
 
 .btn-primary {
@@ -163,9 +175,30 @@ body {
   color: #596068;
 }
 
+h3.fs-2 {
+  transition: color 0.3s;
+}
+
 h3.fs-2:hover {
   color: #2287ad;
+}
+
+.feature-icon {
+  transition: transform 0.3s;
+  transform-origin: 0% 50%;
+}
+
+.feature-icon:hover {
+  transform: scale(1.1);
+  cursor: text;
+}
+
+.feature > p {
   transition: color 0.3s;
+}
+
+.feature > p:hover {
+  color: var(--bs-body-color);
 }
 
 /* Roster Page */
