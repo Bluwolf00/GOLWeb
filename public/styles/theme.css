@@ -21,6 +21,10 @@ svg.icon-secondary {
   --bs-btn-border-color: var(--bs-primary) !important;
 }
 
+.nav {
+  align-content: center;
+}
+
 .nav-pills .nav-link.active {
   background-color: #2287ad;
 }
