@@ -4,45 +4,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GOL Home</title>
+    <title>GOL Roster</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/theme.css">
     <script src="scripts/logoHover.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    <style>
-        .col-sm-6 {
-            text-align: right;
-        }
-
-        .col-sm-2 {
-            text-align: left;
-        }
-    </style>
+    <script src="scripts/populateRoster.js"></script>
 </head>
 
 <div class="container">
-    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-            <span class="fs-4"><img id="navIcon" src="img/logo_new.png" alt="logo" height="40"></span>
-            <span class="fs-4">Guerrillas Of Liberation</span>
-        </a>
-
-        <ul class="nav nav-pills">
-            <li class="nav-item"><a href="index.html" class="nav-link" aria-current="page">Home</a></li>
-            <li class="nav-item"><a href="roster.html" class="nav-link active">Roster</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">SOPs</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Join</a></li>
-        </ul>
-    </header>
-</div>
+    <%- include('../partials/headernav', {pageTitle: "Roster"}) %>
+  </div>
 
 <body>
     <main>
         <div class="container my-5 text-center">
 
-            <h1 class="mb-5">Guerrillas Of Liberation <br> Platoon Roster</h1>
+            <!-- <h1 class="mainHead">Guerrillas Of Liberation <br> Platoon Roster</h1> -->
+            <h1>GUERRILLAS OF LIBERATION <br> PLATOON ROSTER</h1>
+
+            <p class="lead">The roster is a simple list of both the Hellfish and any additional squad's members</p>
 
             <div class="row align-items-center mb-5">
                 <div class="col">
@@ -56,33 +39,20 @@
                     <img class="rank-icon" src="img/rank/1LT.png" alt="1LT" />
                     <p class="h3 rank-title border-bottom">First Lieutenant</p>
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Oksman</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img class="nation-img" src="img/nation/sweden.png" alt="sweden">
-                            </div>
-                        </div>
+                    <div class="container" id="1lt-con">
+
                     </div>
+
                 </div>
             </div>
 
             <div class="row align-items-center mb-4">
                 <div class="col">
-                    <img class="rank-icon" src="img/rank/2LT.png" alt="2LT">
+                    <img class="rank-icon" src="img/rank/2LT_new.png" alt="2LT">
                     <p class="h3 rank-title border-bottom">Second Lieutenant</p>
+                    
+                    <div class="container" id="2lt-con">
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Blu.</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img class="nation-img" src="img/nation/scotland.png" alt="scotland">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -92,33 +62,8 @@
                     <img class="rank-icon" src="img/rank/Sgt.png" alt="SGT">
                     <p class="h3 rank-title border-bottom">Sergeant</p>
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Pilgrim</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img class="nation-img" src="img/nation/england.png" alt="england">
-                            </div>
-                        </div>
+                    <div class="container" id="sgt-con">
 
-                        <div class="row mb-3">
-                            <div class="col-sm-6 ">
-                                <p class="lead roster-user"><a href="#">Juan Sanchez</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/slovakia.png" alt="Slovakia" class="nation-img">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                    <p class="lead roster-user"><a href="#">Joona</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/finland.png" alt="Finalnd" class="nation-img">
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -128,24 +73,84 @@
                     <img src="img/rank/Cpl.png" alt="CPL" class="rank-icon">
                     <p class="h3 rank-title border-bottom">Corporal</p>
 
-                    <div class="container">
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Filth</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/germany.png" alt="Germany" class="nation-img">
-                            </div>
-                        </div>
+                    <div class="container" id="cpl-con">
 
-                        <div class="row mb-3">
-                            <div class="col-sm-6">
-                                <p class="lead roster-user"><a href="#">Rutters</a></p>
-                            </div>
-                            <div class="col-sm-2">
-                                <img src="img/nation/england.png" alt="England" class="nation-img">
-                            </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/LCpl.png" alt="LCPL" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Lance Corporal</p>
+
+                    <div class="container" id="lcpl-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/Spc.png" alt="SPC" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Specialist</p>
+                    
+                    <div class="container" id="spc-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/PFC.png" alt="PFC" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Private First Class</p>
+
+                    <div class="container" id="pfc-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/PSC.png" alt="PFC" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Private Second Class</p>
+
+                    <div class="container" id="psc-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/P.png" alt="P" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Private</p>
+
+                    <div class="container" id="pvt-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <img src="img/rank/R.png" alt="R" class="rank-icon">
+                    <p class="h3 rank-title border-bottom">Recruit</p>
+
+                    <div class="container" id="rct-con">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <p class="h2 rank-title border-bottom">Reserves</p>
+
+                    <div class="container" id="rsv-con">
+
                     </div>
                 </div>
             </div>
@@ -154,8 +159,11 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
         </script>
-        <script src="main.js"></script>
     </main>
+    
+  <footer>
+    <%- include('../partials/footer') %>
+  </footer>
 </body>
 
 </html>
