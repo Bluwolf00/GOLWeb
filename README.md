@@ -3,7 +3,7 @@
     <br/>
     <br/>
     <a href="https://gol-clan.com/home">
-        <img src="https://github.com/Bluwolf00/GOLWeb/blob/main/public/img/gol-logo.png?raw=true" alt="GOL Logo" height="400">
+        <img src="https://github.com/Bluwolf00/GOLWeb/blob/main/public/img/gol-logo.png?raw=true" alt="GOL Logo" height="300">
     </a>
     </h1>
 </div>
@@ -13,7 +13,7 @@
 <a><img src="https://img.shields.io/github/commit-activity/t/Bluwolf00/GolWeb"></img></a>
 <a href="https://github.com/Bluwolf00/GOLWeb/issues"><img src="https://img.shields.io/github/issues-raw/Bluwolf00/GolWeb"></img></a>
 <a href="https://gol-clan.com/home"><img src="https://img.shields.io/badge/Website-Click_Me-blue"></img></a>
-<a href="discord.gg/k9BfvVjtYv"><img src="https://img.shields.io/discord/437979456196444161?label=Discord&color=%23BA55D3"></img></a>
+<a href="https://discord.gg/k9BfvVjtYv"><img src="https://img.shields.io/discord/437979456196444161?label=Discord&color=%23BA55D3"></img></a>
 </div>
 
 ## Introduction
@@ -47,7 +47,7 @@ The site contains a variety of different features.
 - Join link - Direct link toward the community discord where most of the organisation and logistics is maintained.
 - Use of Database - The website uses a database for any persistant data and relations such as member details and awards.
 
-> **Important Note**: Sensitive member details such as: Real name, contact details and other personal information are **NOT** stored anywhere within this system. There is no requirement as of yet for this information, though, if the need for such information is ever present. Proper processes will be followed to ensure security and protection of said data.
+> **Important Note**: Sensitive member details such as: Real name, contact details and other personal information are **NOT** stored anywhere within this system. There is no requirement as of yet for this information. However, if the need for such information ever arises, proper processes will be followed to ensure security and protection of said data.
 
 ## Planned Features
 TBA
