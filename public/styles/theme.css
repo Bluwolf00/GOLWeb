@@ -411,6 +411,10 @@ footer {
   margin: 2em 0;
 }
 
+#badgeDiv > div.row {
+  align-items: center !important;
+}
+
 #qualDiv {
   margin: 2em 0;
 }
