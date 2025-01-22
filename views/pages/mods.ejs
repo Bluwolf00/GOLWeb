@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GOL Mods</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/theme.css">
+    <link rel="stylesheet" href="styles/mods.css">
+    <script src="scripts/logoHover.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+
+<div class="container">
+    <%- include('../partials/headernav', {pageTitle: "Mods"}) %>
+</div>
+
+<body>
+    <main>
+        <div class="container my-5 text-center">
+            <div class="row">
+                <div class="col-md">
+                    <h1 class="mainHead fw-bold">Addons</h1>
+                    <p class="lead">We use a large pool of addons/mods in order to provide better immersion, gameplay and realism for the game. <br/>Below is a breakdown of our current modset.</p>
+                    <span class="lead highlight">(January 2025 Modset)</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md">
+                    <br>
+                    <h2>Statistics</h2>
+
+                    <div class="container" id="stats">
+                        <div class="row">
+                            <div class="col-sm">
+                                <p class="lead">Total Modset Size:</p>
+                            </div>
+                            <div class="col">
+                                <span class="lead highlight">62.76GB</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm">
+                                <p class="lead">Total Addon Count:</p>
+                            </div>
+
+                            <div class="col">
+                                <span id="modCount" class="lead highlight"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm">
+                                <p class="lead">Information accurate as of:</p>
+                            </div>
+                            <div class="col">
+                                <span class="lead highlight">January 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <div class="standout">
+                        <ul id="modList">
+                            <div class="row">
+                                <div class="col-md">
+                                    <h3>Core Mods</h3>
+
+                                    <li>CBA_A3</li>
+                                    <li>ACE 3</li>
+                                    <li>Task Force Arrowhead Radio (BETA!!!)</li>
+                                    <li>DUI - Squad Radar</li>
+                                    <li>GW</li>
+                                    <br>
+                                    <h3>Main Content Mods</h3>
+                                    <li>RHSAFRF</li>
+                                    <li>RHSUSAF</li>
+                                    <li>RHSGREF</li>
+                                    <li>RHSSAF</li>
+                                    <li>CUP Terrains - Core</li>
+                                    <li>CUP Terrains - Maps</li>
+                                    <li>CUP Terrains - Maps 2.0</li>
+                                    <li>3CB BAF Weapons</li>
+                                    <li>3CB BAF Vehicles</li>
+                                    <li>3CB Factions</li>
+                                    <li>Ample Camo Pack - GOL Version</li>
+                                    <li>FIR AWS</li>
+                                </div>
+                                <div class="col-md">
+                                    <h3>Additional Maps Mods</h3>
+
+                                    <li>Fallujah 2.0</li>
+                                    <li>Fallujah 2.0 - Patch/Fix Unoffical</li>
+                                    <li>Virolahti - Valtatie 7</li>
+                                    <li>Anizay</li>
+                                    <li>Kujari</li>
+                                    <li>Pulau</li>
+                                    <li>Ruha</li>
+                                    <li>Stubbhult</li>
+                                    <li>Vinjesvingen</li>
+                                    <li>Novogorsk</li>
+                                    <li>Kunduz River</li>
+                                    <li>Korsac</li>
+
+                                    <br>
+                                    <h3>AI Mods</h3>
+
+                                    <li>LAMBS_Danger.fsm</li>
+                                    <li>LAMBS_Suppression</li>
+                                    <li>LAMBS_Turrets</li>
+                                    <li>LAMBS_RPG</li>
+                                    <li>LAMBS_RPG_RHS</li>
+                                </br>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md">
+                                    <h3>Realism &amp; Tactical Mods</h3>
+
+                                    <li>Enhanced Movement</li>
+                                    <li>Enhanced Movement Rework</li>
+                                    <li>Advanced Rappelling</li>
+                                    <li>CQB Weapon Stance</li>
+                                    <li>cTab NSWDG Edition</li>
+                                    <li>Gruppe Adler Trenches</li>
+                                    <li>Chameleon Trenches</li>
+                                    <li>Foxholes</li>
+                                    <li>Realistic Mine Detector</li>
+                                    <li>42 Commando Common</li>
+                                    <li>42 Commando VS17 Marker Panels</li>
+                                    <li>Drongos Active Protection System</li>
+                                    <li>TFAR Scribbles</li>
+
+                                    <br>
+                                    <h3>3DEN &amp; Zeus Improvement Mods</h3>
+
+                                    <li>3den Enhanced</li>
+                                    <li>Zeus Enhanced</li>
+                                    <li>Deformer</li>
+                                    <li>Trencher - Eden Trench Generation</li>
+                                    <li>HeatMap - Editor Extension</li>
+                                </div>
+
+                                <div class="col-md">
+                                    <h3>Miscellanous Content Mods</h3>
+
+                                    <li>RKSL Studios - Attachments v3.02</li>
+                                    <li>GGE: Core</li>
+                                    <li>MrSanchez' Headlamps</li>
+                                    <li>Simple Armbands</li>
+                                    <li>Hartman's Armbands</li>
+                                    <li>HMDs Mod</li>
+                                    <li>HMDs - RHS</li>
+                                    <li>RHS LittleBirds 2.0</li>
+                                    <li>Country Flags (Insignias)</li>
+                                    <li>Ultimate Flag Patches - UFP</li>
+                                    <li>USP Flags &amp; Markers</li>
+                                    <li>ILBE Assault Pack (TFAR)</li>
+                                    <li>FRXA's TFAR Extra Retextured Equipment</li>
+                                    <li>RHICC (Rigid Hull Inflatable Commando Craft)</li>
+                                    <li>Modular Shoothouse Parts</li>
+                                    <li>Milsim Structures</li>
+                                    <li>Munitions Armoury</li>
+                                    <li>JCA - Infantry Arsenal</li>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md">
+                                    <br>
+                                    <h3>Client Improvement Mods</h3>
+
+                                    <li>Reduced Haze Mod</li>
+                                    <li>BettIR</li>
+                                    <li>Turret Enhanced</li>
+                                    <li>A3 Thermal Improvement</li>
+                                    <li>Fawks' Enhanced NVGs</li>
+                                    <li>TFAR Scribbles</li>
+                                    <li>Animate - Radio</li>
+                                    <li>Simple Suppress</li>
+
+                                </div>
+
+                                <div class="col-md">
+                                    <br>
+                                    <h3>Compatibility</h3>
+
+                                    <li>Zeus Enhanced - ACE 3 Compatibility</li>
+                                    <li>CUP ACE3 Compatibility Addon - Terrains</li>
+                                    <li>Terrain Lib</li>
+                                    <li>Speshal Core</li>
+                                </div>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+        </script>
+    </main>
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+
+    <script>
+        document.getElementById("modCount").innerHTML = 0;
+        var liList = document.getElementById("modList").getElementsByTagName("li");
+        document.getElementById("modCount").innerHTML = liList.length;
+    </script>
+</body>
+
+</html>
