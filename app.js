@@ -53,6 +53,17 @@ app.get('/profile', (req,res) => {
     res.render('pages/profile');
 });
 
+app.get('/mods', async (req,res) => {
+    res.render('pages/mods');
+});
+
+app.get('/orbat', async (req,res) => {
+    const data = await db.getMembers();
+    res.render('pages/roster_new', {data: data});
+});
+
+// GET REQUESTS
+
 app.get('/memberinfo', async (req,res) => {
     var member = await db.getMember(req.query.name);
     // console.log(req.query.name);
@@ -72,11 +83,6 @@ app.get('/getmembers', async (req,res) => {
 app.get('/getBadges', async (req,res) => {
     const badges = await db.getBadges();
     res.send(badges);
-});
-
-app.get('/orbat', async (req,res) => {
-    const data = await db.getMembers();
-    res.render('pages/roster_new', {data: data});
 });
 
 app.get('*', (req,res) => {
