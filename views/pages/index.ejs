@@ -223,17 +223,17 @@
               <div class="card shadow-sm">
                 <a href="#">
                   <!-- <svg class="bd-placeholder-img card-img-top video-thumb" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg> -->
-                  <iframe width="100%" height="225" src="https://www.youtube.com/embed/Aqgo2FaI7TM?si=RmjYKEpEEqws5hk6" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <iframe width="100%" height="225" id="video-1-embed" src="" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </a>
                 <div class="card-body">
-                  <h3 class="card-title"><a href="#">Arma 3 Chernarus Break - The Finale!</a></h3>
-                  <p class="card-text">We finally conclude the Chernarus Break series with a bang!</p>
-                  <p class="card-author">By Oksman</p>
+                  <h3 class="card-title"><a href="#" id="video-1-title"></a></h3>
+                  <p class="card-text" id="video-1-desc"></p>
+                  <p class="card-author" id="video-1-author"></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group">
-                      <a href="https://www.youtube.com/watch?v=Aqgo2FaI7TM"><button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
+                      <a target="_blank" rel="noopener noreferrer" id="video-1-button" href=""><button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
                     </div>
-                    <small class="text-body-secondary">18 mins</small>
+                    <small class="text-body-secondary" id="video-1-duration"></small>
                   </div>
                 </div>
               </div>
@@ -241,17 +241,17 @@
             <div class="col">
               <div class="card shadow-sm">
                 <a href="#">
-                  <iframe width="100%" height="225" src="https://www.youtube.com/embed/FiA-vdguR54?si=uJWDFz2oxt2zKCEX" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <iframe width="100%" height="225" id="video-2-embed" src="" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </a>
                 <div class="card-body">
-                  <h3 class="card-title"><a href="#">Arma 3 Chernarus Break - Part 5</a></h3>
-                  <p class="card-text">We hastily fend off an enemy paradrop directly on top of us!</p>
-                  <p class="card-author">By Oksman</p>
+                  <h3 class="card-title"><a href="#" id="video-2-title"></a></h3>
+                  <p class="card-text" id="video-2-desc"></p>
+                  <p class="card-author" id="video-2-author"></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group">
-                      <a href="https://youtu.be/VhHkbsGEdIU"><button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
+                      <a target="_blank" rel="noopener noreferrer" id="video-2-button" href=""><button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
                     </div>
-                    <small class="text-body-secondary">20 mins</small>
+                    <small class="text-body-secondary" id="video-2-duration"></small>
                   </div>
                 </div>
               </div>
@@ -259,17 +259,17 @@
             <div class="col">
               <div class="card shadow-sm">
                 <a href="#">
-                  <iframe width="100%" height="225" src="https://www.youtube.com/embed/wT9Bob_E6CY?si=i6K8UwhLVceA_ZaQ" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <iframe width="100%" height="225" id="video-3-embed" src="" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </a>
                 <div class="card-body">
-                  <h3 class="card-title"><a href="#">Operation Desert Master</a></h3>
-                  <p class="card-text">A Mechanised Platoon uses 2 squads to push the enemy back!</p>
-                  <p class="card-author">By Pilgrim</p>
+                  <h3 class="card-title"><a href="#" id="video-3-title"></a></h3>
+                  <p class="card-text" id="video-3-desc"></p>
+                  <p class="card-author" id="video-3-author"></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="btn-group">
-                      <a href="https://youtu.be/wT9Bob_E6CY"><button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
+                      <a target="_blank" rel="noopener noreferrer" id="video-3-button" href=""><button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
                     </div>
-                    <small class="text-body-secondary">3 hours</small>
+                    <small class="text-body-secondary" id="video-3-duration"></small>
                   </div>
                 </div>
               </div>
@@ -283,6 +283,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
     </script>
+    <script src="scripts/popvideos.js"></script>
     <script src="scripts/loader.js"></script>
   </main>
 
