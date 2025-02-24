@@ -15,8 +15,8 @@ const pool = mysql.createPool({
 
 async function getMembers() {
     var rows = [null];
-    [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID')
     try {
+        [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID')
     } catch (error) {
     }
     return rows
