@@ -85,6 +85,11 @@ app.get('/getBadges', async (req,res) => {
     res.send(badges);
 });
 
+app.get('/getVideos', async (req,res) => {
+    const videos = await db.getVideos();
+    res.send(videos);
+});
+
 app.get('*', (req,res) => {
     res.render('pages/error');
 });
