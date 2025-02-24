@@ -8,7 +8,7 @@ function createOrg(data) {
             }
         })
         .linkUpdate(function (d, i, arr) {
-            console.log(d.parent.id == "root");
+            // console.log(d.parent.id == "root");
             d3.select(this)
             .attr("stroke", d => d.data._upToTheRootHighlighted ? '#E27396' : '#E4E2E9')
             .attr("stroke-width", d => d.data._upToTheRootHighlighted ? 5 : 1)
