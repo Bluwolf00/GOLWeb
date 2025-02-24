@@ -94,7 +94,7 @@ fetch('/getmembers')
         });
         var root = {
             nodeId: "root",
-            parentId: null,
+            parentNodeId: null,
             Country: "Sweden",
             rankName: "Root",
             rankPath: "",
@@ -102,7 +102,7 @@ fetch('/getmembers')
         }
         newdata.unshift(root);
 
-        console.log(newdata);
+        // console.log(newdata);
         
         createOrg(newdata)
     });
