@@ -9,53 +9,165 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/theme.css">
+    <link rel="stylesheet" href="styles/about.css">
     <script src="scripts/logoHover.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
 <div class="container">
     <%- include('../partials/headernav', {pageTitle: "About"}) %>
-  </div>
+</div>
 
 <body>
     <main>
-        <div class="container my-5 text-center">
-            <h1 class="mainHead fw-bold">About Us</h1>
+        <div class="container text-center">
+            <div class="px-4" id="front-hero">
+                <img id="front-logo" class="d-block mx-auto mb-4" src="img/logo_new.png" alt="">
+                <h1 class="fw-bold text-body-emphasis mainHead">Guerrillas of Liberation</h1>
+                <h1 class="fw-bold abtUs">About Us</h1>
+                </br>
+                <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Got a
+                        Question?</a></button>
+            </div>
         </div>
 
         <div class="container my-5">
+            <h3>Who are we?</h3>
             <p>
-                The Guerrillas of Liberation was founded in 2003 by a group of young guys. Since then it has gone through all the stages a online community can go through and still goes on today.
+                The Guerrillas of Liberation are an online military realism community that was founded in 2003 by a
+                group of young guys, making us one of the oldest groups in the ArmA community. The majority of our
+                members are based in Europe and come from all walks of life, whether they be a veteran, in active
+                service, a reservist or an enthusiast, we welcome all. Since 2003 the community has stood the test of
+                time, passing from one generation to the next, which brings us to today - <span
+                    style="color: rgb(212,61,37); font-weight: bold;">The latest iteration of the Guerrillas of
+                    Liberation.</span>
             </p>
 
-            <h3>Quick Points</h3>
-            <p>
-                We are a well-established group in the ArmA community, founded in 2003.<br>
-                We are a realism unit, but strike a great balance between realism and fun.<br>
-                We'll help you improve with training, and we take pride in seeing our members grow both individually and as team members.<br>
-                Our editors are always looking to create and improve our missions to provide a fun yet challenging experience!
-            </p>
+            <h4>The Leaders of GOL</h4>
+            <div class="timeline">
+                <div class="line"></div>
+                <!-- Leader Circles -->
+                <div class="circle" title="Chris">
+                    <span>
+                        <span class="name">Chris</span>
+                        <span class="date">(2003-2016)</span>
+                    </span>
+                </div>
+                <div class="circle" title="Filth">
+                    <span>
+                        <span class="name">Filth</span>
+                        <span class="date">(2016-2019)</span>
+                    </span>
+                </div>
+                <!-- <div class="circle" title="R4IDER">
+                    <span>
+                        <span class="name">R4IDER</span>
+                        <span class="date">(2019-2020)</span>
+                    </span>
+                </div> -->
+                <div class="circle" title="Pilgrim">
+                    <span>
+                        <span class="name">Pilgrim</span>
+                        <span class="date">(2019-2021)</span>
+                    </span>
+                </div>
+                <div class="circle" title="Oksman">
+                    <span>
+                        <span class="name">Oksman</span>
+                        <span class="date">(2021-Present)</span>
+                    </span>
+                </div>
+            </div>
 
-            <h3>Operations</h3>
-            <p>
-                Thursdays: (6:50PM - 10PM GMT) Is our Training night. We complete at least an hour long training on a specific subject, followed by an optional 2 hour mission.<br>
-                Sundays (5PM - 8PM GMT) is our Main Event. A banger 3 hour mission.
-            </p>
+            <section>
+                <h3>What do we do?</h3>
+                <p>
+                    We are a realism unit, but we strike a great balance between realism and fun.
+                    We are a group of like-minded individuals who enjoy playing ArmA 3 in a tactical and organized
+                    manner.
+                    We play as a team, using real-world tactics and strategies to complete our objectives.
+                    We'll help you improve with training, and help you understand concepts from mission editing,
+                    leadership,
+                    air controllers, vehicle crewing, fire support and many more. We always want to encourage those who
+                    want
+                    to learn and grow.
+                    Also, we are always looking to create and improve our missions to provide a fun yet challenging
+                    experience.
+                </p>
+                <img src="img/GermanMech.jpg" alt="" class="img-fluid">
+            </section>
 
-            <h3>Requirements</h3>
-            <p>
+            <section>
+                <h3>What can we offer you?</h3>
+                <p>
+                    <ul>
+                        <li>We offer a friendly and welcoming community, where you can make friends and have a laugh.
+                        </li>
+                        <li>We offer a structured and organized environment where you can learn and improve your skills.
+                        </li>
+                        <li>We offer a variety of roles and opportunities to try new things and develop your skills.
+                        </li>
+                        <li>We offer unique self-made missions by our editing team that are always made to provide a fun and challenging experience for our players.</li>
+                        <li>We offer a dedicated team of trainers who are always looking to help you improve and grow as
+                            a
+                            player.</li>
+                    </ul>
+                </p>
+            </section>
+
+            <section>
+                <h3>What do we expect from you?</h3>
                 <ul>
-                    <li>Must be 18+ (Exceptions can be made at 15-17)</li>
-                    <li>Own legal copy of ARMA 3 and Apex.</li>
-                    <li>Have a functioning Microphone.</li>
-                    <li>Be able to speak and understand English to an acceptable level.</li>
-                    <li>Be able to attend most Thursdays & Sundays.</li>
-                    <li>Multi-Claning is allowed as long as events do not conflict</li>
-                    <li>Have available drive space for our Modset (~60Gb)</li>
+                    <li>We expect you to be respectful and mature when playing with us.</li>
+                    <li>We expect you to work as part of a team.</li>
+                    <li>We expect you to be able to attend our main events on Sundays and training events on Thursdays.
+                    </li>
+                    <li>We expect you to be able to provide sufficient notice on attendance to our operations.</li>
                 </ul>
-            </p>
+            </section>
 
-            <p>More information TBA</p>
+            <section>
+                <h3>What are our operations like?</h3>
+                <p>
+                    Our operations are held on Thursdays and Sundays.
+                    Thursdays are our training nights, where we complete at least an hour-long training on a specific
+                    subject, followed by an optional 2-hour mission.
+                    Sundays are our main events, where we complete a banger 3-hour mission. All of our missions are
+                    built
+                    in-house using our own custom framework for ArmA 3. This allows missions to be created quickly and
+                    efficiently, and giving editors more time to focus on creating a fun and challenging experience for
+                    our
+                    members.
+                </p>
+                <img src="Img/Fields.jpg" alt="" class="img-fluid">
+            </section>
+
+            <section>
+                <h3>What are our basic requirements?</h3>
+                <p>
+                    <ul>
+                        <li>Must be 18+ (Exceptions can be made at 15-17)</li>
+                        <li>Own a legal copy of ARMA 3 and Apex.</li>
+                        <li>Have a functioning Microphone.</li>
+                        <li>Be able to speak and understand English to an acceptable level.</li>
+                        <li>Be able to attend most Thursdays & Sundays.</li>
+                        <li>Multi-Claning is allowed as long as events do not conflict</li>
+                        <li>Have available drive space for our Modset (~60Gb)</li>
+                    </ul>
+                </p>
+            </section>
+
+            <h3>Still Curious?</h3>
+            <p>
+                If you are interested in joining us, please join our Discord server and familiarise yourself with the
+                information in the #information channel.
+                If you have any questions, please feel free to ask in the #public-chat channel.
+                We look forward to seeing you on the battlefield!
+            </p>
+            <div class="text-center">
+                <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Ask on our
+                        Discord!</a></button>
+            </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
@@ -63,9 +175,9 @@
         </script>
     </main>
 
-  <footer>
-    <%- include('../partials/footer') %>
-  </footer>
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
 </body>
 
 </html>

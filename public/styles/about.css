@@ -1,0 +1,129 @@
+h3 {
+    text-align: center;
+    margin-top: 5%;
+}
+
+ul {
+    text-align: center;
+    list-style-position: inside;
+    list-style-type: none;
+}
+
+p {
+    text-align: justify;
+    color: var(--blu-body-color);
+}
+
+li {
+    color: var(--blu-body-color);
+    padding: 0.3rem 0;
+}
+
+h4 {
+    text-align: center;
+    color: var(--blu-body-color);
+}
+
+.timeline {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 3% 0;
+    margin-bottom: 8rem;
+    justify-content: center;
+}
+
+.line {
+    position: absolute;
+    top: 50%;
+    left: 2rem;
+    right: 2rem;
+    height: 4px;
+    background: var(--blu-bg);
+}
+
+.circle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: var(--blu-secondary) 2px solid;
+    background: var(--blu-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 3rem;
+    cursor: pointer;
+    transition: background 0.5s, transform 0.5s;
+}
+
+.circle span {
+    position: relative;
+    top: 1.5rem;
+    text-align: center;
+    white-space: nowrap;
+}
+.name {
+    display: block;
+    font-size: 15px;
+}
+.date {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #555;
+}
+
+.circle:hover {
+    background: var(--blu-secondary);
+    transform: scale(1.1);
+}
+
+@media screen and (max-width: 768px) {
+    p, li {
+        font-size: 14px;
+    }
+
+    ul {
+        padding: 0;
+    }
+
+    .timeline {
+        flex-direction: column;
+        margin-bottom: 5rem;
+    }
+    .line {
+        top: 2rem;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 85%;
+    }
+    .circle {
+        margin: 3rem 0;
+    }
+    .circle span{
+        top: 0;
+        left: 75%;
+    }
+
+    #front-logo {
+        height: 10rem;
+    }
+
+    .mainHead {
+        font-size: 2rem;
+    }
+
+    .abtUs {
+        font-size: 1.5rem;
+    }
+
+    .nav-item {
+        font-size: 1.2rem;
+    }
+}
