@@ -7,6 +7,7 @@ ul {
     text-align: center;
     list-style-position: inside;
     list-style-type: none;
+    padding: 0;
 }
 
 p {
@@ -85,10 +86,6 @@ h4 {
 @media screen and (max-width: 768px) {
     p, li {
         font-size: 14px;
-    }
-
-    ul {
-        padding: 0;
     }
 
     .timeline {
