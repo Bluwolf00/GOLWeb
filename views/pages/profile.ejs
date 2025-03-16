@@ -31,12 +31,32 @@
                         <div class="col" id="pNameElement"><p><span id="playerRank">RANK</span> <span id="playerName">Placeholder</span></p></div>
                     </div>
                     <div class="row">
-                        <div class="col pinfoElement leftInfoElement"><p><span class="label">Time in Service:</span> <span id="playerJoin"></span></p></div>
+                        <div class="col pinfoElement"><p><span class="label">Time in Service:</span> <span id="playerJoin"></span></p></div>
+                        <!-- Should only appear if logged admin -->
+                        <div class="col-sm-2 buttonDiv">
+                            <div class="d-sm-flex">
+                                <button class="profileButton" id="promoteButton">Promote</button>
+                                <button class="profileButton profileButton-dd" id="promoteButtonDD">V</button>
+                            </div>
+                        </div>
                         <div class="col pinfoElement"><p><span class="label">Status:</span> <span id="playerStatus">Active</span></p></div>
                     </div>
                     <div class="row">
-                        <div class="col pinfoElement leftInfoElement"><p><span class="label">Time in Rank:</span> <span id="playerPromotion"></span></p></div>
+                        <div class="col pinfoElement"><p><span class="label">Time in Rank:</span> <span id="playerPromotion"></span></p></div>
+                        <!-- Should only appear if logged admin -->
+                        <div class="col-sm-2 buttonDiv">
+                            <div class="d-sm-flex">
+                                <button class="profileButton" id="demoteButton">Demote</button>
+                                <button class="profileButton profileButton-dd" id="demoteButtonDD">V</button>
+                            </div>
+                        </div>
                         <div class="col pinfoElement"><p><span class="label">Country:</span> <span id="playerCountry"></span></p></div>
+                    </div>
+                    <div class="row">
+                        <div class="col pinfoElement"><p><span class="label">Events Attended:</span> <span id="playerEvents"></span></p></div>
+                        <!-- Empty Div - No need for other metrics for now -->
+                        <div class="col-sm-2"></div>
+                        <div class="col"></div>
                     </div>
                 </div>
             </div>
