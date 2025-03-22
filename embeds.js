@@ -4,7 +4,7 @@ dotenv.config()
 async function getInfoFromAPI() {
     console.log("FETCHING FROM API...");
 
-    var response = await fetch('https://www.googleapis.com/youtube/v3/search?&part=snippet&order=date&channelId=UCuKMp2KWhQ69geXACQ0jf5A&maxResults=3&key=' + process.env.YOUTUBE_API_KEY, {
+    var responseOne = await fetch('https://www.googleapis.com/youtube/v3/search?&part=snippet&order=date&channelId=UCTw6PJb5bCrsVPAVRUc-eTA&maxResults=1&key=' + process.env.YOUTUBE_API_KEY, {
         method: 'GET',
         headers: {
             'Accept': 'application/json',
@@ -12,16 +12,29 @@ async function getInfoFromAPI() {
         }
     });
 
-    var data = await response.json();
+    var responseTwo = await fetch('https://www.googleapis.com/youtube/v3/search?&part=snippet&order=date&channelId=UCuKMp2KWhQ69geXACQ0jf5A&maxResults=2&key=' + process.env.YOUTUBE_API_KEY, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // UCTw6PJb5bCrsVPAVRUc-eTA
+    // UCuKMp2KWhQ69geXACQ0jf5A
+
+    var data2 = await responseOne.json();
+    var data = await responseTwo.json();
     var videos = data.items;
+    var video2 = data2.items;
 
     var savedVideos = {
         video1: {
-            title: videos[0].snippet.title,
-            thumbnail: videos[0].snippet.thumbnails.medium.url,
-            videoId: videos[0].id.videoId,
-            author: videos[0].snippet.channelTitle,
-            url: 'https://www.youtube.com/watch?v=' + videos[0].id.videoId,
+            title: video2[0].snippet.title,
+            thumbnail: video2[0].snippet.thumbnails.medium.url,
+            videoId: video2[0].id.videoId,
+            author: video2[0].snippet.channelTitle,
+            url: 'https://www.youtube.com/watch?v=' + video2[0].id.videoId,
             duration: ""
         },
         video2: {
