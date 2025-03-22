@@ -62,7 +62,6 @@ async function getVideos() {
 
     try {
         [rows] = await pool.query('SELECT * FROM ytvideos');
-
     } catch (error) {
         console.log("DATABASE: " + error);
         return rows;
@@ -79,24 +78,26 @@ async function getVideos() {
     }
 
     if (flag) {
-        embeds.getInfoFromAPI().then((videos) => {
-            embeds.addVideosDuration(videos).then((videos) => {
 
-                // Clear the table
-                pool.query('DELETE FROM ytvideos');
-                
-                var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-                var sql = 'INSERT INTO ytvideos (title, thumbUrl, videoId, videoUrl, duration, author, last_update) VALUES ?';
-                var vals = [
-                    [videos.video1.title, videos.video1.thumbnail, videos.video1.videoId, videos.video1.url, videos.video1.duration, videos.video1.author, currentTime],
-                    [videos.video2.title, videos.video2.thumbnail, videos.video2.videoId, videos.video2.url, videos.video2.duration, videos.video2.author, currentTime],
-                    [videos.video3.title, videos.video3.thumbnail, videos.video3.videoId, videos.video3.url, videos.video3.duration, videos.video3.author, currentTime]
-                ];
-                pool.query(sql, [vals]);
-            })
-        }).catch((error) => {
-            console.log("API: " + error);
-        })
+        var info = await embeds.getInfoFromAPI();
+        var videos = await embeds.addVideosDuration(info);
+
+        // Clear the table
+        await pool.query('DELETE FROM ytvideos');
+
+        var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        var sql = 'INSERT INTO ytvideos (title, thumbUrl, videoId, videoUrl, duration, author, last_update) VALUES ?';
+        var vals = [
+            [videos.video1.title, videos.video1.thumbnail, videos.video1.videoId, videos.video1.url, videos.video1.duration, videos.video1.author, currentTime],
+            [videos.video2.title, videos.video2.thumbnail, videos.video2.videoId, videos.video2.url, videos.video2.duration, videos.video2.author, currentTime],
+            [videos.video3.title, videos.video3.thumbnail, videos.video3.videoId, videos.video3.url, videos.video3.duration, videos.video3.author, currentTime]
+        ];
+        await pool.query(sql, [vals]);
+
+        console.log("DATABASE: Videos updated");
+
+        // Get the updated videos
+        [rows] = await pool.query('SELECT * FROM ytvideos');
     } else {
         console.log("DATABASE: Videos are up to date");
     }
