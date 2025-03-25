@@ -19,28 +19,47 @@ app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 
+app.use(function(req,res,next) {
+    res.locals.loggedin = req.session.loggedin;
+    next();
+});
+
+// GET REQUESTS - PAGES
+
 app.get('/', (req,res) => {
-    res.render('pages/index');
+    res.render('pages/index', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/home', (req,res) => {
-    res.render('pages/index');
+    res.render('pages/index', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/about', (req,res) => {
-    res.render('pages/about');
+    res.render('pages/about', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/roster', (req,res) => {
-    res.render('pages/roster');
+    res.render('pages/roster', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/SOP', (req,res) => {
-    res.render('pages/sop');
+    res.render('pages/sop', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/Badges', (req,res) => {
-    res.render('pages/badges');
+    res.render('pages/badges', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/discord', (req,res) => {
@@ -50,19 +69,36 @@ app.get('/discord', (req,res) => {
 app.get('/profile', (req,res) => {
     var playerN = req.query.name;
     // console.log(req.query.name);
-    res.render('pages/profile');
+    res.render('pages/profile', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/mods', async (req,res) => {
-    res.render('pages/mods');
+    res.render('pages/mods', {
+        loggedin: req.session.loggedin
+    });
 });
 
 app.get('/orbat', async (req,res) => {
     const data = await db.getMembers();
-    res.render('pages/roster_new', {data: data});
+    res.render('pages/roster_new', {data: data, loggedin: req.session.loggedin});
 });
 
-// GET REQUESTS
+app.get('/login', (req,res) => {
+
+    if (req.session.loggedin) {
+        req.session.loggedin = false;
+        req.session.destroy();
+        res.redirect('/home');
+    } else {
+        res.render('pages/login', {
+            loggedin: req.session.loggedin
+        });
+    }
+});
+
+// GET REQUESTS - DATA
 
 app.get('/memberinfo', async (req,res) => {
     var member = await db.getMember(req.query.name);
@@ -89,6 +125,43 @@ app.get('/getVideos', async (req,res) => {
     const videos = await db.getVideos();
     res.send(videos);
 });
+
+app.get('/getRanks', async (req,res) => {
+    var aboveOrBelow = req.query.aboveOrBelow;
+    var currentRank = req.query.currentRank;
+    var ranks = await db.getRanks(aboveOrBelow, currentRank);
+    res.send(ranks);
+});
+
+app.get('/getMemberAttendance', async (req,res) => {
+    var name = req.query.name;
+    var attendance = await db.getMemberAttendance(name);
+    res.send(attendance);
+});
+
+// POST REQUESTS
+
+app.post('/changeRank', async (req,res) => {
+    var member = req.body.member;
+    var newRank = req.body.newRank;
+    var result = await db.changeRank(member, newRank);
+    res.send(result);
+});
+
+app.post('/performLogin', async (req,res) => {
+    var username = req.body.username;
+    var password = req.body.password;
+    var result = await db.performLogin(username, password, true);
+
+    if (result) {
+        req.session.loggedin = true;
+        res.redirect('/home');
+    } else {
+        res.send(result);
+    }
+});
+
+// Error Catcher
 
 app.get('*', (req,res) => {
     res.render('pages/error');

@@ -104,7 +104,135 @@ async function getVideos() {
     return rows;
 }
 
-module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos };
+async function getRanks(aboveOrBelow, currentRank) {
+    var rows = null;
+    if (aboveOrBelow == "above") {
+        rows = await pool.query(`
+            SELECT rankName, prefix
+            FROM Ranks
+            WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
+            ORDER BY rankID DESC`, [currentRank]);
+    } else {
+        rows = await pool.query(`
+            SELECT rankName, prefix
+            FROM Ranks
+            WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
+            ORDER BY rankID ASC`, [currentRank]);
+    }
+    return rows;
+}
+
+// Remember to fix the ranks order in the database as pv2 is higher than pv1
+
+// POST REQUESTS
+async function changeRank(member, newRank) {
+    var rows = null;
+    try {
+        console.log("MEMBER: " + member);
+        console.log("NEW RANK: " + newRank);
+        rows = await pool.query(`
+            UPDATE Members
+            SET Members.Rank = (SELECT rankID FROM Ranks WHERE prefix = ?)
+            WHERE UName = ?`, [newRank, member]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows
+    }
+}
+
+async function performLogin(username, password, fallback) {
+    
+    if (!fallback) {
+        var rows = null;
+        try {
+            rows = await pool.query(`
+                SELECT UName,Password
+                FROM Admins
+                WHERE UName = ? AND Password = ?`, [username, password]);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            return rows
+        }
+    } else {
+        if (username == process.env.ADMIN_USERNAME && password == process.env.ADMIN_PASSWORD) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+async function getMemberAttendance(name) {
+    var rows = [null];
+
+    try {
+        [rows] = await pool.query(`
+            SELECT numberOfEventsAttended, MemberDiscordID
+            FROM Attendance,Members
+            WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]);
+
+        // console.log("DATABASE: " + rows);
+    } catch (error) {
+        console.log(error);
+    }
+
+    // console.log("DATABASE: " + rows[0].MemberDiscordID);
+    // console.log("DATABASE LENGTH: " + rows.length);
+
+    if (rows.length == 0) {
+        // Fallback in case the member has no attendance data
+        // console.log("FALLBACK: " + name);
+        console.log(`Player, ${name}, not found in database, fetching from API...`);
+
+        var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
+
+        // var record = attendanceRecords.find((element) => {
+        //     if (element.name == name) {
+        //         rows = [{ numberOfEventsAttended: element.attendance }];
+        //     }
+        // });
+
+        var record;
+
+        for (var i = 0; i < attendanceRecords.length; i++) {
+            // console.log("API RECORD: " + attendanceRecords[i].name);
+            // console.log("PLAYER NAME: " + name);
+            if (attendanceRecords[i].name.search(name) != -1) {
+                record = attendanceRecords[i];
+                break;
+            }
+        }
+
+        var events = record.attended;
+        var discordId = record.id;
+
+        // Get the member's ID
+        var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
+        var id = response[0].MemberID;
+
+        // Insert the new member into the database
+        var success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended) VALUES (?,?,?)', [id, discordId, events]);
+
+        [rows] = await pool.query(`
+            SELECT numberOfEventsAttended, MemberDiscordID
+            FROM Attendance,Members
+            WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]
+        );
+    }
+
+    /* Returns:
+    /* {
+    /* numberOfEventsAttended : #,
+    /* MemberDiscordID : ''
+    /* }
+    */
+    return rows[0];
+}
+
+
+module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance };
 
 
 // async function getMember(name) {

@@ -449,6 +449,27 @@ footer {
   margin: 2em 0;
 }
 
+#promo-content a, #demo-content a{
+  display: block;
+  text-decoration: none;
+  padding: 10px 15px;
+  color: #FFF;
+  transition: background-color 0.3s;
+}
+
+#promo-content a:hover , #demo-content a:hover {
+  background-color: var(--blu-secondary);
+}
+
+#promo-content, #demo-content {
+  display: none;
+  background-color: #495057;
+  position: absolute;
+  z-index: 1;
+  min-width: 100px;
+  box-shadow: 2px 2px 5px black;
+}
+
 /* Badges */
 
 .card-img-top {

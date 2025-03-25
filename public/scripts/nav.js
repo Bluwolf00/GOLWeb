@@ -27,6 +27,10 @@ $(document).ready(function () {
             document.getElementById("badgeEntry").classList.add("active");
             break;
 
+        case "Log In":
+            document.getElementById("loginEntry").classList.add("active");
+            break;
+
         default:
             break;
             // By default the active element won't be on any of the buttons, this includes for any pages that do not appear in the above conditions (error page etc.)

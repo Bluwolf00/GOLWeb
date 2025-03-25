@@ -4,6 +4,7 @@ var statusEle = document.getElementById('playerStatus');
 var joinedEle = document.getElementById('playerJoin');
 var rankEle = document.getElementById('playerRank');
 var promoEle = document.getElementById('playerPromotion');
+var eventsEle = document.getElementById('playerEvents');
 var profileImg = document.getElementById('profileImg');
 var rankImg = document.getElementById('rankImg');
 
@@ -13,68 +14,152 @@ var playerStatus = "";
 var playerJoin = "";
 var playerRank = "";
 var playerPromotion = "";
+var playerEvents = "";
 var countryPath = "";
 var rankPath = "";
 
+let admin = isloggedIn;
+
 // This function is used to update the user profile information for the profile page
-function updateProfile() {
+async function updateProfile() {
     nameEle.innerText = playerName;
     countryEle.innerText = playerCountry;
     statusEle.innerText = playerStatus;
     joinedEle.innerText = playerJoin;
     rankEle.innerText = playerRank;
     promoEle.innerText = playerPromotion;
+    eventsEle.innerText = playerEvents;
     profileImg.src = countryPath;
     rankImg.src = rankPath;
+
+    if (admin) {
+        var promoteDropdown = document.getElementById('promo-content');
+        var demoteDropdown = document.getElementById('demo-content');
+
+        var ranksAbove = await getRanks('above', playerRank);
+
+        ranksAbove = ranksAbove[0];
+        ranksAbove = ranksAbove[0];
+
+        console.log(ranksAbove);
+
+        ranksAbove.forEach(rank => {
+            var tempElement = document.createElement('a');
+            tempElement.href = '#';
+            tempElement.innerText = rank.prefix;
+            tempElement.name = rank.prefix;
+
+            tempElement.addEventListener('click', function () {
+                popUp('promote', playerRank, rank.prefix, admin);
+            });
+
+            promoteDropdown.appendChild(tempElement);
+        });
+
+        var buttonDivs = document.getElementById('promoteButton');
+
+        buttonDivs.addEventListener('click', function () {
+            var firstChild = ranksAbove[0];
+            popUp('promote', playerRank, firstChild.prefix, admin);
+        });
+
+        var ranksBelow = await getRanks('below', playerRank);
+
+        ranksBelow = ranksBelow[0];
+        ranksBelow = ranksBelow[0];
+
+        ranksBelow.forEach(rank => {
+            var tempElement = document.createElement('a');
+            tempElement.href = '#';
+            tempElement.innerText = rank.prefix;
+            tempElement.name = rank.prefix;
+
+            tempElement.addEventListener('click', function () {
+                popUp('demote', playerRank, rank.prefix, admin);
+            });
+
+            demoteDropdown.appendChild(tempElement);
+        });
+
+        var demoteButton = document.getElementById('demoteButton');
+
+        demoteButton.addEventListener('click', function () {
+            var firstChild = ranksBelow[0];
+            popUp('demote', playerRank, firstChild.prefix, admin);
+        });
+    } else {
+        var buttonDivs = document.getElementsByClassName('buttonDiv');
+        // var demoteButton = document.getElementById('demoteDiv');
+
+        // for (let j = 0; j < buttonDivs.length; j++) {
+        //     for (let index = 0; index < buttonDivs[j].children.children.length; index++) {
+        //         buttonDivs.children[j].children[index].hidden = true;
+        //         // demoteButton.children[index].hidden = true;
+        //     }
+        // }
+
+        for (let i = 0; i < buttonDivs.length; i++) {
+            buttonDivs[i].hidden = true;
+            for (let j = 0; j < buttonDivs[i].children.length; j++) {
+                buttonDivs[i].children[j].hidden = true;
+            }
+        }
+
+        document.getElementById('extraDiv').hidden = true;
+    }
 }
 
 // This function is used to get the user profile information for the profile page and display it
-function getProfile() {
+async function getProfile() {
     var url = window.location.href;
     var id = url.substring(url.lastIndexOf('=') + 1);
     // console.log(id);
-    fetch('/memberinfo?name=' + id)
-        .then((response) => response.json())
-        .then(([data]) => {
-            // console.log(data);
-            playerName = data.UName;
-            playerCountry = data.Country;
-            playerStatus = data.status;
-            playerRank = data.rankName;
-            playerJoin = "";
-            playerPromotion = "";
-            var years = 0;
-            var months = 0;
-            var days = 0;
-            
-            // Try to get the date of join and promotion, if they are null, set the string to 'Unknown'
-            try {
-                if (data.DateOfJoin === null) {
-                    playerJoin = 'Unknown';
-                } else {
-                    years = getYearsBetween(new Date(data.DateOfJoin), new Date());
-                    months = getMonthsBetween(new Date(data.DateOfJoin), new Date());
-                    days = getDaysBetween(new Date(data.DateOfJoin), new Date());
-                    playerJoin = getDateString(years, months, days);
-                }
 
-                if (data.DateOfPromo === null) {
-                    playerPromotion = playerJoin;
-                } else {
-                    years = getYearsBetween(new Date(data.DateOfPromo), new Date());
-                    months = getMonthsBetween(new Date(data.DateOfPromo), new Date());
-                    days = getDaysBetween(new Date(data.DateOfPromo), new Date());
-                    playerPromotion = getDateString(years, months, days);
-                }
-            } catch (error) {
-                console.log('No Date of Join or Promotion: %d', error);
-            }
+    [data] = await fetch('/memberinfo?name=' + id)
+        .then((response) => response.json());
+    // console.log(data);
+    playerName = data.UName;
+    playerCountry = data.Country;
+    playerStatus = data.status;
+    playerRank = data.rankName;
+    playerJoin = "";
+    playerPromotion = "";
+    var years = 0;
+    var months = 0;
+    var days = 0;
 
-            // Parse the country and rank paths
-            countryPath = 'img/nation/' + data.Country.toLowerCase() + '.png';
-            rankPath = data.rankPath;
-            updateProfile();
-        });
+    // Try to get the date of join and promotion, if they are null, set the string to 'Unknown'
+    try {
+        if (data.DateOfJoin === null) {
+            playerJoin = 'Unknown';
+        } else {
+            years = getYearsBetween(new Date(data.DateOfJoin), new Date());
+            months = getMonthsBetween(new Date(data.DateOfJoin), new Date());
+            days = getDaysBetween(new Date(data.DateOfJoin), new Date());
+            playerJoin = getDateString(years, months, days);
+        }
+
+        if (data.DateOfPromo === null) {
+            playerPromotion = playerJoin;
+        } else {
+            years = getYearsBetween(new Date(data.DateOfPromo), new Date());
+            months = getMonthsBetween(new Date(data.DateOfPromo), new Date());
+            days = getDaysBetween(new Date(data.DateOfPromo), new Date());
+            playerPromotion = getDateString(years, months, days);
+        }
+    } catch (error) {
+        console.log('No Date of Join or Promotion: %d', error);
+    }
+
+    // Parse the country and rank paths
+    countryPath = 'img/nation/' + data.Country.toLowerCase() + '.png';
+    rankPath = data.rankPath;
+
+    playerEvents = 0;
+    response = await fetch('/getMemberAttendance?name=' + playerName);
+    data = await response.json();
+    playerEvents = data.numberOfEventsAttended;
+    updateProfile();
 }
 
 // This function is used to get the user badges for the profile page and display them
@@ -126,6 +211,17 @@ function getBadges() {
             }
             console.log(data);
         });
+}
+
+async function getRanks(aboveOrBelow, currentRank) {
+    var url = window.location.href;
+    var id = url.substring(url.lastIndexOf('=') + 1);
+
+    var response = await fetch('/getRanks?aboveOrBelow=' + aboveOrBelow + '&currentRank=' + currentRank);
+
+    var data = await response.json();
+
+    return [data];
 }
 
 // This function is used to parse the date into a string for the profile page (e.g. 1 Year 2 Months OR 3 Months OR 5 Days)

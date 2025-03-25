@@ -13,7 +13,7 @@
 </head>
 
 <div class="container">
-    <%- include('../partials/headernav', {pageTitle: "Profile"}) %>
+    <%- include('../partials/headernav', {pageTitle: "Profile", loggedin: loggedin}) %>
   </div>
 
 <body>
@@ -34,9 +34,14 @@
                         <div class="col pinfoElement"><p><span class="label">Time in Service:</span> <span id="playerJoin"></span></p></div>
                         <!-- Should only appear if logged admin -->
                         <div class="col-sm-2 buttonDiv">
-                            <div class="d-sm-flex">
+                            <div class="d-sm-flex" id="promoteDiv">
                                 <button class="profileButton" id="promoteButton">Promote</button>
-                                <button class="profileButton profileButton-dd" id="promoteButtonDD">V</button>
+                                <button class="profileButton profileButton-dd" id="promoteButtonDD">⌄</button>
+                                <div>
+                                    <div id="promo-content">
+                                        
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col pinfoElement"><p><span class="label">Status:</span> <span id="playerStatus">Active</span></p></div>
@@ -45,9 +50,14 @@
                         <div class="col pinfoElement"><p><span class="label">Time in Rank:</span> <span id="playerPromotion"></span></p></div>
                         <!-- Should only appear if logged admin -->
                         <div class="col-sm-2 buttonDiv">
-                            <div class="d-sm-flex">
+                            <div class="d-sm-flex" id="demoteDiv">
                                 <button class="profileButton" id="demoteButton">Demote</button>
-                                <button class="profileButton profileButton-dd" id="demoteButtonDD">V</button>
+                                <button class="profileButton profileButton-dd" id="demoteButtonDD">⌄</button>
+                                <div>
+                                    <div id="demo-content">
+                                        
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col pinfoElement"><p><span class="label">Country:</span> <span id="playerCountry"></span></p></div>
@@ -55,7 +65,7 @@
                     <div class="row">
                         <div class="col pinfoElement"><p><span class="label">Events Attended:</span> <span id="playerEvents"></span></p></div>
                         <!-- Empty Div - No need for other metrics for now -->
-                        <div class="col-sm-2"></div>
+                        <div class="col-sm-2" id="extraDiv"></div>
                         <div class="col"></div>
                     </div>
                 </div>
@@ -83,7 +93,11 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
         </script>
 
+        <script defer>var isloggedIn = "<%= loggedin %>" </script>
+        <script src="scripts/checkLogged.js"></script>
+
         <script src="scripts/popprofile.js"></script>
+        <script src="scripts/rankDropdown.js"></script>
     </main>
 
     <footer>
