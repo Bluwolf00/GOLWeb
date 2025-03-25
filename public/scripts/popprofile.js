@@ -32,6 +32,11 @@ async function updateProfile() {
     profileImg.src = countryPath;
     rankImg.src = rankPath;
 
+    if (playerStatus === 'Pending Promotion') {
+        statusEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
+        eventsEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
+    };
+
     if (admin) {
         var promoteDropdown = document.getElementById('promo-content');
         var demoteDropdown = document.getElementById('demo-content');
@@ -159,6 +164,10 @@ async function getProfile() {
     response = await fetch('/getMemberAttendance?name=' + playerName);
     data = await response.json();
     playerEvents = data.numberOfEventsAttended;
+
+    if (playerEvents > 4 && playerRank === 'Recruit') {
+        playerStatus = 'Pending Promotion';
+    }
     updateProfile();
 }
 
