@@ -71,13 +71,21 @@ async function addVideosDuration(videos) {
         var videoIds = videos.video1.videoId + ',' + videos.video2.videoId + ',' + videos.video3.videoId;
         var response = await fetch('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=' + videoIds + '&key=' + process.env.YOUTUBE_API_KEY)
         var json = await response.json();
-    
-        var index = json.items[0].contentDetails.duration.indexOf('M');
-    
-        videos.video1.duration = parseInt(json.items[0].contentDetails.duration.substring(2, index)) * 60;
-        videos.video2.duration = parseInt(json.items[1].contentDetails.duration.substring(2, index)) * 60;
-        videos.video3.duration = parseInt(json.items[2].contentDetails.duration.substring(2, index)) * 60;
-        
+
+        var indexes = [];
+
+        // Find the duration in minutes, if the duration is shorter than a minute, it will be in seconds
+        // This is caused by the API returning the duration in PT#M#S format
+        for (let i = 0; i < 3; i++) {
+            indexes[i] = json.items[i].contentDetails.duration.indexOf('M');
+            if (indexes[i] == -1) {
+                indexes[i] = json.items[i].contentDetails.duration.indexOf('S');
+            }
+        }
+
+        videos.video1.duration = parseInt(json.items[0].contentDetails.duration.substring(2, indexes[0])) * 60;
+        videos.video2.duration = parseInt(json.items[1].contentDetails.duration.substring(2, indexes[1])) * 60;
+        videos.video3.duration = parseInt(json.items[2].contentDetails.duration.substring(2, indexes[2])) * 60;        
     } catch (error) {
         videos = error;
     } finally {
