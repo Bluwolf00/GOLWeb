@@ -66,18 +66,23 @@ async function getInfoFromAPI() {
 // Add the duration of the videos to the object
 // This is a separate function because the API call is different
 async function addVideosDuration(videos) {
-    var videoIds = videos.video1.videoId + ',' + videos.video2.videoId + ',' + videos.video3.videoId;
-    var response = await fetch('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=' + videoIds + '&key=' + process.env.YOUTUBE_API_KEY)
-    var json = await response.json();
 
-    var index = json.items[0].contentDetails.duration.indexOf('M');
-
-    videos.video1.duration = parseInt(json.items[0].contentDetails.duration.substring(2, index)) * 60;
-    videos.video2.duration = parseInt(json.items[1].contentDetails.duration.substring(2, index)) * 60;
-    videos.video3.duration = parseInt(json.items[2].contentDetails.duration.substring(2, index)) * 60;
-
-
-    return videos;
+    try {
+        var videoIds = videos.video1.videoId + ',' + videos.video2.videoId + ',' + videos.video3.videoId;
+        var response = await fetch('https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=' + videoIds + '&key=' + process.env.YOUTUBE_API_KEY)
+        var json = await response.json();
+    
+        var index = json.items[0].contentDetails.duration.indexOf('M');
+    
+        videos.video1.duration = parseInt(json.items[0].contentDetails.duration.substring(2, index)) * 60;
+        videos.video2.duration = parseInt(json.items[1].contentDetails.duration.substring(2, index)) * 60;
+        videos.video3.duration = parseInt(json.items[2].contentDetails.duration.substring(2, index)) * 60;
+        
+    } catch (error) {
+        videos = error;
+    } finally {
+        return videos;
+    }
 }
 
 module.exports = { getInfoFromAPI, addVideosDuration };

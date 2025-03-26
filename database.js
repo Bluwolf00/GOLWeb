@@ -82,6 +82,16 @@ async function getVideos() {
         var info = await embeds.getInfoFromAPI();
         var videos = await embeds.addVideosDuration(info);
 
+        try {
+            if (videos.video1 != null) {
+                console.log("DATABASE: API Call successful");
+            }
+        } catch (error) {
+            // If the API call fails, return the current videos
+            [rows] = await pool.query('SELECT * FROM ytvideos');
+            return rows;
+        }
+
         // Clear the table
         await pool.query('DELETE FROM ytvideos');
 
