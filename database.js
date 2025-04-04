@@ -193,22 +193,26 @@ async function getMemberAttendance(name) {
     // console.log("DATABASE: " + rows[0].MemberDiscordID);
     // console.log("DATABASE LENGTH: " + rows.length);
 
+    var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
+
     if (rows.length == 0) {
         // Fallback in case the member has no attendance data
         // console.log("FALLBACK: " + name);
         console.log(`Player, ${name} not on record, fetching from API...`);
 
-        var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
-
         res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
     } else {
         // If the last update was more than a day ago, update the attendance data
-        if (rows[0].lastUpdate < (new Date().getTime() - 3600000)) {
+        if (rows[0].lastUpdate > (new Date().getTime() - 3600000)) {
             
             console.log("Updating attendance data for " + name);
-            var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
 
             res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
+        } else {
+            console.log("Attendance data for " + name + " is up to date, Fetching from DB...");
+            // If the last update was less than a day ago, just return the current attendance data
+
+            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "normal");
         }
     }
 
@@ -246,6 +250,9 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     else if (insertOrUpdate == "update") {
         // Update the member's attendance in the database
         success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
+    } else if (insertOrUpdate == "normal") {
+        // Do nothing, just return the current attendance data
+        success = false;
     }
 
     [rows] = await pool.query(`
