@@ -1,5 +1,6 @@
 :root {
   --bs-primary: rgb(34, 135, 173) !important;
+  --bs-primary-border: rgb(19, 78, 99) !important;
   --bs-primary-rgb: transparent !important;
   --bs-btn-bg: #2287ad !important;
   --blu-bg: #212529;

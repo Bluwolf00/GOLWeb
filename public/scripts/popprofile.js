@@ -94,14 +94,6 @@ async function updateProfile() {
         });
     } else {
         var buttonDivs = document.getElementsByClassName('buttonDiv');
-        // var demoteButton = document.getElementById('demoteDiv');
-
-        // for (let j = 0; j < buttonDivs.length; j++) {
-        //     for (let index = 0; index < buttonDivs[j].children.children.length; index++) {
-        //         buttonDivs.children[j].children[index].hidden = true;
-        //         // demoteButton.children[index].hidden = true;
-        //     }
-        // }
 
         for (let i = 0; i < buttonDivs.length; i++) {
             buttonDivs[i].hidden = true;
@@ -111,6 +103,12 @@ async function updateProfile() {
         }
 
         document.getElementById('extraDiv').hidden = true;
+
+        // Hide the dropdowns
+
+        document.getElementsByClassName('floating-action-button')[0].hidden = true;
+        document.getElementsByClassName('floating-action-button')[1].hidden = true;
+        document.getElementsByClassName('floating-action-button')[2].hidden = true;
     }
 }
 

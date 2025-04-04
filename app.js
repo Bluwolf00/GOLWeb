@@ -142,9 +142,17 @@ app.get('/getMemberAttendance', async (req,res) => {
 // POST REQUESTS
 
 app.post('/changeRank', async (req,res) => {
-    var member = req.body.member;
-    var newRank = req.body.newRank;
+    // var member = req.body.member;
+    // var newRank = req.body.newRank;
+    var member = req.get('member');
+    var newRank = req.get('newRank');
     var result = await db.changeRank(member, newRank);
+    if (result[0].affectedRows > 0) {
+        res.status(200);
+    } else {
+        res.status(500);
+        result[1] = "Failed to change rank - Check if the rank exists or if the member name is correct.";
+    }
     res.send(result);
 });
 
