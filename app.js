@@ -141,7 +141,12 @@ app.get('/getRanks', async (req,res) => {
 
 app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
-    var attendance = await db.getMemberAttendance(name);
+    var attendance;
+    try {
+        attendance = await db.getMemberAttendance(name);
+    } catch (error) {
+        res.send(error);
+    }
 
     if (attendance.insertStatus) {
         res.status(201);
