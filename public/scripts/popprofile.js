@@ -157,12 +157,16 @@ async function getProfile() {
     // Parse the country and rank paths
     countryPath = 'img/nation/' + data.Country.toLowerCase() + '.png';
     rankPath = data.rankPath;
-
     playerEvents = 0;
+
+    // Get the number of events attended by the player
     response = await fetch('/getMemberAttendance?name=' + playerName);
     data = await response.json();
     playerEvents = data.numberOfEventsAttended;
 
+    // If the player has attended more than 4 events and is a recruit, set the status to 'Pending Promotion'
+    // This is used to show the player that they are eligible for a promotion
+    // This is not a real promotion, just a status change
     if (playerEvents > 4 && playerRank === 'Recruit') {
         playerStatus = 'Pending Promotion';
     }
