@@ -161,7 +161,6 @@ async function getProfile() {
 
     // Get the number of events attended by the player
     response = await fetch('/getMemberAttendance?name=' + playerName);
-    console.log(response);
     data = await response.json();
     playerEvents = data.numberOfEventsAttended;
 

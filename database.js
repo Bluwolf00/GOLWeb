@@ -195,44 +195,34 @@ async function getMemberAttendance(name) {
 
     var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
 
-    console.log("DATABASE: " + attendanceRecords);
-    
-    if (attendanceRecords == undefined) {
-        console.log("API ERROR: " + attendanceRecords.error);
-        console.log("API ERROR: No attendance records found in API");
-    }
-    return attendanceRecords;
-    // else {
-    //     if (rows.length == 0) {
-    //         // Fallback in case the member has no attendance data
-    //         // console.log("FALLBACK: " + name);
-    //         console.log(`Player, ${name} not on record, fetching from API...`);
-    
-    //         res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
-    //     } else {
-    //         // If the last update was more than a day ago, update the attendance data
-    //         if (rows[0].lastUpdate > (new Date().getTime() - 3600000)) {
-                
-    //             console.log("Updating attendance data for " + name);
-    
-    //             res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
-    //         } else {
-    //             console.log("Attendance data for " + name + " is up to date, Fetching from DB...");
-    //             // If the last update was less than a day ago, just return the current attendance data
-    
-    //             res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "normal");
-    //         }
-    //     }
-    
-        var rqResponse = {
-            numberOfEventsAttended: res.numberOfEventsAttended,
-            insertStatus: res.success
+    if (rows.length == 0) {
+        // Fallback in case the member has no attendance data
+        // console.log("FALLBACK: " + name);
+        console.log(`Player, ${name} not on record, fetching from API...`);
+
+        res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
+    } else {
+        // If the last update was more than a day ago, update the attendance data
+        if (rows[0].lastUpdate > (new Date().getTime() - 3600000)) {
+
+            console.log("Updating attendance data for " + name);
+
+            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
+        } else {
+            console.log("Attendance data for " + name + " is up to date, Fetching from DB...");
+            // If the last update was less than a day ago, just return the current attendance data
+
+            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "normal");
         }
-    
-        return rqResponse;
     }
 
-// }
+    var rqResponse = {
+        "numberOfEventsAttended": res.numberOfEventsAttended,
+        "insertStatus": res.success
+    }
+
+    return rqResponse;
+}
 
 async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     var record;

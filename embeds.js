@@ -123,7 +123,7 @@ async function getAttendanceFromAPI() {
     // console.log("API: " + attendanceArray);
 
     // Returns an array of objects containing the member's name and the number of events they have attended
-    return data;
+    return attendanceArray;
 }
 
 module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI };
