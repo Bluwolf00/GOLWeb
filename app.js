@@ -142,12 +142,20 @@ app.get('/getRanks', async (req,res) => {
 app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
     var attendance = await db.getMemberAttendance(name);
-    if (attendance.insertStatus) {
-        res.status(201);
-    } else {
-        res.status(200);
-    }
     res.send(attendance);
+
+    // console.log(attendance.error);
+
+    // if (typeof attendance == 'string') {
+    //     res.status(500).send("Failed to get attendance - Check if the member name is correct.");
+    //     return;
+    // }
+    // if (attendance.insertStatus) {
+    //     res.status(201);
+    // } else {
+    //     res.status(200);
+    // }
+    
 });
 
 // POST REQUESTS

@@ -100,16 +100,25 @@ async function addVideosDuration(videos) {
 // The main tag is used to only get the attendance data for the main events
 // Further filtering can be done by including tags for each thursday and sunday event
 async function getAttendanceFromAPI() {
-    var response = await fetch(`https://raid-helper.dev/api/v2/servers/${process.env.RAID_HELPER_SERVER_ID}/attendance`, {
-        method: 'GET',
-        headers: {
-            'TagFilter': 'main',
-            'Content-Type': 'application/json',
-            'Authorization': `${process.env.OPORD_API_KEY}`
-        }
-    });
-    var data = await response.json();
-    var attendanceArray = data.result;
+    var response;
+    var data;
+    var attendanceArray = [];
+    
+    try {
+        response = await fetch(`https://raid-helper.dev/api/v2/servers/${process.env.RAID_HELPER_SERVER_ID}/attendance`, {
+            method: 'GET',
+            headers: {
+                'TagFilter': 'main',
+                'Content-Type': 'application/json',
+                'Authorization': `${process.env.OPORD_API_KEY}`
+            }
+        });
+        data = await response.json();
+        attendanceArray = data.result;
+        
+    } catch (error) {
+        return error;
+    }
 
     // console.log("API: " + attendanceArray);
 
