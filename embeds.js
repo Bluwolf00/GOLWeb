@@ -96,4 +96,25 @@ async function addVideosDuration(videos) {
     }
 }
 
-module.exports = { getInfoFromAPI, addVideosDuration };
+// This function fetches the attendance data from the Raid Helper API - This is used to display the number of events each member has attended
+// The main tag is used to only get the attendance data for the main events
+// Further filtering can be done by including tags for each thursday and sunday event
+async function getAttendanceFromAPI() {
+    var response = await fetch(`https://raid-helper.dev/api/v2/servers/${process.env.RAID_HELPER_SERVER_ID}/attendance`, {
+        method: 'GET',
+        headers: {
+            'TagFilter': 'main',
+            'Content-Type': 'application/json',
+            'Authorization': `${process.env.OPORD_API_KEY}`
+        }
+    });
+    var data = await response.json();
+    var attendanceArray = data.result;
+
+    // console.log("API: " + attendanceArray);
+
+    // Returns an array of objects containing the member's name and the number of events they have attended
+    return attendanceArray;
+}
+
+module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI };

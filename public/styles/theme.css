@@ -1,10 +1,11 @@
 :root {
   --bs-primary: rgb(34, 135, 173) !important;
+  --bs-primary-border: rgb(19, 78, 99) !important;
   --bs-primary-rgb: transparent !important;
   --bs-btn-bg: #2287ad !important;
   --blu-bg: #212529;
   --blu-body-color: rgb(119, 136, 153);
-  --blu-secondary: rgb(212,61,37);
+  --blu-secondary: rgb(212, 61, 37);
 }
 
 svg.bi {
@@ -317,14 +318,6 @@ footer {
   top: 25%;
 }
 
-/* Profile Pages */
-
-#countryImg {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 100%;
-}
-
 /* ORBAT page */
 
 .chart-container {
@@ -368,7 +361,43 @@ footer {
   border-width: 3px !important;
 }
 
-/* Profile page */
+/* Profile Pages */
+
+#countryImg {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 100%;
+}
+
+.buttonDiv {
+  border: #495057 1px solid;
+  color: #000;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.profileButton {
+  width: 100%;
+  height: 100%;
+  border: #495057 1px solid;
+  font-weight: bold;
+}
+
+.profileButton-dd {
+  width: 30%;
+}
+
+.d-sm-flex {
+  height: 100%;
+}
+
+#promoteButton, #promoteButtonDD {
+  background-color: var(--bs-success);
+}
+
+#demoteButton, #demoteButtonDD {
+  background-color: var(--bs-danger);
+}
 
 .pinfoElement > p {
   border: #495057 1px solid;
@@ -445,6 +474,27 @@ footer {
 
 #qualDiv {
   margin: 2em 0;
+}
+
+#promo-content a, #demo-content a{
+  display: block;
+  text-decoration: none;
+  padding: 10px 15px;
+  color: #FFF;
+  transition: background-color 0.3s;
+}
+
+#promo-content a:hover , #demo-content a:hover {
+  background-color: var(--blu-secondary);
+}
+
+#promo-content, #demo-content {
+  display: none;
+  background-color: #495057;
+  position: absolute;
+  z-index: 1;
+  min-width: 100px;
+  box-shadow: 2px 2px 5px black;
 }
 
 /* Badges */

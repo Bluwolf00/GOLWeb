@@ -1,0 +1,69 @@
+.floating-action-button {
+        
+    --size: 4em;
+    --spacing: 2em;
+
+    position: fixed;
+    width: var(--size);
+    height: var(--size);
+    padding: calc(var(--size) / 4.5);
+
+    z-index: 1000;
+    font-weight: bolder;
+    text-align: center;
+    vertical-align: middle;
+
+    border: 2px solid var(--bs-primary-border);
+    border-radius: 100%;
+
+    background-color: rgb(14,15, 17);
+    color: var(--bs-primary-color);
+    box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.8);
+
+    cursor: pointer;
+
+    transition: all 0.3s ease-in-out;
+}
+
+.floating-action-button > svg {
+    
+    width: 100%;
+    height: 100%;
+    color: var(--bs-primary);
+}
+
+.floating-menu > div:nth-child(3) {
+    bottom: var(--spacing);
+    right: var(--spacing);
+}
+.floating-menu > div:nth-child(2) {
+    bottom: calc((var(--size) + var(--spacing)) * 2);
+    right: var(--spacing);
+}
+.floating-menu > div:nth-child(1) {
+    bottom: calc((var(--size) + var(--spacing)) * 3);
+    right: var(--spacing);
+}
+
+.floating-action-button:hover {
+    color: var(--bs-primary-hover-color);
+    box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.8), 0 0 20px 0 rgba(0, 0, 0, 0.8);
+}
+
+#promote-button:hover {
+    background-color: var(--bs-success);
+}
+
+#demote-button:hover {
+    background-color: var(--bs-danger);
+}
+
+#action-button:hover {
+    background-color: var(--bs-primary);
+}
+
+.floating-action-button:active {
+    box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.8), 0 0 20px 0 rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+    transition: all 0.1s ease-in-out;
+}

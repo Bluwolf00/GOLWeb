@@ -115,7 +115,155 @@ async function getVideos() {
     return rows;
 }
 
-module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos };
+async function getRanks(aboveOrBelow, currentRank) {
+    var rows = null;
+    if (aboveOrBelow == "above") {
+        rows = await pool.query(`
+            SELECT rankName, prefix
+            FROM Ranks
+            WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
+            ORDER BY rankID DESC`, [currentRank]);
+    } else {
+        rows = await pool.query(`
+            SELECT rankName, prefix
+            FROM Ranks
+            WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
+            ORDER BY rankID ASC`, [currentRank]);
+    }
+    return rows;
+}
+
+// Remember to fix the ranks order in the database as pv2 is higher than pv1
+
+// POST REQUESTS
+async function changeRank(member, newRank) {
+    var rows = null;
+    try {
+        console.log("MEMBER: " + member);
+        console.log("NEW RANK: " + newRank);
+        rows = await pool.query(`
+            UPDATE Members
+            SET Members.Rank = (SELECT rankID FROM Ranks WHERE prefix = ?)
+            WHERE UName = ?`, [newRank, member]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows
+    }
+}
+
+async function performLogin(username, password, fallback) {
+
+    if (!fallback) {
+        var rows = null;
+        try {
+            rows = await pool.query(`
+                SELECT UName,Password
+                FROM Admins
+                WHERE UName = ? AND Password = ?`, [username, password]);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            return rows
+        }
+    } else {
+        if (username == process.env.ADMIN_USERNAME && password == process.env.ADMIN_PASSWORD) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+async function getMemberAttendance(name) {
+    var rows = [null];
+    var res = null;
+
+    try {
+        [rows] = await pool.query(`
+            SELECT numberOfEventsAttended, MemberDiscordID, lastUpdate
+            FROM Attendance,Members
+            WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]);
+
+        // console.log("DATABASE: " + rows);
+    } catch (error) {
+        console.log(error);
+    }
+
+    // console.log("DATABASE: " + rows[0].MemberDiscordID);
+    // console.log("DATABASE LENGTH: " + rows.length);
+
+    if (rows.length == 0) {
+        // Fallback in case the member has no attendance data
+        // console.log("FALLBACK: " + name);
+        console.log(`Player, ${name} not on record, fetching from API...`);
+
+        var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
+
+        res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
+    } else {
+        // If the last update was more than a day ago, update the attendance data
+        if (rows[0].lastUpdate < (new Date().getTime() - 3600000)) {
+            
+            console.log("Updating attendance data for " + name);
+            var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
+
+            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
+        }
+    }
+
+    var rqResponse = {
+        numberOfEventsAttended: res.numberOfEventsAttended,
+        insertStatus: res.success
+    }
+
+    return rqResponse;
+}
+
+async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
+    var record;
+
+    for (var i = 0; i < attendanceRecords.length; i++) {
+        if (attendanceRecords[i].name.search(name) != -1) {
+            record = attendanceRecords[i];
+            break;
+        }
+    }
+
+    var events = record.attended;
+
+    // Get the member's ID
+    var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
+    var id = response[0].MemberID;
+    var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    var success = null;
+
+    if (insertOrUpdate == "insert") {
+        // Insert the new member into the database
+        var discordId = record.id;
+        success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended, lastUpdate) VALUES (?,?,?,?)', [id, discordId, events, currentTime]);
+    }
+    else if (insertOrUpdate == "update") {
+        // Update the member's attendance in the database
+        success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
+    }
+
+    [rows] = await pool.query(`
+                SELECT numberOfEventsAttended, MemberDiscordID
+                FROM Attendance,Members
+                WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]
+    );
+
+    var res = {
+        numberOfEventsAttended: rows[0].numberOfEventsAttended,
+        insertStatus: success
+    }
+
+    return res;
+}
+
+
+module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance };
 
 
 // async function getMember(name) {
