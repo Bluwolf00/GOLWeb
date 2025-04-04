@@ -8,34 +8,46 @@ function updateVideo(title, duration, description, author, videoId, caseNum) {
     var buttonElement = document.getElementById('video-' + caseNum + '-button');
 
     titleElement.innerHTML = title;
-    durationElement.innerHTML = (duration / 60) + ' mins';
+    if (duration > 60) {
+        durationElement.innerHTML = (duration / 60) + ' mins';
+    } else {
+        durationElement.innerHTML = duration + ' secs';
+    }
     videoElement.src = "https://www.youtube.com/embed/" + videoId;
     descriptionElement.innerHTML = description;
     authorElement.innerHTML = 'by ' + author;
     buttonElement.href = "https://www.youtube.com/watch?v=" + videoId;
 }
 
-function getAllVideos() {
+async function getAllVideos() {
     var iterations = 1;
-    fetch('/getVideos')
-        .then((response) => response.json())
-        .then((data) => {
-            data.forEach(video => {
 
-                if (iterations > 3) {
-                    return;
-                }
+    var resp;
+    var data;
 
-                videoTitle = video.title;
-                videoDescription = video.description;
-                videoId = video.videoId;
-                videoDuration = video.duration;
-                videoAuthor = video.author;
+    try {
+        resp = await fetch('/getVideos');
+        data = await resp.json();
+    } catch (error) {
+        console.error("Error fetching video data");
+        return error;
+    }
 
-                updateVideo(videoTitle, videoDuration, videoDescription, videoAuthor, videoId, iterations);
-                iterations++;
-            });
-        });
+    data.forEach(video => {
+
+        if (iterations > 3) {
+            return;
+        }
+
+        videoTitle = video.title;
+        videoDescription = video.description;
+        videoId = video.videoId;
+        videoDuration = video.duration;
+        videoAuthor = video.author;
+
+        updateVideo(videoTitle, videoDuration, videoDescription, videoAuthor, videoId, iterations);
+        iterations++;
+    });
 }
 
 getAllVideos();
