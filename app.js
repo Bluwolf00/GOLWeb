@@ -146,6 +146,17 @@ app.post('/changeRank', async (req,res) => {
     // var newRank = req.body.newRank;
     var member = req.get('member');
     var newRank = req.get('newRank');
+    var auth = req.get('Authorization');
+    if (auth != process.env.AUTH_TOKEN || auth != process.env.AUTH_TOKEN_2) {
+        res.status(403).send("Forbidden - Invalid Token");
+        return;
+    }
+    
+    if (!member || !newRank) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
     var result = await db.changeRank(member, newRank);
     if (result[0].affectedRows > 0) {
         res.status(200);
