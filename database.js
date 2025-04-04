@@ -222,13 +222,12 @@ async function getMemberAttendance(name) {
         );
     }
 
-    /* Returns:
-    /* {
-    /* numberOfEventsAttended : #,
-    /* MemberDiscordID : ''
-    /* }
-    */
-    return rows[0];
+    var rqResponse = {
+        numberOfEventsAttended: rows[0].numberOfEventsAttended,
+        insertStatus: success   
+    }
+
+    return rqResponse;
 }
 
 

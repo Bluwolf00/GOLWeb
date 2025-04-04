@@ -133,9 +133,15 @@ app.get('/getRanks', async (req,res) => {
     res.send(ranks);
 });
 
+
 app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
     var attendance = await db.getMemberAttendance(name);
+    if (attendance.insertStatus) {
+        res.status(201);
+    } else {
+        res.status(200);
+    }
     res.send(attendance);
 });
 
@@ -151,7 +157,7 @@ app.post('/changeRank', async (req,res) => {
         res.status(403).send("Forbidden - Invalid Token");
         return;
     }
-    
+
     if (!member || !newRank) {
         res.status(400).send("Bad Request - Missing Parameters");
         return;
