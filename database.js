@@ -84,7 +84,7 @@ async function getVideos() {
 
                 // Clear the table
                 pool.query('DELETE FROM ytvideos');
-                
+
                 var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 var sql = 'INSERT INTO ytvideos (title, thumbUrl, videoId, videoUrl, duration, author, last_update) VALUES ?';
                 var vals = [
@@ -142,7 +142,7 @@ async function changeRank(member, newRank) {
 }
 
 async function performLogin(username, password, fallback) {
-    
+
     if (!fallback) {
         var rows = null;
         try {
@@ -166,10 +166,11 @@ async function performLogin(username, password, fallback) {
 
 async function getMemberAttendance(name) {
     var rows = [null];
+    var res = null;
 
     try {
         [rows] = await pool.query(`
-            SELECT numberOfEventsAttended, MemberDiscordID
+            SELECT numberOfEventsAttended, MemberDiscordID, lastUpdate
             FROM Attendance,Members
             WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]);
 
@@ -184,50 +185,70 @@ async function getMemberAttendance(name) {
     if (rows.length == 0) {
         // Fallback in case the member has no attendance data
         // console.log("FALLBACK: " + name);
-        console.log(`Player, ${name}, not found in database, fetching from API...`);
+        console.log(`Player, ${name} not on record, fetching from API...`);
 
         var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
 
-        // var record = attendanceRecords.find((element) => {
-        //     if (element.name == name) {
-        //         rows = [{ numberOfEventsAttended: element.attendance }];
-        //     }
-        // });
+        res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
+    } else {
+        // If the last update was more than a day ago, update the attendance data
+        if (rows[0].lastUpdate < (new Date().getTime() - 3600000)) {
+            
+            console.log("Updating attendance data for " + name);
+            var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
 
-        var record;
-
-        for (var i = 0; i < attendanceRecords.length; i++) {
-            // console.log("API RECORD: " + attendanceRecords[i].name);
-            // console.log("PLAYER NAME: " + name);
-            if (attendanceRecords[i].name.search(name) != -1) {
-                record = attendanceRecords[i];
-                break;
-            }
+            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
         }
-
-        var events = record.attended;
-        var discordId = record.id;
-
-        // Get the member's ID
-        var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
-        var id = response[0].MemberID;
-
-        // Insert the new member into the database
-        var success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended) VALUES (?,?,?)', [id, discordId, events]);
-
-        [rows] = await pool.query(`
-            SELECT numberOfEventsAttended, MemberDiscordID
-            FROM Attendance,Members
-            WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]
-        );
     }
 
     var rqResponse = {
-        numberOfEventsAttended: rows[0].numberOfEventsAttended,
-        insertStatus: success   
+        numberOfEventsAttended: res.numberOfEventsAttended,
+        insertStatus: res.success
     }
 
     return rqResponse;
+}
+
+async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
+    var record;
+
+    for (var i = 0; i < attendanceRecords.length; i++) {
+        if (attendanceRecords[i].name.search(name) != -1) {
+            record = attendanceRecords[i];
+            break;
+        }
+    }
+
+    var events = record.attended;
+
+    // Get the member's ID
+    var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
+    var id = response[0].MemberID;
+    var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    var success = null;
+
+    if (insertOrUpdate == "insert") {
+        // Insert the new member into the database
+        var discordId = record.id;
+        success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended, lastUpdate) VALUES (?,?,?,?)', [id, discordId, events, currentTime]);
+    }
+    else if (insertOrUpdate == "update") {
+        // Update the member's attendance in the database
+        success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
+    }
+
+    [rows] = await pool.query(`
+                SELECT numberOfEventsAttended, MemberDiscordID
+                FROM Attendance,Members
+                WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]
+    );
+
+    var res = {
+        numberOfEventsAttended: rows[0].numberOfEventsAttended,
+        insertStatus: success
+    }
+
+    return res;
 }
 
 
