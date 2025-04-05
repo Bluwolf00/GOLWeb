@@ -146,17 +146,17 @@ app.get('/getMemberAttendance', async (req,res) => {
         temp = await db.getMemberAttendance(name);
         attendance.numberOfEventsAttended = temp.numberOfEventsAttended;
         attendance.insertStatus = temp.insertStatus;
+        if (attendance.insertStatus) {
+            res.status(201);
+        } else {
+            res.status(200);
+        }
+        res.send(attendance);    
     } catch (error) {
         res.status(500);
         res.send(error);
     }
 
-    if (attendance.insertStatus) {
-        res.status(201);
-    } else {
-        res.status(200);
-    }
-    res.send(attendance);    
 });
 
 // POST REQUESTS
