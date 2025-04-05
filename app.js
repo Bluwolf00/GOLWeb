@@ -154,7 +154,7 @@ app.get('/getMemberAttendance', async (req,res) => {
         res.send(attendance);    
     } catch (error) {
         res.status(500);
-        res.send({"error": error});
+        res.send({"error": error.message});
     }
 
 });
