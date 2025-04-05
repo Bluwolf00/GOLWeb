@@ -143,7 +143,9 @@ app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
     var attendance = {"numberOfEventsAttended": -1, "insertStatus": false};
     try {
-        attendance = await db.getMemberAttendance(name);
+        temp = await db.getMemberAttendance(name);
+        attendance.numberOfEventsAttended = temp.numberOfEventsAttended;
+        attendance.insertStatus = temp.insertStatus;
     } catch (error) {
         res.status(500);
         res.send(error);
