@@ -262,8 +262,8 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     );
 
     var res = {
-        numberOfEventsAttended: rows[0].numberOfEventsAttended,
-        insertStatus: success
+        "numberOfEventsAttended": rows[0].numberOfEventsAttended,
+        "insertStatus": success
     }
 
     return res;
