@@ -141,19 +141,22 @@ app.get('/getRanks', async (req,res) => {
 
 app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
-    var attendance;
+    var attendance = {"numberOfEventsAttended": -1, "insertStatus": false};
     try {
-        attendance = await db.getMemberAttendance(name);
+        temp = await db.getMemberAttendance(name);
+        attendance.numberOfEventsAttended = temp.numberOfEventsAttended;
+        attendance.insertStatus = temp.insertStatus;
+        if (attendance.insertStatus) {
+            res.status(201);
+        } else {
+            res.status(200);
+        }
+        res.send(attendance);   
     } catch (error) {
-        res.send(error);
+        res.status(500);
+        res.send(error.message);
     }
 
-    if (attendance.insertStatus) {
-        res.status(201);
-    } else {
-        res.status(200);
-    }
-    res.send(attendance);    
 });
 
 // POST REQUESTS

@@ -247,12 +247,16 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
         var discordId = record.id;
         success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended, lastUpdate) VALUES (?,?,?,?)', [id, discordId, events, currentTime]);
     }
-    else if (insertOrUpdate == "update") {
-        // Update the member's attendance in the database
-        success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
-    } else if (insertOrUpdate == "normal") {
-        // Do nothing, just return the current attendance data
-        success = false;
+    else {
+        if (insertOrUpdate == "update") {
+            // Update the member's attendance in the database
+            success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
+        } else {
+            if (insertOrUpdate == "normal") {
+            // Do nothing, just return the current attendance data
+            success = false;
+            }
+        }
     }
 
     [rows] = await pool.query(`
@@ -262,8 +266,8 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     );
 
     var res = {
-        numberOfEventsAttended: rows[0].numberOfEventsAttended,
-        insertStatus: success
+        "numberOfEventsAttended": rows[0].numberOfEventsAttended,
+        "insertStatus": success
     }
 
     return res;
