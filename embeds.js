@@ -13,7 +13,7 @@ async function getInfoFromAPI() {
 
     // Loop through all channels
     for (var i = 0; i < channels.length; i++) {
-        var response = await fetch('https://www.googleapis.com/youtube/v3/search?&part=snippet&order=date&channelId=' + channels[i] + '&maxResults=2&key=' + process.env.YOUTUBE_API_KEY, {
+        var response = await fetch('https://www.googleapis.com/youtube/v3/search?&part=snippet&order=date&channelId=' + channels[i] + '&maxResults=8&key=' + process.env.YOUTUBE_API_KEY, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -28,15 +28,28 @@ async function getInfoFromAPI() {
         // Create an array of objects with the video information
         for (var j = 0; j < videos.length; j++) {
 
-            var videoObj = {
-                title: videos[j].snippet.title,
-                thumbnail: videos[j].snippet.thumbnails.medium.url,
-                videoId: videos[j].id.videoId,
-                author: videos[j].snippet.channelTitle,
-                url: 'https://www.youtube.com/watch?v=' + videos[j].id.videoId,
-                duration: "",
-                publishedAt: videos[j].snippet.publishedAt
-            };
+            var videoObj = {}
+
+
+            // console.log("Video Title: " + videos[j].snippet.title);
+            // console.log("Is ArmA Video: " + (videos[j].snippet.title.search(/Arma/i) > -1));
+
+            if (videos[j].snippet.title.search(/Arma/i) > -1) {
+                // If the video is an Arma video, add it to the array
+                videoObj = {
+                    title: videos[j].snippet.title,
+                    thumbnail: videos[j].snippet.thumbnails.medium.url,
+                    videoId: videos[j].id.videoId,
+                    author: videos[j].snippet.channelTitle,
+                    url: 'https://www.youtube.com/watch?v=' + videos[j].id.videoId,
+                    duration: "",
+                    publishedAt: videos[j].snippet.publishedAt
+                };
+            } else {
+                // If the video is not an Arma video, skip it
+                continue;
+            }
+
 
             savedVideos.push(videoObj);
         };
@@ -44,8 +57,10 @@ async function getInfoFromAPI() {
 
     // Sort the videos by date
     savedVideos.sort((a, b) => {
-        return new Date(b.publishedAt) - new Date(a.publishedAt);        
+        return new Date(b.publishedAt) - new Date(a.publishedAt);
     });
+
+    savedVideos = savedVideos.slice(0, 3);
 
     console.log("FETCHED FROM API");
 

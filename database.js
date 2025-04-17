@@ -67,17 +67,19 @@ async function getVideos() {
         return rows;
     }
 
-    // If the last update was more than an hour ago or the field is empty, re update the videos from the API
+    // If the last update was more than 3 hours ago or the field is empty, re update the videos from the API
     // Null check before checking the last update time to prevent errors
     if (rows.length == 0) {
         flag = true;
     } else {
-        if (rows[0].last_update < (new Date().getTime() - 3600000)) {
+        if (rows[0].last_update < (new Date().getTime() - (3600000 * 3))) {
             flag = true;
         }
     }
 
     if (flag) {
+
+        console.log("DATABASE: Videos are outdated, updating...");
 
         var info = await embeds.getInfoFromAPI();
         var videos = await embeds.addVideosDuration(info);
