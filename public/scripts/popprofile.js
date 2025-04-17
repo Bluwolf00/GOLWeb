@@ -160,9 +160,16 @@ async function getProfile() {
     playerEvents = 0;
 
     // Get the number of events attended by the player
-    response = await fetch('/getMemberAttendance?name=' + playerName);
-    data = await response.json();
-    playerEvents = data.numberOfEventsAttended;
+    try {
+        response = await fetch('/getMemberAttendance?name=' + playerName);
+        data = await response.json();
+        // playerEvents = data.numberOfEventsAttended;
+        playerEvents = data.numberOfEventsAttended;
+    } catch (error) {
+        console.error('Error fetching member attendance: %d', error);
+        playerEvents = 0;
+        return;
+    }
 
     // If the player has attended more than 4 events and is a recruit, set the status to 'Pending Promotion'
     // This is used to show the player that they are eligible for a promotion
