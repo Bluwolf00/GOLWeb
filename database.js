@@ -195,12 +195,13 @@ async function getMemberAttendance(name) {
     // console.log("DATABASE: " + rows[0].MemberDiscordID);
     // console.log("DATABASE LENGTH: " + rows.length);
 
-    var attendanceRecords = await embeds.getMemberAttendanceFromAPI();
+    var attendanceRecords;
 
     if (rows.length == 0) {
         // Fallback in case the member has no attendance data
         // console.log("FALLBACK: " + name);
         console.log(`Player, ${name} not on record, fetching from API...`);
+        attendanceRecords = await embeds.getMemberAttendanceFromAPI();
 
         res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
     } else {
@@ -208,6 +209,7 @@ async function getMemberAttendance(name) {
         if (rows[0].lastUpdate > (new Date().getTime() - 3600000)) {
 
             console.log("Updating attendance data for " + name);
+            attendanceRecords = await embeds.getMemberAttendanceFromAPI();
 
             res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
         } else {
@@ -228,15 +230,24 @@ async function getMemberAttendance(name) {
 
 async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     var record;
+    var events;
 
-    for (var i = 0; i < attendanceRecords.length; i++) {
-        if (attendanceRecords[i].name.search(name) != -1) {
-            record = attendanceRecords[i];
-            break;
+    if (insertOrUpdate != "normal") {
+        for (var i = 0; i < attendanceRecords.length; i++) {
+            if (attendanceRecords[i].name.search(name) != -1) {
+                record = attendanceRecords[i];
+                events = record.attended;
+                break;
+            }
+        }
+
+        if (!record) {
+            // console.log("Member found in attendance records: " + name);
+            console.log("Member not found in attendance records: " + name);
+            events = 0;
         }
     }
 
-    var events = record.attended;
 
     // Get the member's ID
     var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
@@ -244,19 +255,19 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     var success = null;
 
-    if (insertOrUpdate == "insert") {
-        // Insert the new member into the database
-        var discordId = record.id;
-        success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended, lastUpdate) VALUES (?,?,?,?)', [id, discordId, events, currentTime]);
-    }
-    else {
-        if (insertOrUpdate == "update") {
-            // Update the member's attendance in the database
-            success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
-        } else {
-            if (insertOrUpdate == "normal") {
-            // Do nothing, just return the current attendance data
-            success = false;
+    if (insertOrUpdate == "normal") {
+        // Do nothing, just return the current attendance data
+        success = false;
+    } else {
+        if (insertOrUpdate == "insert") {
+            // Insert the new member into the database
+            var discordId = record.id;
+            success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended, lastUpdate) VALUES (?,?,?,?)', [id, discordId, events, currentTime]);
+        }
+        else {
+            if (insertOrUpdate == "update") {
+                // Update the member's attendance in the database
+                success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
             }
         }
     }
