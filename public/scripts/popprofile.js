@@ -166,7 +166,7 @@ async function getProfile() {
         // playerEvents = data.numberOfEventsAttended;
         playerEvents = data.numberOfEventsAttended;
     } catch (error) {
-        console.error('Error fetching member attendance: %d', error);
+        console.log('Error fetching member attendance: %d', error);
         playerEvents = 0;
         return playerEvents;
     }
