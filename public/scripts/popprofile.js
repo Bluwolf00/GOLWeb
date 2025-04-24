@@ -168,7 +168,7 @@ async function getProfile() {
     } catch (error) {
         console.error('Error fetching member attendance: %d', error);
         playerEvents = 0;
-        return;
+        return playerEvents;
     }
 
     // If the player has attended more than 4 events and is a recruit, set the status to 'Pending Promotion'
