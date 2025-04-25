@@ -20,22 +20,61 @@ var rankPath = "";
 
 let admin = isloggedIn;
 
+async function updateElement(element, value) {
+    switch (element) {
+        case 'name':
+            nameEle.innerText = value;
+            break;
+        case 'country':
+            countryEle.innerText = value;
+            break;
+        case 'status':
+            statusEle.innerText = value;
+            if (playerStatus === 'Pending Promotion') {
+                statusEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
+                eventsEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
+            };
+            break;
+        case 'joined':
+            joinedEle.innerText = value;
+            break;
+        case 'rank':
+            rankEle.innerText = value;
+            break;
+        case 'promo':
+            promoEle.innerText = value;
+            break;
+        case 'events':
+            eventsEle.innerText = value;
+            break;
+        case 'profileImg':
+            profileImg.src = value;
+            break;
+        case 'rankImg':
+            rankImg.src = value;
+            break;
+        default:
+            console.log('Invalid element: ' + element);
+            break;
+    }
+}
+
 // This function is used to update the user profile information for the profile page
 async function updateProfile() {
-    nameEle.innerText = playerName;
-    countryEle.innerText = playerCountry;
-    statusEle.innerText = playerStatus;
-    joinedEle.innerText = playerJoin;
-    rankEle.innerText = playerRank;
-    promoEle.innerText = playerPromotion;
-    eventsEle.innerText = playerEvents;
-    profileImg.src = countryPath;
-    rankImg.src = rankPath;
+    // nameEle.innerText = playerName;
+    // countryEle.innerText = playerCountry;
+    // statusEle.innerText = playerStatus;
+    // joinedEle.innerText = playerJoin;
+    // rankEle.innerText = playerRank;
+    // promoEle.innerText = playerPromotion;
+    // eventsEle.innerText = playerEvents;
+    // profileImg.src = countryPath;
+    // rankImg.src = rankPath;
 
-    if (playerStatus === 'Pending Promotion') {
-        statusEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
-        eventsEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
-    };
+    // if (playerStatus === 'Pending Promotion') {
+    //     statusEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
+    //     eventsEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
+    // };
 
     if (admin) {
         var promoteDropdown = document.getElementById('promo-content');
@@ -125,6 +164,10 @@ async function getProfile() {
     playerCountry = data.Country;
     playerStatus = data.status;
     playerRank = data.rankName;
+    updateElement('name', playerName);
+    updateElement('country', playerCountry);
+    updateElement('rank', playerRank);
+
     playerJoin = "";
     playerPromotion = "";
     var years = 0;
@@ -154,10 +197,17 @@ async function getProfile() {
         console.log('No Date of Join or Promotion: %d', error);
     }
 
+    updateElement('joined', playerJoin);
+    updateElement('promo', playerPromotion);
+
     // Parse the country and rank paths
     countryPath = 'img/nation/' + data.Country.toLowerCase() + '.png';
     rankPath = data.rankPath;
     playerEvents = 0;
+
+    // Update the profile image and rank image
+    updateElement('profileImg', countryPath);
+    updateElement('rankImg', rankPath);
 
     // Get the number of events attended by the player
     try {
@@ -171,13 +221,18 @@ async function getProfile() {
         return playerEvents;
     }
 
+    // Finally, update the number of events attended
+    updateElement('events', playerEvents);
+
     // If the player has attended more than 4 events and is a recruit, set the status to 'Pending Promotion'
     // This is used to show the player that they are eligible for a promotion
     // This is not a real promotion, just a status change
     if (playerEvents > 4 && playerRank === 'Recruit') {
         playerStatus = 'Pending Promotion';
     }
-    updateProfile();
+
+    updateElement('status', playerStatus);
+    // updateProfile();
 }
 
 // This function is used to get the user badges for the profile page and display them
