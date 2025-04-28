@@ -54,6 +54,7 @@ function createOrg(data) {
                 var nodeColor;
                 switch (d.data.rankName) {
                     case "Sergeant":
+                    case "Lance Corporal":
                     case "Corporal":
                     case "Second Lieutenant":
                     case "First Lieutenant":
