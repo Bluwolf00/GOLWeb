@@ -205,8 +205,11 @@ async function getMemberAttendance(name) {
 
         res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
     } else {
+        var calcTime = new Date().getTime().valueOf() - (3600000 * 24);
+        var lastUpdateInt = Date.parse(rows[0].lastUpdate).valueOf();
+
         // If the last update was more than a day ago, update the attendance data
-        if (rows[0].lastUpdate > (new Date().getTime() - 3600000)) {
+        if (lastUpdateInt < calcTime) {
 
             console.log("Updating attendance data for " + name);
             attendanceRecords = await embeds.getMemberAttendanceFromAPI();
@@ -215,7 +218,6 @@ async function getMemberAttendance(name) {
         } else {
             console.log("Attendance data for " + name + " is up to date, Fetching from DB...");
             // If the last update was less than a day ago, just return the current attendance data
-
             res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "normal");
         }
     }
@@ -253,6 +255,7 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
     var id = response[0].MemberID;
     var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    // var currentTime = new Date().getTime().valueOf();
     var success = null;
 
     if (insertOrUpdate == "normal") {
