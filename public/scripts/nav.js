@@ -36,3 +36,7 @@ $(document).ready(function () {
             // By default the active element won't be on any of the buttons, this includes for any pages that do not appear in the above conditions (error page etc.)
     };
 });
+
+function toggleMobileNav(element) {
+    element.classList.toggle("open");
+}

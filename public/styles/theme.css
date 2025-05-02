@@ -28,8 +28,76 @@ svg.icon-secondary {
   align-content: center;
 }
 
+header {
+  height: 85px;
+  margin: auto 1em;
+  justify-content: space-between;
+}
+
+#headerLogo {
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+}
+
 .nav-pills .nav-link.active {
   background-color: var(--bs-btn-bg);
+}
+
+#hamburger {
+  margin: auto 0;
+  display: none;
+  cursor: pointer;
+}
+
+#hamburger div {
+  width: 2.5rem;
+  height: 0.3rem;
+  background-color: var(--bs-primary);
+  margin: 0.4rem auto;
+  transition: all 0.3s ease-in-out;
+}
+
+.open .bar1 {
+  transform: rotate(45deg) translate(0.5rem, 0.5rem);
+}
+
+.open .bar2 {
+  opacity: 0;
+}
+
+.open .bar3 {
+  transform: rotate(-45deg) translate(0.5rem, -0.5rem);
+}
+.open #hamburger {
+  background-color: var(--bs-primary);
+}
+
+.open #hamburger div {
+  background-color: var(--bs-primary);
+}
+
+.open .mobile-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 85px;
+  left: 0;
+  width: 100%;
+  height: auto;
+  background-color: rgba(0, 0, 0, 0.75);
+  list-style: none;
+  z-index: 9999;
+  padding: 0;
 }
 
 body {
@@ -68,7 +136,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   max-width: 100%;
-  /* max-height: 50%; */
+  min-height: 95vh;
   text-align: center;
   border-image: fill 1 linear-gradient(to bottom right, #212529aa, #0b0c0eaa);
 }
@@ -184,6 +252,7 @@ body {
 
 .card {
   height: 100%;
+  border-bottom: 2px solid red;
 }
 
 div.card-body > div {
@@ -543,7 +612,26 @@ footer {
   }
 }
 
-@media screen and (max-width: 510px) {
+@media only screen and (max-width: 850px) {
+
+  header nav {
+    display: none;
+  }
+
+  #hamburger {
+    display: block;
+    margin: auto 0;
+  }
+
+  #headerLogo {
+    margin: 0 0;
+  }
+
+  .nav-item {
+    padding: 0.3rem 0;
+    color: rgb(147, 167, 187);
+  }
+
   .nav {
     justify-content: center;
   }

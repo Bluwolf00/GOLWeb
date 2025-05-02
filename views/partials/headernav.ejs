@@ -1,19 +1,36 @@
-<header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+<header class="d-flex flex-wrap py-3 border-bottom">
+    <a href="/" id="headerLogo">
       <span class="fs-4"><img id="navIcon" src="img/logo_new.png" alt="logo"></span>
       <span class="fs-4">Guerrillas of Liberation</span>
     </a>
 
-    <ul class="nav nav-pills">
-      <li class="nav-item"><a href="/home" class="nav-link" id="homeEntry">Home</a></li>
-      <li class="nav-item"><a href="/about" class="nav-link" id="aboutEntry">About</a></li>
-      <li class="nav-item"><a href="/orbat" class="nav-link" id="orbatEntry">ORBAT</a></li>
-      <li class="nav-item"><a href="/roster" class="nav-link" id="rosterEntry">Roster</a></li>
-      <li class="nav-item"><a href="/Badges" class="nav-link" id="badgeEntry">Badges</a></li>
-      <!-- <li class="nav-item"><a href="/SOP" class="nav-link" id="sopEntry">SOPs</a></li> -->
-      <li class="nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log In</a></li>
-      <li class="nav-item"><a href="/discord" class="nav-link">Join</a></li>
-    </ul>
+    <nav>
+      <ul class="nav nav-pills">
+        <li class="nav-item"><a href="/home" class="nav-link" id="homeEntry">Home</a></li>
+        <li class="nav-item"><a href="/about" class="nav-link" id="aboutEntry">About</a></li>
+        <li class="nav-item"><a href="/orbat" class="nav-link" id="orbatEntry">ORBAT</a></li>
+        <li class="nav-item"><a href="/roster" class="nav-link" id="rosterEntry">Roster</a></li>
+        <li class="nav-item"><a href="/Badges" class="nav-link" id="badgeEntry">Badges</a></li>
+        <!-- <li class="nav-item"><a href="/SOP" class="nav-link" id="sopEntry">SOPs</a></li> -->
+        <li class="nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log In</a></li>
+        <li class="nav-item"><a href="/discord" class="nav-link">Join</a></li>
+      </ul>
+    </nav>
+    <div id="hamburger" onclick="toggleMobileNav(this)">
+      <div class="bar1"></div>
+      <div class="bar2"></div>
+      <div class="bar3"></div>
+      <ul class="mobile-nav">
+        <li class="nav-item"><a href="/home" class="nav-link" id="homeEntry">Home</a></li>
+        <li class="nav-item"><a href="/about" class="nav-link" id="aboutEntry">About</a></li>
+        <li class="nav-item"><a href="/orbat" class="nav-link" id="orbatEntry">ORBAT</a></li>
+        <li class="nav-item"><a href="/roster" class="nav-link" id="rosterEntry">Roster</a></li>
+        <li class="nav-item"><a href="/Badges" class="nav-link" id="badgeEntry">Badges</a></li>
+        <!-- <li class="nav-item"><a href="/SOP" class="nav-link" id="sopEntry">SOPs</a></li> -->
+        <li class="nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log In</a></li>
+        <li class="nav-item"><a href="/discord" class="nav-link">Join</a></li>
+      </ul>
+    </div>
 </header>
 
 <script>var pageTitle = "<%= pageTitle %>" </script>
