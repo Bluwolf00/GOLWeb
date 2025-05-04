@@ -223,7 +223,7 @@ async function getProfile() {
     }
 
     // Finally, update the number of events attended
-    await updateElement('events', playerEvents);
+    updateElement('events', playerEvents);
 
     // If the player has attended more than 4 events and is a recruit, set the status to 'Pending Promotion'
     // This is used to show the player that they are eligible for a promotion
