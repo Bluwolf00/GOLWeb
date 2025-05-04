@@ -46,6 +46,7 @@ async function updateElement(element, value) {
             break;
         case 'events':
             eventsEle.innerText = value;
+
             break;
         case 'profileImg':
             profileImg.src = value;
@@ -222,12 +223,15 @@ async function getProfile() {
     }
 
     // Finally, update the number of events attended
-    updateElement('events', playerEvents);
+    await updateElement('events', playerEvents);
 
     // If the player has attended more than 4 events and is a recruit, set the status to 'Pending Promotion'
     // This is used to show the player that they are eligible for a promotion
     // This is not a real promotion, just a status change
-    if (playerEvents > 4 && playerRank === 'Recruit') {
+    if (playerEvents > 4 && playerRank === 'Recruit' ||
+        playerEvents > 30 && playerRank === 'Private' ||
+        playerEvents > 60 && playerRank === 'Private Second Class'
+    ) {
         playerStatus = 'Pending Promotion';
     }
 
