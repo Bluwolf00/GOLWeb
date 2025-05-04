@@ -70,9 +70,17 @@ function createOrg(data) {
                         nodeColor = 'rgba(255, 38, 0, 0.2)';
                         break;
                 }
+                // var returnString = `<div style='width:${d.width}px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>`
+                var borderStyle = `1px solid #E4E2E9`;
+                if (d.data.rankName == "Recruit" && d.data.numberOfEventsAttended >= 4
+                    || d.data.rankName == "Private" && d.data.numberOfEventsAttended >= 30
+                    || d.data.rankName == "Private Second Class" && d.data.numberOfEventsAttended >= 60
+                ) {
+                    borderStyle = `2px solid #c9b52a`;
+                }
                 return `
                             <div style='width:${d.width}px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>
-                                <div class="node-bubble" onclick="window.location.href = 'https://gol-clan.com/profile?name=${d.data.UName}'" style="font-family: 'Inter', sans-serif;background-color:${nodeColor};  margin-left:-1px;width:${d.width - 2}px;height:${d.height - imageDiffVert}px;border-radius:10px;border: 1px solid #E4E2E9">
+                                <div class="node-bubble" onclick="window.location.href = 'https://gol-clan.com/profile?name=${d.data.UName}'" style="font-family: 'Inter', sans-serif;background-color:${nodeColor};  margin-left:-1px;width:${d.width - 2}px;height:${d.height - imageDiffVert}px;border-radius:10px;border: ${borderStyle}">
                                     <div style="color:#FFFFFF;display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${d.data.nodeId}</div>
                                     <div style="display:flex;justify-content:flex-end;margin-top:5px">   <img src=" ${d.data.rankPath}" style="margin-right:${8}px;border-radius:0px;width:25px;height:25px;" /></div>
                                     <div style="background-color:${color};margin-top:${-imageDiffVert - 32}px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;" ></div>
@@ -120,7 +128,8 @@ fetch('/getmembers')
             Country: "Sweden",
             rankName: "Root",
             rankPath: "",
-            UName: "Root"
+            UName: "Root",
+            numberOfEventsAttended: 0
         }
         newdata.unshift(root);
 
