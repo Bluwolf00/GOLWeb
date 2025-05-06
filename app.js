@@ -1,64 +1,104 @@
 const express = require('express');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const bodyParser = require('body-parser');
 const db = require('./database.js');
+const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
+
+dotenv.config();
 
 const app = express();
 
 app.use(bodyParser.json());
 
+const sessionStore = new MySQLStore({clearExpired: true}, db.getPool());
+
+sessionStore.onReady().then(() => {
+    console.log('MYSQL Session Store is ready');
+}).catch((error) => {
+    console.error('Error estbalishing the MySQL Session Store: ', error);
+});
+
 app.use(session({
-    secret: 'GOL'
+    secret: process.env.SESSION_SECRET, // To viewers on GitHub, I have changed the previous secret for security reasons.
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore
 }));
 
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
 app.set('view engine', 'ejs');
-
 app.use(express.static('public'));
-
 app.use(function(req,res,next) {
     res.locals.loggedin = req.session.loggedin;
     next();
 });
 
+// AUTHENTICATION MIDDLEWARE
+
+const authPage = async (req,res,next) => {
+    if (req.session.loggedin) {
+        var role;
+        try {
+            role = await db.getUserRole(req.session.username);
+            if (role == "Admin" || role == "Moderator") {
+                next();
+            } else {
+                res.redirect('/error?error=403');
+            }
+        } catch (error) {
+            res.redirect('/login');
+        }
+
+    } else {
+        res.redirect('/login');
+    }
+}
+
 // GET REQUESTS - PAGES
 
 app.get('/', (req,res) => {
+    console.log(req.session);
+    // req.session.loggedin = false;
+    
     res.render('pages/index', {
-        loggedin: req.session.loggedin
+        userLogged: req.session.loggedin,
+        username: req.session.username
     });
 });
 
 app.get('/home', (req,res) => {
+    console.log(req.session);
     res.render('pages/index', {
-        loggedin: req.session.loggedin
+        userLogged: req.session.loggedin,
+        username: req.session.username
     });
 });
 
 app.get('/about', (req,res) => {
     res.render('pages/about', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
 app.get('/roster', (req,res) => {
     res.render('pages/roster', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
 app.get('/SOP', (req,res) => {
     res.render('pages/sop', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
 app.get('/Badges', (req,res) => {
     res.render('pages/badges', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
@@ -85,17 +125,47 @@ app.get('/orbat', async (req,res) => {
     res.render('pages/roster_new', {data: data, loggedin: req.session.loggedin});
 });
 
+app.get('/error', (req,res) => {
+    var errorCode = req.query.error;
+    console.log(errorCode);
+    res.render('pages/error', {
+        error: errorCode,
+        username: req.session.username
+    });
+});
+
+app.get('/register', (req,res) => {
+    res.render('pages/register', {
+        username: req.session.username
+    });
+});
+
+app.get('/dashboard', authPage, async (req,res) => {
+    res.render('pages/dashboard', {
+        username: req.session.username
+    });
+});
+
 app.get('/login', (req,res) => {
 
-    if (req.session.loggedin) {
-        req.session.loggedin = false;
-        req.session.destroy();
-        res.redirect('/home');
-    } else {
+    if (req.query.success) {
         res.render('pages/login', {
-            loggedin: req.session.loggedin
+            success: true
         });
+    } else {
+        if (req.session.loggedin) {
+            req.session.loggedin = false;
+            // req.session.destroy();
+            req.session.save(function() {
+                res.redirect('/');
+            })
+        } else {
+            res.render('pages/login', {
+                username: req.session.username
+            });
+        }
     }
+
 });
 
 // GET REQUESTS - DATA
@@ -188,22 +258,49 @@ app.post('/changeRank', async (req,res) => {
 });
 
 app.post('/performLogin', async (req,res) => {
-    var username = req.body.username;
-    var password = req.body.password;
-    var result = await db.performLogin(username, password, true);
+    const { username, password } = req.body;
+    var result = await db.performLogin(username, password, false);
 
     if (result) {
         req.session.loggedin = true;
-        res.redirect('/home');
+        req.session.username = username;
+        // await sessionStore.set(req.sessionID, {loggedin: true});
+        req.session.save(function() {
+            return res.redirect('/home');
+        });
     } else {
         res.send(result);
+    }
+});
+
+app.post('/performRegister', async (req,res) => {
+    const { username, password, email } = req.body;
+
+    // Check if the username already exists
+    let result = await db.performLogin(username, password, false);
+    console.log(result);
+
+    if (result) {
+        res.redirect('/register?error=existinguser');
+    } else {
+        // Hash the password before storing it
+        const hashedPassword = await bcrypt.hash(password, 10);
+        result = await db.performRegister(username, hashedPassword);
+        if (result) {
+            res.redirect('/login?success=true');
+        } else {
+            res.send(result);
+        }
     }
 });
 
 // Error Catcher
 
 app.get('*', (req,res) => {
-    res.render('pages/error');
+    res.render('pages/error', {
+        error: 404,
+        username: req.session.username
+    });
 });
 
 app.listen(process.env.PORT || 3000);

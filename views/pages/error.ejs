@@ -13,7 +13,7 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Error"}) %>
+<%- include('../partials/headernav', {pageTitle: "Error", username: username}) %>
 
 <body>
     <main>
@@ -21,8 +21,16 @@
 
             <img id="front-logo" src="img/logo_new.png" alt="">
             <h1 class="mb-5 fw-bold mainHead">Aw Crap!</h1>
-            <p class="lead">Looks like you've got the wrong frequency! <br> No worries, try heading back to base for a debrief</p>
-            <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/home">RTB</a></button>
+            <% if (typeof error !== 'undefined') { %>
+                <% if (error == 403) { %>
+                    <h2>Access Unauthorised</h2>
+                    <p class="lead">Woah there! Seems as though you've tried to tune into the command net. <br>Can't have that soldier!</p>
+                <% } else { %>
+                    <p class="lead">Looks like you've got the wrong frequency!</p>
+                <% } %>
+            <% } %>
+            <p class="lead">No worries, try heading back to base for a debrief</p>
+            <a href="/home"><button type="button" class="btn btn-primary btn-lg px-4 gap-3">RTB</button></a>
 
         </div>
 

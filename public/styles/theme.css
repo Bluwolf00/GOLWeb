@@ -8,6 +8,14 @@
   --blu-secondary: rgb(212, 61, 37);
 }
 
+* {
+  box-sizing: border-box;
+}
+
+.sec-highlight {
+  color: var(--blu-secondary);
+}
+
 svg.bi {
   width: 1.5em;
   height: 1.5em;
@@ -166,6 +174,17 @@ body {
   background-color: rgba(0, 0, 0, 0.45);
   width: 100vb;
   height: 100vh;
+}
+
+#second-feature {
+  background-image: url("/img/parker-img.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  max-width: 100%;
+  min-height: 40vh;
+  text-align: center;
+  border-image: fill 1 linear-gradient(to bottom right, #212529aa, #0b0c0eaa);
 }
 
 .spinner-wrapper {
@@ -520,6 +539,7 @@ footer {
 .profileHero {
   margin: 2em 0;
   margin-top: 10em;
+  min-height: 10vh;
 }
 
 #profileImg {
@@ -597,6 +617,40 @@ footer {
 
 .card-img-top:hover {
   transform: scale(1.1);
+}
+
+/* Dashboard */
+
+.sub-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1em 0;
+}
+
+.sub-nav > ul {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  list-style: none;
+  padding: 1% 0;
+  width: 80%;
+}
+
+.sub-nav > ul > li {
+  background-color: rgb(86,108,130);
+  border-radius: 15px;
+  font-weight: bold;
+}
+
+.sub-nav > ul > li > a {
+  color: #FFF;
+}
+
+.sub-nav > ul > li > img {
+  width: 2em;
+  height: 2em;
+  border-radius: 100%;
 }
 
 

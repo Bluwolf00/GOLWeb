@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-
+const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
 dotenv.config()
@@ -11,6 +11,10 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
+
+function getPool() {
+    return pool;
+}
 // const result = await pool.query('SELECT * FROM Members')
 
 async function getMembers() {
@@ -158,22 +162,57 @@ async function changeRank(member, newRank) {
 async function performLogin(username, password, fallback) {
 
     if (!fallback) {
-        var rows = null;
+        var rows = [null];
         try {
-            rows = await pool.query(`
-                SELECT UName,Password
-                FROM Admins
-                WHERE UName = ? AND Password = ?`, [username, password]);
+            [rows] = await pool.query(`
+                SELECT username,password
+                FROM Users
+                WHERE username = ?`, [username]);
         } catch (error) {
             console.log(error);
         } finally {
-            return rows
+            if (rows.length == 0) {
+                return null;
+            } else {
+                if (rows[0].password)
+                return rows;
+            }
         }
     } else {
         if (username == process.env.ADMIN_USERNAME && password == process.env.ADMIN_PASSWORD) {
             return true;
         } else {
             return false;
+        }
+    }
+}
+
+async function performRegister(username, password) {
+    try {
+        const result = await pool.query(`
+            INSERT INTO Users (username,password,role)
+            VALUES (?,?,"member")`, [username, password]);
+        return result[0].affectedRows > 0;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+async function getUserRole(username) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT role
+            FROM Users
+            WHERE username = ?`, [username]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0].role;
         }
     }
 }
@@ -291,7 +330,7 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
 }
 
 
-module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance };
+module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, getPool, performRegister, getUserRole };
 
 
 // async function getMember(name) {
