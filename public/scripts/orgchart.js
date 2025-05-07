@@ -77,6 +77,8 @@ function createOrg(data) {
                     || d.data.rankName == "Private Second Class" && d.data.numberOfEventsAttended >= 60
                 ) {
                     borderStyle = `2px solid #c9b52a`;
+                } else if (d.data.status == "Inactive" || d.data.status == "LOA") {
+                    borderStyle = `2px solid #c51010`;
                 }
                 return `
                             <div style='width:${d.width}px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>
@@ -129,6 +131,7 @@ fetch('/getmembers')
             rankName: "Root",
             rankPath: "",
             UName: "Root",
+            status: "Active",
             numberOfEventsAttended: 0
         }
         newdata.unshift(root);
