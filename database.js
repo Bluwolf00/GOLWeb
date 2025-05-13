@@ -188,7 +188,8 @@ async function getMemberAttendanceNew(name) {
     var updated = 0;
 
     // Check if the attendance records have been updated in the last 12 hours
-    if (!(await isAttendanceUpdated())) {
+    var attendanceUpdated = await isAttendanceUpdated();
+    if (!(attendanceUpdated)) {
         updated = await updateMemberAttendance(bypassCheck = true);
     }
 
@@ -209,7 +210,6 @@ async function getMemberAttendanceNew(name) {
         console.log("GETMEMBERATTENDANCE: Member " + name + " not found");
         return false;
     }
-
 
     rqResponse = {
         "thursdays": rows[0].thursdays,

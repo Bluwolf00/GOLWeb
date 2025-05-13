@@ -140,11 +140,11 @@ app.get('/getRanks', async (req,res) => {
 
 app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
-    var content = {"thursday": -1, "sunday": -1, "numberOfEventsAttended": -1};
+    var content = {"thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1};
     try {
         temp = await db.getMemberAttendanceNew(name);
-        content.thursday = temp.thursday;
-        content.sunday = temp.sunday;
+        content.thursdays = temp.thursdays;
+        content.sundays = temp.sundays;
         content.numberOfEventsAttended = temp.numberOfEventsAttended;
     } catch (error) {
         console.log(error);

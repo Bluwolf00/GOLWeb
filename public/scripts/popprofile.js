@@ -215,7 +215,7 @@ async function getProfile() {
         response = await fetch('/getMemberAttendance?name=' + playerName);
         data = await response.json();
         // playerEvents = data.numberOfEventsAttended;
-        playerEvents = data.numberOfEventsAttended;
+        playerEvents = data.thursdays + " | " + data.sundays;
     } catch (error) {
         console.log('Error fetching member attendance: %d', error);
         playerEvents = 0;
