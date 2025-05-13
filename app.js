@@ -138,25 +138,39 @@ app.get('/getRanks', async (req,res) => {
     res.send(ranks);
 });
 
-
 app.get('/getMemberAttendance', async (req,res) => {
     var name = req.query.name;
-    var attendance = {"numberOfEventsAttended": -1, "insertStatus": false};
+    var content = {"thursday": -1, "sunday": -1, "numberOfEventsAttended": -1};
     try {
-        temp = await db.getMemberAttendance(name);
-        attendance.numberOfEventsAttended = temp.numberOfEventsAttended;
-        attendance.insertStatus = temp.insertStatus;
-        if (attendance.insertStatus) {
-            res.status(201);
-        } else {
-            res.status(200);
-        }
-        res.send(attendance);
+        temp = await db.getMemberAttendanceNew(name);
+        content.thursday = temp.thursday;
+        content.sunday = temp.sunday;
+        content.numberOfEventsAttended = temp.numberOfEventsAttended;
     } catch (error) {
+        console.log(error);
         res.status(500);
-        res.send(error.message);
     }
+    res.send(content);
+});
 
+// Needs rate limited
+app.get('/updateMemberLOAs', async (req,res) => {
+    var result = await db.updateMemberLOAs();
+    if (result == 203) {
+        res.status(203).send("No new LOAs found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("LOAs updated successfully.");
+    }
+});
+
+// Needs rate limited
+app.get('/updateAttendance', async (req,res) => {
+    var result = await db.updateMemberAttendance();
+    if (result == 203) {
+        res.status(203).send("No new attendance found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("Attendance updated successfully.");
+    }
 });
 
 // POST REQUESTS
