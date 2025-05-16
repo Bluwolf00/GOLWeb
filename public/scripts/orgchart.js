@@ -114,7 +114,7 @@ function createOrg(data) {
 //     createOrg(data.orbat);
 // });
 
-fetch('/getmembers')
+fetch('/data/getmembers')
     .then(res => res.json())
     .then(data => {
         var newdata = data.filter(function (el) {

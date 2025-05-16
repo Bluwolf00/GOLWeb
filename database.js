@@ -21,23 +21,119 @@ async function getMembers() {
     var rows = [null];
     try {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.Rank = Ranks.rankID');
+        [rows] = await pool.query('SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,DateOfJoin,DateOfPromo,playerStatus,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID ORDER BY Members.MemberID ASC');
     } catch (error) {
     }
     return rows
 }
 
+async function getFullMembers() {
+    var rows = [null];
+    try {
+        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
+        [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC');
+    } catch (error) {
+    }
+    return rows
+}
+
+async function getFullMemberInfo(memberID) {
+    var rows = [null];
+    try {
+        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
+        [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank AND m.MemberID = ? ORDER BY m.MemberID ASC', [memberID]);
+    } catch (error) {
+    }
+    return rows[0]
+};
+
 async function getMember(name) {
     var rows = [null];
     try {
         rows = await pool.query(`
-            SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,status
+            SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,playerStatus
             FROM Members,Ranks
-            WHERE Members.Rank = Ranks.rankID AND UName = ?`, [name])
+            WHERE Members.playerRank = Ranks.rankID AND UName = ?`, [name])
     } catch (error) {
         console.log(error);
     } finally {
         return rows[0]
+    }
+}
+
+async function deleteMember(memberID) {
+    var rows = [null];
+    try {
+        rows = await pool.query(`
+            DELETE FROM Members
+            WHERE MemberID = ?`, [memberID])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0]
+    }
+}
+
+async function getMemberParent(memberName) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT parentNodeId
+            FROM Members
+            WHERE UName = ?`, [memberName])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0].parentNodeId;
+    }
+}
+
+async function getRankFromName(rankName) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT rankID
+            FROM Ranks
+            WHERE rankName = ?`, [rankName])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0].rankID;
+    }
+}
+
+async function updateMember(memberID, memberName, rank, country, parentName, status, dateOfJoin, dateOfPromo) {
+    var rows = [null];
+    try {
+
+        // Get the parent node ID from the name
+        // If the parent name is "None" AKA the top element, set the parent node ID to "root"
+        var parentNodeId = "root";
+        if (!parentName == "None") {
+            parentNodeId = await getMemberParent(parentName);
+        }
+        var rankID = await getRankFromName(rank);
+        if (dateOfJoin == "") {
+            dateOfJoin = null;
+        }
+        if (dateOfPromo == "") {
+            dateOfPromo = null;
+        }
+        
+        [rows] = await pool.query(`
+            UPDATE Members
+            SET playerRank = ?,
+                UName = ?,
+                Country = ?,
+                parentNodeId = ?,
+                playerStatus = ?,
+                DateOfJoin = ?,
+                DateOfPromo = ?
+            WHERE MemberID = ?`, [rankID, memberName, country, parentNodeId, status, dateOfJoin, dateOfPromo, memberID])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows
     }
 }
 
@@ -122,20 +218,27 @@ async function getVideos() {
     return rows;
 }
 
-async function getRanks(aboveOrBelow, currentRank) {
+async function getRanks(all, aboveOrBelow, currentRank) {
     var rows = null;
-    if (aboveOrBelow == "above") {
-        rows = await pool.query(`
-            SELECT rankName, prefix
+    if (all == true) {
+        [rows] = await pool.query(`
+            SELECT rankID, rankName, prefix
             FROM Ranks
-            WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
-            ORDER BY rankID DESC`, [currentRank]);
+            ORDER BY rankID ASC`);
     } else {
-        rows = await pool.query(`
-            SELECT rankName, prefix
-            FROM Ranks
-            WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
-            ORDER BY rankID ASC`, [currentRank]);
+        if (aboveOrBelow == "above") {
+            rows = await pool.query(`
+                SELECT rankName, prefix
+                FROM Ranks
+                WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
+                ORDER BY rankID DESC`, [currentRank]);
+        } else {
+            rows = await pool.query(`
+                SELECT rankName, prefix
+                FROM Ranks
+                WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
+                ORDER BY rankID ASC`, [currentRank]);
+        }
     }
     return rows;
 }
@@ -150,7 +253,7 @@ async function changeRank(member, newRank) {
         console.log("NEW RANK: " + newRank);
         rows = await pool.query(`
             UPDATE Members
-            SET Members.Rank = (SELECT rankID FROM Ranks WHERE prefix = ?)
+            SET Members.playerRank = (SELECT rankID FROM Ranks WHERE prefix = ?)
             WHERE UName = ?`, [newRank, member]);
     } catch (error) {
         console.log(error);
@@ -175,7 +278,7 @@ async function performLogin(username, password, fallback) {
                 return null;
             } else {
                 if (rows[0].password)
-                return rows;
+                    return rows;
             }
         }
     } else {
@@ -330,7 +433,7 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
 }
 
 
-module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, getPool, performRegister, getUserRole };
+module.exports = { getMembers, getFullMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, getPool, performRegister, getUserRole };
 
 
 // async function getMember(name) {

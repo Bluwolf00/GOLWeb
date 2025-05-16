@@ -1,6 +1,6 @@
 function iterate() {
 
-    fetch('/getmembers')
+    fetch('/data/getmembers')
     .then(res => res.json())
     .then(result => {
         result.forEach(e => {

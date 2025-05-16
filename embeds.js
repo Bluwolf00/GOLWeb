@@ -9,6 +9,7 @@ async function getInfoFromAPI() {
     var savedVideos = [];
 
     // Channels to fetch videos from
+    // No these are not sensitive, they are public channels
     channels = ['UCuKMp2KWhQ69geXACQ0jf5A', 'UCTw6PJb5bCrsVPAVRUc-eTA'];
 
     // Loop through all channels
