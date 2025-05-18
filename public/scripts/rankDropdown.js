@@ -17,7 +17,7 @@ async function callToPost(newRank) {
     member = member.replaceAll('#', '');
     console.log(member);
     var data = { member: member, newRank: newRank };
-    var res = await fetch('/changeRank', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(data)});
+    var res = await fetch('/data/changeRank', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(data)});
 
     if (res.status === 200) {
         location.reload();

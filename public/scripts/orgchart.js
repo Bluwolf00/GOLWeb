@@ -128,7 +128,7 @@ async function updateServer() {
 // Retrieve the data from the server and create the org chart
 async function init() {
     await updateServer();
-    fetch('/getmembers')
+    fetch('/data/getmembers')
         .then(res => res.json())
         .then(data => {
             var newdata = data.filter(function (el) {

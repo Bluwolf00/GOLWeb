@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GOL Dashboard - Users</title>
+  <link rel="icon" type="image/png" href="/img/logo.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/dashboard.css">
+  <script src="/scripts/logoHover.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
+  </script>
+  <script src="/scripts/dashusertable.js"></script>
+</head>
+
+<%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
+
+<body>
+  <main>
+    <% if (typeof editSuccess !== 'undefined') { %>
+    <div class="container text-center">
+      <% if (editSuccess == 1) { %>
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+        Updated!</div>
+      <% } else if (editSuccess == 0){ %>
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+        Update!</div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <% if (typeof createSuccess !== 'undefined') { %>
+    <div class="container text-center">
+      <% if (createSuccess == 1) { %>
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+        Created!</div>
+      <% } else if (createSuccess == 0){ %>
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+        Created!</div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <%- include('../partials/dashnav', {pageName: "Users"}) %>
+
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit User</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="/data/updateMember" method="POST">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="memberid">ID</label>
+                <input type="text" class="form-control" id="memberid" name="memberid" placeholder="ID">
+              </div>
+              <div class="form-group">
+                <label for="uname">Name</label>
+                <input type="text" class="form-control" id="uname" name="uname" placeholder="Name">
+              </div>
+              <div class="form-group">
+                <label for="rank">Rank</label>
+                <select name="rank" id="rank">
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text" class="form-control" id="country" name="country" placeholder="Country">
+              </div>
+              <div class="form-group">
+                <label for="reporting">Reports To</label>
+                <input type="text" class="form-control" id="reporting" name="reporting" placeholder="Reports To">
+              </div>
+              <div class="form-group">
+                <label for="status">Status</label>
+                <input type="text" class="form-control" id="status" name="status" placeholder="Status">
+              </div>
+              <div class="form-group">
+                <label for="joined">Joined Date</label>
+                <input type="date" class="form-control" name="joined" id="joined">
+              </div>
+              <div class="form-group">
+                <label for="promoDate">Promotion Date</label>
+                <input type="date" class="form-control" name="promoDate" id="promoDate">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="createUserModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create Member</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="/data/createMember" method="POST">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="new-uname">Name</label>
+                <input required type="text" class="form-control" id="new-uname" name="newuname" placeholder="Name">
+              </div>
+              <div class="form-group">
+                <label for="new-rank">Rank</label>
+                <select required name="newrank" id="new-rank">
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="new-country">Country</label>
+                <input required type="text" class="form-control" id="new-country" name="newcountry" placeholder="Country">
+              </div>
+              <div class="form-group">
+                <label for="new-reporting">Reports To</label>
+                <input required type="text" class="form-control" id="new-reporting" name="newreporting" placeholder="Reports To">
+              </div>
+              <div class="form-group">
+                <label for="new-joined">Joined Date</label>
+                <input required type="date" class="form-control" name="newjoined" id="new-joined">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container my-5">
+      <div class="container buttonsDiv">
+        <button type="button" class="btn btn-primary" onclick="openCreateModal()">
+          New Member
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="location.reload();">Refresh</button>
+      </div>
+      <table id="membersTable" class="table table-dark table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Rank</th>
+            <th scope="col">Country</th>
+            <th scope="col">Reports To</th>
+            <th scope="col">Status</th>
+            <th scope="col">Joined</th>
+            <th scope="col">Promoted</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="membersTableBody">
+          <!-- Rows will be populated here by JavaScript -->
+          <tr>
+            <th scope="row">1</th>
+            <td>John Doe</td>
+            <td>Corporal</td>
+            <td>USA</td>
+            <td>Kerry Smith</td>
+            <td>Active</td>
+            <td>2023-01-01</td>
+            <td>2023-02-01</td>
+            <td>
+              <button class="btn btn-primary">Edit</button>
+              <button class="btn btn-danger">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <th scope="row">2</th>
+            <td>Oksman</td>
+            <td>Lieutenant</td>
+            <td>Sweden</td>
+            <td>None</td>
+            <td>Active</td>
+            <td>2016-01-01</td>
+            <td>2018-02-01</td>
+            <td>
+              <button class="btn btn-primary">Edit</button>
+              <button class="btn btn-danger">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+    </script>
+    <script defer>
+      var isloggedIn = "<%= loggedin %>"
+    </script>
+    <script src="/scripts/checkLogged.js"></script>
+  </main>
+
+  <footer>
+    <%- include('../partials/footer') %>
+  </footer>
+</body>
+
+</html>

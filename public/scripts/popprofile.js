@@ -62,20 +62,6 @@ async function updateElement(element, value) {
 
 // This function is used to update the user profile information for the profile page
 async function updateProfile() {
-    // nameEle.innerText = playerName;
-    // countryEle.innerText = playerCountry;
-    // statusEle.innerText = playerStatus;
-    // joinedEle.innerText = playerJoin;
-    // rankEle.innerText = playerRank;
-    // promoEle.innerText = playerPromotion;
-    // eventsEle.innerText = playerEvents;
-    // profileImg.src = countryPath;
-    // rankImg.src = rankPath;
-
-    // if (playerStatus === 'Pending Promotion') {
-    //     statusEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
-    //     eventsEle.parentElement.style.backgroundColor = 'rgb(0, 91, 119)';
-    // };
 
     if (admin) {
         var promoteDropdown = document.getElementById('promo-content');
@@ -158,7 +144,7 @@ async function getProfile() {
     var id = url.substring(url.lastIndexOf('=') + 1);
     // console.log(id);
 
-    [data] = await fetch('/memberinfo?name=' + id)
+    [data] = await fetch('/data/memberinfo?name=' + id)
         .then((response) => response.json());
     // console.log(data);
     playerName = data.UName;
@@ -212,7 +198,7 @@ async function getProfile() {
 
     // Get the number of events attended by the player
     try {
-        response = await fetch('/getMemberAttendance?name=' + playerName);
+        response = await fetch('/data/getMemberAttendance?name=' + playerName);
         data = await response.json();
         // playerEvents = data.numberOfEventsAttended;
         playerEvents = data.thursdays + " | " + data.sundays;
@@ -243,7 +229,7 @@ async function getProfile() {
 function getBadges() {
     var url = window.location.href;
     var id = url.substring(url.lastIndexOf('=') + 1);
-    fetch('/memberbadges?name=' + id)
+    fetch('/data/memberbadges?name=' + id)
         .then((response) => response.json())
         .then(([data]) => {
             var dataLength = data.length;
@@ -294,7 +280,7 @@ async function getRanks(aboveOrBelow, currentRank) {
     var url = window.location.href;
     var id = url.substring(url.lastIndexOf('=') + 1);
 
-    var response = await fetch('/getRanks?aboveOrBelow=' + aboveOrBelow + '&currentRank=' + currentRank);
+    var response = await fetch('/data/getRanks?aboveOrBelow=' + aboveOrBelow + '&currentRank=' + currentRank);
 
     var data = await response.json();
 

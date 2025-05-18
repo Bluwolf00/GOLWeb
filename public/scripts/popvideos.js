@@ -26,7 +26,7 @@ async function getAllVideos() {
     var data;
 
     try {
-        resp = await fetch('/getVideos');
+        resp = await fetch('/data/getVideos');
         data = await resp.json();
     } catch (error) {
         console.error("Error fetching video data");

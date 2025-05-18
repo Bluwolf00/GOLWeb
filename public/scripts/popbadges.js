@@ -29,41 +29,21 @@ function createCard(name, description, path) {
     cardBody.appendChild(cardText);
 }
 
-function getAllBadges() {
-    fetch('/getBadges')
-        .then((response) => response.json())
-        .then((data) => {
-            console.log(length);
-            data.forEach(badge => {
-                badgeName = badge.badgeName;
-                badgeDescription = badge.badgeDescription;
-                if (badge.badgePath === null || badge.badgePath === '') {
-                    badge.badgePath = 'img/badge/Placeholder_Badge.png';
-                }
-                badgePath = badge.badgePath;
-                createCard(badgeName, badgeDescription, badgePath);
-                console.log(badgeName);
-            });
-        });
+async function getAllBadges() {
+
+    var response = await fetch('/data/getBadges');
+    var data = await response.json();
+
+    data.forEach(badge => {
+        badgeName = badge.badgeName;
+        badgeDescription = badge.badgeDescription;
+        if (badge.badgePath === null || badge.badgePath === '') {
+            badge.badgePath = 'img/badge/Placeholder_Badge.png';
+        }
+        badgePath = badge.badgePath;
+        createCard(badgeName, badgeDescription, badgePath);
+        console.log(badgeName);
+    });
 }
 
 getAllBadges();
-
-// fetch('/getBadges')
-//         .then((response) => response.json())
-//         .then((data) => {
-//             var length = data.length;
-//             var iterations = Math.ceil(length / 3);
-//             console.log(length);
-//             for (let i = 0; i < iterations; i++) {
-//                 const element = data[i];
-//                 badgeName = element.badgeName;
-//                 badgeDescription = element.badgeDescription;
-//                 if (element.badgePath === null) {
-//                     element.badgePath = '';
-//                 }
-//                 badgePath = element.badgePath;
-//                 createCard(badgeName, badgeDescription, badgePath);
-//                 console.log(badgeName);
-//             };
-//         });

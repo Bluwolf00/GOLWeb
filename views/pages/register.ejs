@@ -13,7 +13,7 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <style>
-        .logInSection {
+        .registerSection {
             margin: 5% auto;
             width: 50%;
             padding: 20px;
@@ -21,11 +21,11 @@
             border-radius: 10px;
         }
 
-        .logInSection h1 {
+        .registerSection h1 {
             margin-bottom: 20px;
         }
 
-        .logInSection button {
+        .registerSection button {
             margin-top: 20px;
         }
 
@@ -35,7 +35,7 @@
     </style>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Log In", loggedin: loggedin, username: username}) %>
+<%- include('../partials/headernav', {pageTitle: "Register"}) %>
 
 
 <body>
@@ -50,15 +50,15 @@
         <div class="container border-bottom text-center">
 
             <div class="px-4" id="front-hero">
-                <img id="front-logo" class="d-block mx-auto mb-4" src="/img/logo_new.png" alt="">
+                <img id="front-logo" class="d-block mx-auto mb-4" src="img/logo_new.png" alt="">
                 <h1 class="fw-bold text-body-emphasis mainHead">Guerrillas of Liberation</h1>
 
             </div>
 
-            <section class="logInSection">
-                <h1>Log In</h1>
+            <section class="registerSection">
+                <h1>Register</h1>
 
-                <form action="/data/performLogin" method="POST">
+                <form action="/data/performRegister" method="POST">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
@@ -67,7 +67,7 @@
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Log In</button>
+                    <button type="submit" class="btn btn-primary">Register</button>
                 </form>
             </section>
 
