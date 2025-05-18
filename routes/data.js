@@ -1,6 +1,7 @@
 const express = require('express');
 var router = express.Router();
 const db = require('../database.js');
+const bcrypt = require('bcrypt');
 
 const middle = require('../middle.js');
 const authPage = middle.authPage;
