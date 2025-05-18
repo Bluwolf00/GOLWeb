@@ -1,5 +1,5 @@
 async function populateTable() {
-    const response = await fetch('/data/getfullmembers');
+    const response = await fetch('/data/getmembers?withParents=true');
     const data = await response.json();
     const tableBody = document.querySelector('#membersTableBody');
 

@@ -78,7 +78,7 @@ function createOrg(data) {
                 ) {
                     // Eligible for Promotion
                     borderStyle = `2px solid #c9b52a`;
-                } else if (d.data.status == "Inactive" || d.data.status == "LOA") {
+                } else if (d.data.playerStatus == "Inactive" || d.data.playerStatus == "LOA") {
                     // Inactive or LOA
                     borderStyle = `2px solid #c51010`;
                 }
@@ -110,14 +110,14 @@ function createOrg(data) {
 
 // Call the endpoint to update the LOAs on the database
 async function updateServer() {
-    var response = await fetch('/updateMemberLOAs', {
+    var response = await fetch('/data/updateMemberLOAs', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
         }
     });
 
-    response = await fetch('/updateAttendance', {
+    response = await fetch('/data/updateAttendance', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -128,7 +128,7 @@ async function updateServer() {
 // Retrieve the data from the server and create the org chart
 async function init() {
     await updateServer();
-    fetch('/data/getmembers')
+    fetch('/data/getmembers?withParents=false')
         .then(res => res.json())
         .then(data => {
             var newdata = data.filter(function (el) {
@@ -145,7 +145,7 @@ async function init() {
                 rankName: "Root",
                 rankPath: "",
                 UName: "Root",
-                status: "Active",
+                playerStatus: "Active",
                 numberOfEventsAttended: 0,
                 thursday: 0,
                 sunday: 0

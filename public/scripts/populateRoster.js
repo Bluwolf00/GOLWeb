@@ -1,6 +1,6 @@
 function iterate() {
 
-    fetch('/data/getmembers')
+    fetch('/data/getmembers?withParents=true')
     .then(res => res.json())
     .then(result => {
         result.forEach(e => {

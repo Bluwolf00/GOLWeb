@@ -17,22 +17,19 @@ function getPool() {
 }
 // const result = await pool.query('SELECT * FROM Members')
 
-async function getMembers() {
+async function getMembers(includeParentName = false) {
     var rows = [null];
-    try {
-        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.Rank = Ranks.rankID');
-    } catch (error) {
+    var query = '';
+    if (includeParentName) {
+        query = 'SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC'
+    } else {
+        query = 'SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
     }
-    return rows
-}
-
-async function getFullMembers() {
-    var rows = [null];
     try {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC');
+        [rows] = await pool.query(query);
     } catch (error) {
+        console.log(error);
     }
     return rows
 }
@@ -43,6 +40,7 @@ async function getFullMemberInfo(memberID) {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
         [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank AND m.MemberID = ? ORDER BY m.MemberID ASC', [memberID]);
     } catch (error) {
+        console.log(error);
     }
     return rows[0]
 };
@@ -464,7 +462,7 @@ async function updateMemberAttendance(bypassCheck = false) {
         var memberDetails = [];
         try {
             // Only update the members that are Active or LOA
-            var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE status NOT IN ("Inactive", "Reserve")');
+            var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE playerStatus NOT IN ("Inactive", "Reserve")');
 
             for (var i = 0; i < temp.length; i++) {
                 
@@ -655,7 +653,7 @@ async function getDashboardData() {
     // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
 
     // Query 3 + 4 - Get the number of members that are active + on LOA
-    var rows = await getFullMembers();
+    var rows = await getMembers(true);
 
     var activeMembers = rows.filter(member => member.playerStatus == "Active").length;
     var leaveMembers = rows.filter(member => member.playerStatus == "LOA").length;
@@ -704,13 +702,4 @@ async function getDashboardData() {
 }
 
 
-module.exports = { getMembers, getFullMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA };
-
-
-// async function getMember(name) {
-//     const rows = await pool.query(`
-//         SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,status
-//         FROM Members,Ranks
-//         WHERE Members.Rank = Ranks.rankID AND UName = ?`, [name])
-//     return rows[0]
-// }
+module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA };

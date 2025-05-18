@@ -401,14 +401,24 @@ async function getNextMission() {
             if (data.postedEvents[i].title.includes("THURSDAY OPERATION") || data.postedEvents[i].title.includes("SUNDAY OPERATION")) {
                 var desc = data.postedEvents[0].description;
                 var missionName;
-        
-                if (desc.includes("Mission Name:")) {
-                    missionName = desc.substring(desc.indexOf("Mission Name:") + 13, desc.indexOf("\n", desc.indexOf("Mission Name:")));
-                } else if (desc.includes("#")) {
-                    missionName = desc.substring(desc.indexOf("#") + 1, desc.indexOf("\n", desc.indexOf("#")));
-                } else if (desc.includes("TBA")) {
+                var missionPartOfDesc = desc.substring(desc.indexOf("Mission"));
+
+                // TODO - Clean up the code to differentiate between Sundays and Thursdays formatting
+
+                if (missionPartOfDesc.includes("TBA")) {
                     missionName = "TBA";
+                } else {
+                    if (desc.includes("Mission Name:")) {
+                        missionName = desc.substring(desc.indexOf("Mission Name:") + 13, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                    } else if (desc.includes("Mission Details:")) {
+                        missionName = desc.substring(desc.indexOf("Mission Name:") + 16, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                    } else if (desc.includes("#")) {
+                        missionName = desc.substring(desc.indexOf("#") + 1, desc.indexOf("\n", desc.indexOf("#")));
+                    } else if (desc.includes("TBA")) {
+                        missionName = "TBA";
+                    }
                 }
+        
 
                 nextMission = {
                     name: missionName,
@@ -441,17 +451,21 @@ async function getNextTraining() {
         if (data.postedEvents[i].title.includes("THURSDAY OPERATION")) {
             var desc = data.postedEvents[0].description;
             var trainingName;
-    
-            if (desc.includes("Training:")) {
+            var trainingPartOfDesc = desc.substring(0, desc.indexOf("Mission"));
+
+            // If the description of the event includes the word "TBA" anywhere in the Training section of the description, set the training name to "TBA"
+            // This is done to avoid the case where the MISSION name is TBA, but the training name is not
+            if (trainingPartOfDesc.includes("TBA")) {
+                trainingName = "TBA";
+            } else {
+                // Get the training name from the description
                 trainingName = desc.substring(desc.indexOf("Training:") + 9, desc.indexOf("\n", desc.indexOf("Training:")));
-            } else if (desc.includes("TBA")) {
-                trainingName = "TBA";
-            }
 
-            if (trainingName == undefined) {
-                trainingName = "TBA";
+                if (trainingName == "undefined") {
+                    trainingName = "TBA";
+                }
+    
             }
-
             nextTraining = {
                 name: trainingName,
                 date: data.postedEvents[i].startTime,
