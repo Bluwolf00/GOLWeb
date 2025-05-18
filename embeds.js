@@ -90,7 +90,7 @@ async function addVideosDuration(videos) {
         var indexes = [];
         var durations = [];
 
-        
+
         // Find the duration in minutes, if the duration is shorter than a minute, it will be in seconds
         // This is caused by the API returning the duration in PT#M#S format
         for (let i = 0; i < 3; i++) {
@@ -119,7 +119,7 @@ async function getAttendanceFromAPI() {
     var response;
     var data;
     var attendanceArray = [];
-    
+
     try {
         response = await fetch(`https://raid-helper.dev/api/v2/servers/${process.env.RAID_HELPER_SERVER_ID}/attendance`, {
             method: 'GET',
@@ -131,7 +131,7 @@ async function getAttendanceFromAPI() {
         });
         data = await response.json();
         attendanceArray = data.result;
-        
+
     } catch (error) {
         return error;
     }
@@ -142,6 +142,249 @@ async function getAttendanceFromAPI() {
     return attendanceArray;
 }
 
+async function getMemberLOAsFromAPI() {
+    var response;
+    var data;
+    var LOAArray = [];
+    var memberId;
+    var startDate;
+    var endDate;
+
+    try {
+        response = await fetch(`https://discord.com/api/v8/channels/${process.env.DISCORD_CHANNEL_ID}/messages?after=863674396770172969`, {
+            method: 'GET',
+            headers: {
+                authorization: `${process.env.DISCORD_BOT_TOKEN}`,
+            }
+        });
+
+        data = await response.json();
+
+        console.log("Data: " + data);
+
+        // data = testJSON;
+        var startPos;
+        var endPos;
+
+        for (var i = 0; i < data.length; i++) {
+
+            // Ensure that the message is in the format we expect
+            console.log("Message: " + data[i].content);
+            console.log("Does Message include From: " + data[i].content.includes("From"));
+            if (data[i].content.includes("From")) {
+
+                startPos = data[i].content.indexOf("From") + 6;
+
+                // Check which word is used to end the date
+                if (data[i].content.includes("Until")) {
+                    endPos = data[i].content.indexOf("Until") - 1;
+                    startDate = data[i].content.substring(startPos, endPos);
+                    endDate = data[i].content.substring(endPos + 8, data[i].content.indexOf("\n", endPos + 1));
+                } else {
+                    endPos = data[i].content.indexOf("To") - 1;
+                    startDate = data[i].content.substring(startPos, endPos);
+                    endDate = data[i].content.substring(endPos + 5, data[i].content.indexOf("\n", endPos + 1));
+                }
+                startDate = startDate.replace(/(\d+)(st|nd|rd|th)/, '$1');
+                endDate = endDate.replace(/(\d+)(st|nd|rd|th)/, '$1');
+
+                // Trim the date to remove any whitespace
+                startDate.trim();
+                endDate.trim();
+
+                // If the day does not have a leading zero, add it
+                if (parseInt(startDate.substring(0, 3)) < 10) {
+                    startDate = "0" + startDate;
+                }
+                if (parseInt(endDate.substring(0, 3)) < 10) {
+                    endDate = "0" + endDate;
+                }
+
+                // If the year is not included, add the current year
+                var year = new Date().getFullYear();
+                if (!startDate.includes(year)) {
+                    startDate = startDate + " " + year;
+                }
+                if (!endDate.includes(year)) {
+                    endDate = endDate + " " + year;
+                }
+
+                // If the month is the full name, convert it to the 3 letter abbreviation
+                startDate = startDate.replace(/January/g, "Jan").replace(/February/g, "Feb").replace(/March/g, "Mar").replace(/April/g, "Apr").replace(/May/g, "May").replace(/June/g, "Jun").replace(/July/g, "Jul").replace(/August/g, "Aug").replace(/September/g, "Sep").replace(/October/g, "Oct").replace(/November/g, "Nov").replace(/December/g, "Dec");
+                endDate = endDate.replace(/January/g, "Jan").replace(/February/g, "Feb").replace(/March/g, "Mar").replace(/April/g, "Apr").replace(/May/g, "May").replace(/June/g, "Jun").replace(/July/g, "Jul").replace(/August/g, "Aug").replace(/September/g, "Sep").replace(/October/g, "Oct").replace(/November/g, "Nov").replace(/December/g, "Dec");
+
+                // Remove any special characters from the date
+                startDate = startDate.replace(/[^a-zA-Z0-9 ]/g, "");
+                endDate = endDate.replace(/[^a-zA-Z0-9 ]/g, "");
+
+                // Get the member ID from the JSON
+                // If entered manuually, get the member ID from the message
+                // If the message is from the member, get the member ID from the message
+                if (data[i].content.includes("Member")) {
+                    memberId = data[i].content.substring(data[i].content.indexOf("Member") + 7, data[i].content.indexOf("\n", data[i].content.indexOf("Member") + 7));
+                } else {
+                    memberId = data[i].author.id;
+                }
+
+                console.log("Start Date: " + startDate);
+                console.log("End Date: " + endDate);
+                console.log("Member ID: " + memberId);
+
+                // Set the dates to UNIX time
+                startDate = Date.parse(startDate);
+                endDate = Date.parse(endDate);
+
+                LOAArray.push({
+                    memberId: memberId,
+                    startDate: startDate,
+                    endDate: endDate
+                });
+            }
+        }
+
+    } catch (err) {
+        console.log(err);
+
+        LOAArray.push({
+            memberId: "Error",
+            startDate: "Error",
+            endDate: "Error"
+        });
+    } finally {
+        return LOAArray;
+    }
+}
+
+// 2024-01-01 - 1704135000
+// 2024-12-31 - 1735671000
+// 2023-12-31 - 1704048600
+// 2023-01-01 - 1672599000
+// 2022-12-31 - 1672512600
+// 2022-01-01 - 1641063000
+
+async function getAttendanceReport() {
+    var response = await fetch(`https://raid-helper.dev/api/v3/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${process.env.OPORD_API_KEY}`,
+            'ChannelFilter': '862784206513766400',
+            'IncludeSignUps': 'true',
+            'StartTimeFilter': '',
+            'EndTimeFilter': ''
+        }
+    });
+    var data = await response.json();
+
+    eventArray = data.postedEvents;
+
+    var attendanceReport = [];
+    var thursdays = [];
+    var sundays = [];
+    var memberDiscordId;
+    var dayofWeek;
+    var attended;
+    var numberOfCancelledEvents = 0;
+
+    for (var i = 0; i < eventArray.length; i++) {
+        // Get the day of the week from the event date
+        // console.log(eventArray[i].startTime);
+        var date = new Date(eventArray[i].startTime * 1000);
+        dayofWeek = date.getDay();
+
+        // If the event is not cancelled and has started, check if the members attended
+        if (!(eventArray[i].description).toLowerCase().includes("cancelled") && !(eventArray[i].title).toLowerCase().includes("cancel")) {
+            // If the event has already started or finished, check if the members attended
+            if (parseInt(eventArray[i].startTime) < parseInt(Date.now() / 1000)) {
+
+                for (var j = 0; j < eventArray[i].signUps.length; j++) {
+                    if (!(eventArray[i].signUps[j].specName == "Declined" || eventArray[i].signUps[j].specName == "Absence")) {
+                        attended = true;
+                        memberDiscordId = eventArray[i].signUps[j].userId;
+                        if (dayofWeek == 4) {
+                            thursdays.push(memberDiscordId);
+                        } else if (dayofWeek == 0) {
+                            sundays.push(memberDiscordId);
+                        }
+                    }
+                }
+            } else {
+                // console.log("Event has not started yet, skipping...");
+            }
+        } else {
+            // console.log("Event cancelled, skipping...");
+            numberOfCancelledEvents++;
+        }
+    }
+
+    // Count the number of times each member has attended on Thursdays and Sundays
+    var thursdaysCount = {};
+    var sundaysCount = {};
+
+    for (var i = 0; i < thursdays.length; i++) {
+        if (thursdaysCount[thursdays[i]]) {
+            thursdaysCount[thursdays[i]]++;
+        } else {
+            thursdaysCount[thursdays[i]] = 1;
+        }
+    }
+
+    for (var i = 0; i < sundays.length; i++) {
+        if (sundaysCount[sundays[i]]) {
+            sundaysCount[sundays[i]]++;
+        } else {
+            sundaysCount[sundays[i]] = 1;
+        }
+    }
+
+    // Create the attendance report
+    for (var i = 0; i < eventArray.length; i++) {
+        for (var j = 0; j < eventArray[i].signUps.length; j++) {
+            memberDiscordId = eventArray[i].signUps[j].userId;
+            if (eventArray[i].signUps[j].specName == "Accepted" || eventArray[i].signUps[j].specName == "Both" || eventArray[i].signUps[j].specName == "Training") {
+                if (thursdaysCount[memberDiscordId] && sundaysCount[memberDiscordId]) {
+                    attendanceReport.push({
+                        memberDiscordId: memberDiscordId,
+                        memberName: eventArray[i].signUps[j].name.substring((eventArray[i].signUps[j].name.indexOf(".") + 1), eventArray[i].signUps[j].name.length),
+                        thursdays: thursdaysCount[memberDiscordId],
+                        sundays: sundaysCount[memberDiscordId]
+                    });
+                } else if (sundaysCount[memberDiscordId]) {
+                    attendanceReport.push({
+                        memberDiscordId: memberDiscordId,
+                        memberName: eventArray[i].signUps[j].name.substring((eventArray[i].signUps[j].name.indexOf(".") + 1), eventArray[i].signUps[j].name.length),
+                        thursdays: 0,
+                        sundays: sundaysCount[memberDiscordId]
+                    });
+                } else if (thursdaysCount[memberDiscordId]) {
+                    attendanceReport.push({
+                        memberDiscordId: memberDiscordId,
+                        memberName: eventArray[i].signUps[j].name.substring((eventArray[i].signUps[j].name.indexOf(".") + 1), eventArray[i].signUps[j].name.length),
+                        thursdays: thursdaysCount[memberDiscordId],
+                        sundays: 0
+                    });
+                } else {
+                    attendanceReport.push({
+                        memberDiscordId: memberDiscordId,
+                        memberName: eventArray[i].signUps[j].name.substring(eventArray[i].signUps[j].name.indexOf("."), (eventArray[i].signUps[j].name.length - 1)),
+                        thursdays: 0,
+                        sundays: 0
+                    });
+                }
+            }
+        }
+    }
+    // Remove duplicates from the attendance report
+    attendanceReport = attendanceReport.filter((value, index, self) =>
+        index === self.findIndex((t) => (
+            t.memberDiscordId === value.memberDiscordId
+        ))
+    );
+
+    console.log("-- Attendance Report Complete --");
+
+    return attendanceReport;
+}
 async function getScheduledEvents() {
     var data;
     try {
@@ -172,14 +415,24 @@ async function getNextMission() {
             if (data.postedEvents[i].title.includes("THURSDAY OPERATION") || data.postedEvents[i].title.includes("SUNDAY OPERATION")) {
                 var desc = data.postedEvents[0].description;
                 var missionName;
-        
-                if (desc.includes("Mission Name:")) {
-                    missionName = desc.substring(desc.indexOf("Mission Name:") + 13, desc.indexOf("\n", desc.indexOf("Mission Name:")));
-                } else if (desc.includes("#")) {
-                    missionName = desc.substring(desc.indexOf("#") + 1, desc.indexOf("\n", desc.indexOf("#")));
-                } else if (desc.includes("TBA")) {
+                var missionPartOfDesc = desc.substring(desc.indexOf("Mission"));
+
+                // TODO - Clean up the code to differentiate between Sundays and Thursdays formatting
+
+                if (missionPartOfDesc.includes("TBA")) {
                     missionName = "TBA";
+                } else {
+                    if (desc.includes("Mission Name:")) {
+                        missionName = desc.substring(desc.indexOf("Mission Name:") + 13, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                    } else if (desc.includes("Mission Details:")) {
+                        missionName = desc.substring(desc.indexOf("Mission Name:") + 16, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                    } else if (desc.includes("#")) {
+                        missionName = desc.substring(desc.indexOf("#") + 1, desc.indexOf("\n", desc.indexOf("#")));
+                    } else if (desc.includes("TBA")) {
+                        missionName = "TBA";
+                    }
                 }
+        
 
                 nextMission = {
                     name: missionName,
@@ -212,17 +465,21 @@ async function getNextTraining() {
         if (data.postedEvents[i].title.includes("THURSDAY OPERATION")) {
             var desc = data.postedEvents[0].description;
             var trainingName;
-    
-            if (desc.includes("Training:")) {
+            var trainingPartOfDesc = desc.substring(0, desc.indexOf("Mission"));
+
+            // If the description of the event includes the word "TBA" anywhere in the Training section of the description, set the training name to "TBA"
+            // This is done to avoid the case where the MISSION name is TBA, but the training name is not
+            if (trainingPartOfDesc.includes("TBA")) {
+                trainingName = "TBA";
+            } else {
+                // Get the training name from the description
                 trainingName = desc.substring(desc.indexOf("Training:") + 9, desc.indexOf("\n", desc.indexOf("Training:")));
-            } else if (desc.includes("TBA")) {
-                trainingName = "TBA";
-            }
 
-            if (trainingName == undefined) {
-                trainingName = "TBA";
+                if (trainingName == "undefined") {
+                    trainingName = "TBA";
+                }
+    
             }
-
             nextTraining = {
                 name: trainingName,
                 date: data.postedEvents[i].startTime,
@@ -237,4 +494,4 @@ async function getNextTraining() {
     return nextTraining;
 }
 
-module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining };
+module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining, getMemberLOAsFromAPI, getAttendanceReport };

@@ -8,7 +8,6 @@ function createOrg(data) {
             }
         })
         .linkUpdate(function (d, i, arr) {
-            // console.log(d.parent.id == "root");
             d3.select(this)
             .attr("stroke", d => d.data._upToTheRootHighlighted ? '#E27396' : '#E4E2E9')
             .attr("stroke-width", d => d.data._upToTheRootHighlighted ? 5 : 1)
@@ -25,8 +24,6 @@ function createOrg(data) {
         .compact(true)
         .pagingStep(10)
         .initialExpandLevel(4)
-        // .nodeId(() => 'orbatID')
-        // .parentNodeId(() => "orbatParentID")
         .nodeContent(function (d, i, arr, state) {
             const color = 'transparent';
             const imageDiffVert = 25 + 2;
@@ -72,11 +69,18 @@ function createOrg(data) {
                 }
                 // var returnString = `<div style='width:${d.width}px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>`
                 var borderStyle = `1px solid #E4E2E9`;
-                if (d.data.rankName == "Recruit" && d.data.numberOfEventsAttended >= 4
+
+                // Check if the member is a recruit and has completed their recruitment period (2 events on Thursdays and Sundays)
+                // or if the member is a private or private second class and has attended 30 or 60 events respectively
+                if ((d.data.rankName == "Recruit" && d.data.thursdays >= 2 && d.data.sundays >= 2)
                     || d.data.rankName == "Private" && d.data.numberOfEventsAttended >= 30
                     || d.data.rankName == "Private Second Class" && d.data.numberOfEventsAttended >= 60
                 ) {
+                    // Eligible for Promotion
                     borderStyle = `2px solid #c9b52a`;
+                } else if (d.data.playerStatus == "Inactive" || d.data.playerStatus == "LOA") {
+                    // Inactive or LOA
+                    borderStyle = `2px solid #c51010`;
                 }
                 return `
                             <div style='width:${d.width}px;height:${d.height}px;padding-top:${imageDiffVert - 2}px;padding-left:1px;padding-right:1px'>
@@ -104,36 +108,52 @@ function createOrg(data) {
         .render();
 }
 
-// fs.readFile('members.json', 'utf-8', function (err,data) {
-//     json = JSON.parse(data.orbat)
-
-//     createOrg(json)
-// });
-
-// $.getJSON("members.json", function(data) {
-//     createOrg(data.orbat);
-// });
-
-fetch('/data/getmembers')
-    .then(res => res.json())
-    .then(data => {
-        var newdata = data.filter(function (el) {
-            if (el.nodeId != null) {
-                return el;
-            }
-        });
-        var root = {
-            nodeId: "root",
-            parentNodeId: null,
-            Country: "Sweden",
-            rankName: "Root",
-            rankPath: "",
-            UName: "Root",
-            numberOfEventsAttended: 0
+// Call the endpoint to update the LOAs on the database
+async function updateServer() {
+    var response = await fetch('/data/updateMemberLOAs', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
         }
-        newdata.unshift(root);
-
-        // console.log(newdata);
-        
-        createOrg(newdata)
     });
+
+    response = await fetch('/data/updateAttendance', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+}
+
+// Retrieve the data from the server and create the org chart
+async function init() {
+    await updateServer();
+    fetch('/data/getmembers?withParents=false')
+        .then(res => res.json())
+        .then(data => {
+            var newdata = data.filter(function (el) {
+                if (el.nodeId != null) {
+                    return el;
+                }
+            });
+
+            // Create dummy data for the root node
+            var root = {
+                nodeId: "root",
+                parentNodeId: null,
+                Country: "Sweden",
+                rankName: "Root",
+                rankPath: "",
+                UName: "Root",
+                playerStatus: "Active",
+                numberOfEventsAttended: 0,
+                thursday: 0,
+                sunday: 0
+            }
+            newdata.unshift(root);
+            
+            createOrg(newdata)
+        });
+};
+
+init();

@@ -17,22 +17,19 @@ function getPool() {
 }
 // const result = await pool.query('SELECT * FROM Members')
 
-async function getMembers() {
+async function getMembers(includeParentName = false) {
     var rows = [null];
-    try {
-        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,DateOfJoin,DateOfPromo,playerStatus,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID ORDER BY Members.MemberID ASC');
-    } catch (error) {
+    var query = '';
+    if (includeParentName == true) {
+        query = 'SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC'
+    } else {
+        query = 'SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
     }
-    return rows
-}
-
-async function getFullMembers() {
-    var rows = [null];
     try {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC');
+        [rows] = await pool.query(query);
     } catch (error) {
+        console.log(error);
     }
     return rows
 }
@@ -43,6 +40,7 @@ async function getFullMemberInfo(memberID) {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
         [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank AND m.MemberID = ? ORDER BY m.MemberID ASC', [memberID]);
     } catch (error) {
+        console.log(error);
     }
     return rows[0]
 };
@@ -129,8 +127,10 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
         // Get the parent node ID from the name
         // If the parent name is "None" AKA the top element, set the parent node ID to "root"
         var parentNodeId = "root";
-        if (!parentName == "None") {
-            parentNodeId = await getMemberParent(parentName);
+        if (parentName.toString() !== "None") {
+            parentNodeId = await getMemberNodeId(parentName);
+            console.log("Parent Name: " + parentName);
+            console.log("Parent Node ID: " + parentNodeId);
         }
         var rankID = await getRankFromName(rank);
         if (dateOfJoin == "") {
@@ -380,114 +380,285 @@ async function getUserRole(username) {
 
 async function getMemberAttendance(name) {
     var rows = [null];
-    var res = null;
 
+    // 200 = Changes made
+    // 203 = No changes made
+    var updated = 0;
+
+    // Check if the attendance records have been updated in the last 12 hours
+    var attendanceUpdated = await isAttendanceUpdated();
+    if (!(attendanceUpdated)) {
+        updated = await updateMemberAttendance(bypassCheck = true);
+    }
+
+    // Get the member's record from the database
     try {
+        console.log("Getting attendance records for " + name);
         [rows] = await pool.query(`
-            SELECT numberOfEventsAttended, MemberDiscordID, lastUpdate
+            SELECT MemberDiscordID, thursdays, sundays, (thursdays + sundays) AS numberOfEventsAttended
             FROM Attendance,Members
             WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]);
 
-        // console.log("DATABASE: " + rows);
     } catch (error) {
         console.log(error);
     }
 
-    // console.log("DATABASE: " + rows[0].MemberDiscordID);
-    // console.log("DATABASE LENGTH: " + rows.length);
-
-    var attendanceRecords;
-
     if (rows.length == 0) {
-        // Fallback in case the member has no attendance data
-        // console.log("FALLBACK: " + name);
-        console.log(`Player, ${name} not on record, fetching from API...`);
-        attendanceRecords = await embeds.getMemberAttendanceFromAPI();
-
-        res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "insert");
-    } else {
-        var calcTime = new Date().getTime().valueOf() - (3600000 * 24);
-        var lastUpdateInt = Date.parse(rows[0].lastUpdate).valueOf();
-
-        // If the last update was more than a day ago, update the attendance data
-        if (lastUpdateInt < calcTime) {
-
-            console.log("Updating attendance data for " + name);
-            attendanceRecords = await embeds.getMemberAttendanceFromAPI();
-
-            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "update");
-        } else {
-            console.log("Attendance data for " + name + " is up to date, Fetching from DB...");
-            // If the last update was less than a day ago, just return the current attendance data
-            res = await performEventsDBConn(attendanceRecords, name, insertOrUpdate = "normal");
-        }
+        // If the member is not found in the database
+        console.log("GETMEMBERATTENDANCE: Member " + name + " not found");
+        return false;
     }
 
-    var rqResponse = {
-        "numberOfEventsAttended": res.numberOfEventsAttended,
-        "insertStatus": res.success
+    rqResponse = {
+        "thursdays": rows[0].thursdays,
+        "sundays": rows[0].sundays,
+        "numberOfEventsAttended": rows[0].numberOfEventsAttended,
+        "inserted": updated
     }
 
     return rqResponse;
 }
 
-async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
-    var record;
-    var events;
-
-    if (insertOrUpdate != "normal") {
-        for (var i = 0; i < attendanceRecords.length; i++) {
-            if (attendanceRecords[i].name.search(name) != -1) {
-                record = attendanceRecords[i];
-                events = record.attended;
-                break;
-            }
+// This function will check if the attendance records have been updated in the last 12 hours
+// It will return false if the records are outdated and need to be updated
+// It will return true if the records are up to date and do not need to be updated
+async function isAttendanceUpdated() {
+    try {
+        // Check if the attendance records have been updated in the last 12 hours
+        var calcTime = new Date().getTime().valueOf() - (3600000 * 12);
+        var [rows] = await pool.query('SELECT lastUpdate FROM Attendance ORDER BY lastUpdate DESC LIMIT 1;');
+        var lastUpdateInt = Date.parse(rows[0].lastUpdate).valueOf();
+    
+        if (lastUpdateInt > calcTime) {
+            console.log("Attendance records are up to date, no need to update");
+            return true;
+        } else {
+            console.log("Attendance records are outdated, updating...");
+            return false;
         }
-
-        if (!record) {
-            // console.log("Member found in attendance records: " + name);
-            console.log("Member not found in attendance records: " + name);
-            events = 0;
-        }
+    } catch (error) {
+        console.error("ERROR: " + error);
+        return false;
     }
+}
 
+// When this function is called, it will pull the attendance records for every member
+async function updateMemberAttendance(bypassCheck = false) {
 
-    // Get the member's ID
-    var [response] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [name]);
-    var id = response[0].MemberID;
-    var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    // var currentTime = new Date().getTime().valueOf();
-    var success = null;
-
-    if (insertOrUpdate == "normal") {
-        // Do nothing, just return the current attendance data
-        success = false;
+    // If the user specifies to bypass the update check, it will not perform the lookup
+    // This is to prevent the function from performing more database queries than necessary
+    if (!bypassCheck) {
+        // Check if the attendance records have been updated in the last 12 hours
+        // This is to prevent the function from performing more API calls than necessary
+        var attendanceUpdated = await isAttendanceUpdated();
     } else {
-        if (insertOrUpdate == "insert") {
-            // Insert the new member into the database
-            var discordId = record.id;
-            success = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, numberofEventsAttended, lastUpdate) VALUES (?,?,?,?)', [id, discordId, events, currentTime]);
+        attendanceUpdated = false;
+    }
+
+    if (attendanceUpdated) {
+        // Records are up to date, no need to update
+        return 203;
+    } else {
+        var attendanceRecords = await embeds.getAttendanceReport();
+
+        var memberDetails = [];
+        try {
+            // Only update the members that are Active or LOA
+            var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE playerStatus NOT IN ("Inactive", "Reserve")');
+
+            for (var i = 0; i < temp.length; i++) {
+                
+                // If the member is in the attendance records, add their attendance records to the memberDetails array
+                for (var j = 0; j < attendanceRecords.length; j++) {
+                                        
+                    // console.log("Checking member: " + temp[i].UName + " against attendance record: " + attendanceRecords[j].memberName);
+
+                    var formatName = temp[i].UName.replace(" ", "");
+
+                    // If the member is found
+                    if (attendanceRecords[j].memberName == formatName) {
+                        var thursdays = attendanceRecords[j].thursdays;
+                        var sundays = attendanceRecords[j].sundays;
+                        var memberDiscordId = attendanceRecords[j].memberDiscordId;
+                        // console.log("\n-- Member found in attendance records: " + attendanceRecords[j].memberName + " --\n");
+
+                        // Push the details to the array
+                        memberDetails.push({
+                            "memberId": temp[i].MemberID,
+                            "memberDiscordId": memberDiscordId,
+                            "memberName": temp[i].UName,
+                            "thursdays": thursdays,
+                            "sundays": sundays
+                        });
+                        break;
+                    }
+                }
+
+            }
+        } catch (error) {
+            console.log("ERROR: " + error);
         }
-        else {
-            if (insertOrUpdate == "update") {
-                // Update the member's attendance in the database
-                success = await pool.query('UPDATE Attendance SET numberofEventsAttended=?, lastUpdate=? WHERE MemberID=?', [events, currentTime, id]);
+
+        var results = [];
+
+        // Once the attendance records have been filtered to only include the members that are in the database
+        // Loop through the attendance records and update the database
+        for (var i = 0; i < memberDetails.length; i++) {
+            var memberDiscordId = memberDetails[i].memberDiscordId;
+            var memberName = memberDetails[i].memberName;
+            var thursdays = memberDetails[i].thursdays;
+            var sundays = memberDetails[i].sundays;
+            var total = memberDetails[i].sundays + memberDetails[i].thursdays;
+            var updatedTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+            // Update the attendance records in the database
+            var query = await pool.query(`
+                UPDATE Attendance
+                SET thursdays = ?, sundays = ?, numberOfEventsAttended = ?, lastUpdate = ?
+                WHERE MemberDiscordID = ?`, [thursdays, sundays, total, updatedTime, memberDiscordId]);
+
+            if (query[0].affectedRows > 0) {
+                results.push(query[0].affectedRows);
+            }
+            else {
+                // If the member is not found in the database, check if the member exists in the Members table, if so, insert the member into the Attendance table
+                try {
+                    var [rows] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [memberName]);
+                    if (rows.length > 0) {
+
+                        // Member exists in the Members table
+                        if (rows[0].MemberID != null) {
+                            console.log("Member " + memberName + " found in the database. Updating attendance records...");
+                            var memberId = rows[0].MemberID;
+
+                            // Insert the member into the Attendance table
+                            var insert = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, thursdays, sundays, numberOfEventsAttended, lastUpdate) VALUES (?,?,?,?,?,?)', [memberId, memberDiscordId, thursdays, sundays, total, updatedTime]);
+                        } else {
+                            // Else, the member does not exist, skip the member
+                            console.log("Member " + memberName + " not found in the database. Skipping...");
+
+                            // AKA: No record was inserted
+                            var insert = false;
+                        }
+                    }
+                } catch (error) {
+                    console.error("ERROR: " + error);
+                    var insert = false;
+                } finally {
+                    if (insert) {
+                        console.log("SUCCESS: Inserted attendance records for member " + memberName);
+                        results.push(insert[0].affectedRows);
+                    } else {
+                        console.warn("FAIL: Failed to insert attendance records for member " + memberName);
+                    }
+                }
             }
         }
+
+        if (results.length == 0) {
+            console.log("UPDATE ATTEND: No members were updated");
+            return 203;
+        } else {
+            var updatedRecords = results.filter(x => x !== 0).length;
+            console.log("Members updated: " + updatedRecords);
+            return 200;
+        }
+    }
+}
+
+async function updateMemberLOAs() {
+
+    // console.log("Updating LOAs...");
+    var LOAs = await embeds.getMemberLOAsFromAPI();
+
+    // Also update the LOAs in the database
+    // console.log("Sending LOAs to the database...");
+    var result = await setMemberLOAStatuses(LOAs);
+
+    return result;
+}
+
+async function setMemberLOAStatuses(LOAs) {
+
+    // NOTE: This function will only work if the Member has a record in the Attendance table
+    // If the member does not have a record in the Attendance table, it will not update the status
+    // In order to add a record to the Attendance table, their profile must be viewed first on the website
+    // This is because the Attendance table is updated when the profile is viewed
+    var rows = null;
+    try {
+        for (var i = 0; i < LOAs.length; i++) {
+            if (Date.now() > LOAs[i].startDate && Date.now() < LOAs[i].endDate) {
+                // console.log("Member " + LOAs[i].memberId + " is on LOA");
+                [rows] = await pool.query(`
+                    UPDATE Members, Attendance
+                    SET playerStatus = 'LOA'
+                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [LOAs[i].memberId]);
+            }
+        }
+
+        // Now check for any members that were on LOA but are no longer on LOA
+
+        // Get all members that are on LOA
+        var [membersOnLOA] = await pool.query(`SELECT Attendance.MemberDiscordID FROM Members, Attendance WHERE Members.playerStatus = 'LOA' AND Members.MemberID = Attendance.MemberID`);
+
+        // Loop through the members on LOA and check if they are in the LOAs array
+        for (var i = 0; i < membersOnLOA.length; i++) {
+            var found = false;
+            for (var j = 0; j < LOAs.length; j++) {
+                if (membersOnLOA[i].MemberDiscordID == LOAs[j].memberId) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // If the member is not in the LOAs array, set their status to Active
+            if (!found) {
+                // console.log("Member " + membersOnLOA[i].MemberDiscordID + " is no longer on LOA");
+                [rows] = await pool.query(`
+                    UPDATE Members, Attendance
+                    SET playerStatus = 'Active'
+                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [membersOnLOA[i].MemberDiscordID]);
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (typeof rows == "undefined") {
+            console.log("No members LOAs were updated");
+            result = 203;
+        } else if (rows.affectedRows == 0) {
+            console.log("No members LOAs were updated");
+            result = 203;
+        } else {
+            console.log("LOAs Updated: " + rows.affectedRows);
+            result = 200;
+        }
+        return result;
+    }
+}
+
+// This function will retrieve the LOA status of a member
+// It will return true if the member is on LOA, false if the member is not on LOA
+async function getMemberLOA(name) {
+    var rows = null;
+    try {
+        rows = await pool.query(`
+            SELECT status
+            FROM Members
+            WHERE UName = ?`, [name]);
+    } catch (error) {
+        console.log(error);
     }
 
-    [rows] = await pool.query(`
-                SELECT numberOfEventsAttended, MemberDiscordID
-                FROM Attendance,Members
-                WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]
-    );
-
-    var res = {
-        "numberOfEventsAttended": rows[0].numberOfEventsAttended,
-        "insertStatus": success
+    if (rows.length == 0) {
+        console.log("Member " + name + " not found");
+        return false;
+    } else {
+        if (rows[0].status == "LOA") {
+            console.log("Member " + name + " is on LOA");
+            return true;
+        }
     }
-
-    return res;
 }
 
 async function getDashboardData() {
@@ -510,7 +681,7 @@ async function getDashboardData() {
     // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
 
     // Query 3 + 4 - Get the number of members that are active + on LOA
-    var rows = await getFullMembers();
+    var rows = await getMembers(true);
 
     var activeMembers = rows.filter(member => member.playerStatus == "Active").length;
     var leaveMembers = rows.filter(member => member.playerStatus == "LOA").length;
@@ -559,13 +730,4 @@ async function getDashboardData() {
 }
 
 
-module.exports = { getMembers, getFullMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, getPool, performRegister, getUserRole, createMember, getDashboardData };
-
-
-// async function getMember(name) {
-//     const rows = await pool.query(`
-//         SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,status
-//         FROM Members,Ranks
-//         WHERE Members.Rank = Ranks.rankID AND UName = ?`, [name])
-//     return rows[0]
-// }
+module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA };

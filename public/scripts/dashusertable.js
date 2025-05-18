@@ -1,5 +1,5 @@
 async function populateTable() {
-    const response = await fetch('/data/getfullmembers');
+    const response = await fetch('/data/getmembers?withParents=true');
     const data = await response.json();
     const tableBody = document.querySelector('#membersTableBody');
 
@@ -114,7 +114,7 @@ async function openEditModal(memberID) {
         parentelement.value = data.parentUName;
         parentelement.removeAttribute("readonly");
     }
-    statuselement.value = data.status;
+    statuselement.value = data.playerStatus;
     if (data.DateOfJoin == null) {
         joineddateelement.value = "";
     } else {

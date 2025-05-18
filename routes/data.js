@@ -20,12 +20,23 @@ router.get('/memberbadges', async (req, res) => {
 });
 
 router.get('/getmembers', async (req, res) => {
-    const members = await db.getMembers();
+    var withParents = req.query.withParents;
+    var members;
+
+    if (typeof withParents !== "undefined") {
+        if (withParents.toString() == "true") {
+            members = await db.getMembers(true);
+        } else {
+            members = await db.getMembers(false);
+        }
+    } else {
+        members = await db.getMembers(false);
+    }
     res.send(members);
 });
 
-router.get('/getfullmembers', async (req, res) => {
-    const members = await db.getFullMembers();
+router.get('/getmemberswparents', async (req, res) => {
+    const members = await db.getMembers();
     res.send(members);
 });
 
@@ -76,6 +87,42 @@ router.get('/getMemberAttendance', async (req, res) => {
     }
 
 });
+
+router.get('/getMemberAttendance', async (req,res) => {
+    var name = req.query.name;
+    var content = {"thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1};
+    try {
+        temp = await db.getMemberAttendanceNew(name);
+        content.thursdays = temp.thursdays;
+        content.sundays = temp.sundays;
+        content.numberOfEventsAttended = temp.numberOfEventsAttended;
+    } catch (error) {
+        console.log(error);
+        res.status(500);
+    }
+    res.send(content);
+});
+
+// Needs rate limited
+router.get('/updateMemberLOAs', async (req,res) => {
+    var result = await db.updateMemberLOAs();
+    if (result == 203) {
+        res.status(203).send("No new LOAs found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("LOAs updated successfully.");
+    }
+});
+
+// Needs rate limited
+router.get('/updateAttendance', async (req,res) => {
+    var result = await db.updateMemberAttendance();
+    if (result == 203) {
+        res.status(203).send("No new attendance found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("Attendance updated successfully.");
+    }
+});
+
 
 // This is a protected route - Only accessible by admins and moderators who are logged in
 router.get('/getDashData', authPage, async (req, res) => {
@@ -147,14 +194,18 @@ router.post('/updateMember', authPage, async (req, res) => {
         return;
     }
     var result = await db.updateMember(memberID, memberName, memberRank, memberCountry, memberParent, memberStatus, memberJoined, memberPromo);
+    var referer = req.get('referer');
+    if (referer.indexOf('?') > -1) {
+        referer = referer.substring(0, referer.indexOf('?'));
+    }
     if (result.affectedRows > 0) {
         res.status(200);
         // Note: Compatible with Express 4.x.x
         // But not with Express 5.x.x
-        res.redirect(req.get('referer') + "?editSuccess=1");
+        res.redirect(referer + "?editSuccess=1");
     } else {
         res.status(500);
-        res.redirect(req.get('referer') + "?editSuccess=0");
+        res.redirect(referer + "?editSuccess=0");
     }
 });
 
