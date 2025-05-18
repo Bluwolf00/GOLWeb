@@ -77,6 +77,12 @@ router.get('/getMemberAttendance', async (req, res) => {
 
 });
 
+// This is a protected route - Only accessible by admins and moderators who are logged in
+router.get('/getDashData', authPage, async (req, res) => {
+    var data = await db.getDashboardData();
+    res.send(data);
+});
+
 // -- POST REQUESTS - DATA --
 
 // Despite being a request that recieves data, this is a POST request to ensure authentication is used
@@ -124,34 +130,6 @@ router.post('/performRegister', async (req, res) => {
     }
 });
 
-// -- PATCH REQUESTS - DATA --
-
-router.patch('/changeRank', authPage, async (req, res) => {
-    // var member = req.body.member;
-    // var newRank = req.body.newRank;
-    var member = req.body.member;
-    var newRank = req.body.newRank;
-    var auth = req.get('Authorization');
-    if (auth != process.env.AUTH_TOKEN || auth != process.env.AUTH_TOKEN_2) {
-        res.status(403).send("Forbidden - Invalid Token");
-        return;
-    }
-
-    if (!member || !newRank) {
-        res.status(400).send("Bad Request - Missing Parameters");
-        return;
-    }
-
-    var result = await db.changeRank(member, newRank);
-    if (result[0].affectedRows > 0) {
-        res.status(200);
-    } else {
-        res.status(500);
-        result[1] = "Failed to change rank - Check if the rank exists or if the member name is correct.";
-    }
-    res.send(result);
-});
-
 router.post('/updateMember', authPage, async (req, res) => {
     var memberID = req.body.memberid;
     var memberName = req.body.uname;
@@ -180,6 +158,59 @@ router.post('/updateMember', authPage, async (req, res) => {
     }
 });
 
+router.post('/createMember', authPage, async (req, res) => {
+    var memberName = req.body.newuname;
+    var memberRank = req.body.newrank;
+    var memberCountry = req.body.newcountry;
+    var memberParent = req.body.newreporting;
+    var memberJoined = req.body.newjoined;
+
+    if (!memberName || !memberRank || !memberCountry || !memberParent) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+    var result = await db.createMember(memberName, memberRank, memberCountry, memberParent, memberJoined);
+    var referer = req.get('referer');
+    if (referer.indexOf('?') > -1) {
+        referer = referer.substring(0, referer.indexOf('?'));
+    }
+    if (result > 0) {
+        res.status(200);
+        res.redirect(referer + "?createSuccess=1");
+    } else if (!result) {
+        res.status(500);
+        res.redirect(referer + "?createSuccess=0");
+    }
+});
+
+// -- PATCH REQUESTS - DATA --
+
+router.patch('/changeRank', authPage, async (req, res) => {
+    // var member = req.body.member;
+    // var newRank = req.body.newRank;
+    var member = req.body.member;
+    var newRank = req.body.newRank;
+    var auth = req.get('Authorization');
+    if (auth != process.env.AUTH_TOKEN || auth != process.env.AUTH_TOKEN_2) {
+        res.status(403).send("Forbidden - Invalid Token");
+        return;
+    }
+
+    if (!member || !newRank) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    var result = await db.changeRank(member, newRank);
+    if (result[0].affectedRows > 0) {
+        res.status(200);
+    } else {
+        res.status(500);
+        result[1] = "Failed to change rank - Check if the rank exists or if the member name is correct.";
+    }
+    res.send(result);
+});
+
 // -- DELETE REQUESTS - DATA --
 
 router.delete('/deleteMember', authPage, async (req, res) => {
@@ -190,11 +221,11 @@ router.delete('/deleteMember', authPage, async (req, res) => {
         return;
     }
     var result = await db.deleteMember(memberID);
-    if (result[0].affectedRows > 0) {
-        res.status(200);
+    console.log("DELETION RESULT: " + result);
+    if (result) {
+        res.status(200).send({"result" : "Member deleted successfully"});
     } else {
-        res.status(500);
-        result[1] = "Failed to delete member - Check if the member ID exists.";
+        res.status(500).send({"result" : "Failed to delete member - Check if the member ID exists."});
     }
 });
 

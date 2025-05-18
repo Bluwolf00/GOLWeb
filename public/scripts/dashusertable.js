@@ -2,7 +2,6 @@ async function populateTable() {
     const response = await fetch('/data/getfullmembers');
     const data = await response.json();
     const tableBody = document.querySelector('#membersTableBody');
-    console.log(data);
 
     // Clear the table body
     tableBody.innerHTML = '';
@@ -45,16 +44,19 @@ async function deleteMember(memberID) {
 
     if (confirmation) {
         const response = await fetch('/data/deleteMember', {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ memberID })
+            body: JSON.stringify({ "memberID" : memberID })
         });
+
+        var result = await response.json();
+        console.log("DELETION RESULT: " + result);
     
         if (response.ok) {
             alert('Member deleted successfully');
-            populateTable();
+            location.reload();
         } else {
             alert('Failed to delete member');
         }
@@ -81,7 +83,7 @@ async function openEditModal(memberID) {
         option.value = rank.rankName;
         option.text = rank.rankName;
         rankSelect.appendChild(option);
-    })
+    });
 
     const response = await fetch(`/data/fullmemberinfo`, {
         method: 'POST',
@@ -127,11 +129,41 @@ async function openEditModal(memberID) {
     modal.show();
 }
 
-async function closeEditModal() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+async function closeModal(elementId) {
+    const modal = bootstrap.Modal.getInstance(document.getElementById(elementId));
     if (modal) {
         modal.hide();
     }
+}
+
+async function openCreateModal() {
+    const modal = new bootstrap.Modal(document.getElementById('createUserModal'), {
+        backdrop: 'static'
+    });
+
+    const ranks = await fetch('/data/getRanks?all=true');
+    const ranksData = await ranks.json();
+
+    const rankSelect = document.getElementById('new-rank');
+
+    // Clear existing options
+    rankSelect.innerHTML = '';
+    // Populate the select element with new options
+    ranksData.forEach(rank => {
+        var option = document.createElement('option');
+        option.value = rank.rankName;
+        option.text = rank.rankName;
+        rankSelect.appendChild(option);
+    });
+
+    rankSelect.value = 'Recruit';
+    rankSelect.setAttribute("readonly", "true");
+
+    const joinedElement = document.getElementById('new-joined');
+
+    joinedElement.value = new Date().toISOString().split('T')[0];
+
+    modal.show();
 }
 
 populateTable();

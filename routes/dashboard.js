@@ -12,13 +12,18 @@ router.get('/', authPage, async (req,res) => {
 
 router.get('/users', authPage, async (req,res) => {
     var editSuccess = req.query.editSuccess;
+    var createSuccess = req.query.createSuccess;
 
     if (!editSuccess) {
         editSuccess = -1;
     }
+    if (!createSuccess) {
+        createSuccess = -1;
+    }
     res.render('pages/users', {
         username: req.session.username,
-        editSuccess: editSuccess
+        editSuccess: editSuccess,
+        createSuccess: createSuccess
     });
 });
 

@@ -64,13 +64,13 @@ async function getMember(name) {
 async function deleteMember(memberID) {
     var rows = [null];
     try {
-        rows = await pool.query(`
+        [rows] = await pool.query(`
             DELETE FROM Members
             WHERE MemberID = ?`, [memberID])
     } catch (error) {
         console.log(error);
     } finally {
-        return rows[0]
+        return rows;
     }
 }
 
@@ -84,7 +84,27 @@ async function getMemberParent(memberName) {
     } catch (error) {
         console.log(error);
     } finally {
+        if (rows.length == 0) {
+            return null;
+        }
         return rows[0].parentNodeId;
+    }
+}
+
+async function getMemberNodeId(memberName) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT nodeId
+            FROM Members
+            WHERE UName = ?`, [memberName])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        }
+        return rows[0].nodeId;
     }
 }
 
@@ -119,7 +139,7 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
         if (dateOfPromo == "") {
             dateOfPromo = null;
         }
-        
+
         [rows] = await pool.query(`
             UPDATE Members
             SET playerRank = ?,
@@ -134,6 +154,44 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
         console.log(error);
     } finally {
         return rows
+    }
+}
+
+async function createMember(memberName, rank, country, parentName, dateOfJoin) {
+    var rows = [null];
+    try {
+        // Get the highest nodeId in the database
+        var [maxNodeId] = await pool.query('SELECT MAX(nodeId) AS maxNodeId FROM Members WHERE nodeId LIKE "E-%"');
+        var newNodeId = "E-" + ((parseInt(maxNodeId[0].maxNodeId.split("-")[1]) + 1) + "").padStart(4, '0');
+        // Get the parent node ID from the name
+        var parentNodeId = "root";
+        if (parentName !== "None" || parentName !== "") {
+            parentNodeId = await getMemberNodeId(parentName);
+        }
+
+        if (parentNodeId == null) {parentNodeId = "root";}
+
+        var rankID = await getRankFromName(rank);
+
+        var nick = "";
+        var playerStatus = "Active";
+        if (rank == "Reserve") {
+            playerStatus = "Reserve";
+        }
+
+        var response = await pool.query(`
+            INSERT INTO Members (UName,playerRank,Country,nodeId,parentNodeId,DateOfJoin,nick,playerStatus) VALUES (?,?,?,?,?,?,?,?)`, [memberName, rankID, country, newNodeId, parentNodeId, dateOfJoin, nick, playerStatus]);
+
+        if (response[0].affectedRows > 0) {
+            console.log("Member created successfully");
+            [rows] = await pool.query('SELECT MemberID FROM Members WHERE nodeId = ?', [newNodeId]);
+            var memberID = rows[0].MemberID;
+            console.log("Member ID: " + memberID);
+            return memberID;
+        }
+    } catch (error) {
+        console.log(error);
+        return null;
     }
 }
 
@@ -432,8 +490,76 @@ async function performEventsDBConn(attendanceRecords, name, insertOrUpdate) {
     return res;
 }
 
+async function getDashboardData() {
+    // The dashboard data is a combination of the following:
+    // 1. The number of members eligible for the next rank
+    // 2. The member that is closest to the next rank
+    // 3. The number of members that are active
+    // 4. The number of members that are on LOA
+    // 5. The number of members that are recruits
+    // 6. The due date of the next server payment
+    // 7. The number of members that are leaders
+    // 8. The number of mission replays that are available
+    // 9. The next scheduled training
+    // 10. The next scheduled mission
 
-module.exports = { getMembers, getFullMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, getPool, performRegister, getUserRole };
+    // Query 1 - Get the number of members eligible for the next rank
+    // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
+
+    // Query 2 - Get the member that is closest to the next rank
+    // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
+
+    // Query 3 + 4 - Get the number of members that are active + on LOA
+    var rows = await getFullMembers();
+
+    var activeMembers = rows.filter(member => member.playerStatus == "Active").length;
+    var leaveMembers = rows.filter(member => member.playerStatus == "LOA").length;
+
+    // console.log("Active Members: " + activeMembers);
+    // console.log("Leave Members: " + leaveMembers);
+
+    // Query 5 - Get the number of members that are recruits
+    var recruits = rows.filter(member => member.rankName == "Recruit").length;
+
+    // console.log("Recruits: " + recruits);
+
+    // Query 6 - Get the due date of the next server payment
+    // To be implemented at a later date - this will be caluclated from a new table that will be created
+
+    // Query 7 - Get the number of members that are leaders
+    var leaders = rows.filter(member => (["Corporal","Sergeant","Second Lieutenant","First Lieutenant"].indexOf(member.rankName) > -1)).length;
+
+    // console.log("Leaders: " + leaders);
+
+    // Query 8 - Get the number of mission replays that are available
+    // To be implemented at a later date - this will be caluclated from a new table that will be created
+
+    // Query 9 - Get the next scheduled training
+    // Using the API to get the next scheduled training
+    var nextTraining = await embeds.getNextTraining();
+
+    // console.log("Next Training: " + nextTraining);
+
+    // Query 10 - Get the next scheduled mission
+    // Using the API to get the next scheduled mission
+    var nextMission = await embeds.getNextMission();
+
+    // console.log("Next Mission: " + nextMission);
+
+    var dashboardData = {
+        "activeMembers": activeMembers,
+        "leaveMembers": leaveMembers,
+        "recruits": recruits,
+        "nextTraining": nextTraining,
+        "nextMission": nextMission,
+        "leaders": leaders
+    }
+    
+    return dashboardData;
+}
+
+
+module.exports = { getMembers, getFullMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, getPool, performRegister, getUserRole, createMember, getDashboardData };
 
 
 // async function getMember(name) {

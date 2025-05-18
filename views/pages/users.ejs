@@ -25,11 +25,23 @@
     <% if (typeof editSuccess !== 'undefined') { %>
     <div class="container text-center">
       <% if (editSuccess == 1) { %>
-      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Record Successfully
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
         Updated!</div>
       <% } else if (editSuccess == 0){ %>
-      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Record Failed to
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
         Update!</div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <% if (typeof createSuccess !== 'undefined') { %>
+    <div class="container text-center">
+      <% if (createSuccess == 1) { %>
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+        Created!</div>
+      <% } else if (createSuccess == 0){ %>
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+        Created!</div>
       <% } %>
     </div>
     <% } %>
@@ -54,7 +66,7 @@
                 <input type="text" class="form-control" id="uname" name="uname" placeholder="Name">
               </div>
               <div class="form-group">
-                <label for="uname">Rank</label>
+                <label for="rank">Rank</label>
                 <select name="rank" id="rank">
                 </select>
               </div>
@@ -80,7 +92,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Close</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Close</button>
               <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
           </form>
@@ -88,7 +100,53 @@
       </div>
     </div>
 
+    <div class="modal fade" id="createUserModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create Member</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="/data/createMember" method="POST">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="new-uname">Name</label>
+                <input required type="text" class="form-control" id="new-uname" name="newuname" placeholder="Name">
+              </div>
+              <div class="form-group">
+                <label for="new-rank">Rank</label>
+                <select required name="newrank" id="new-rank">
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="new-country">Country</label>
+                <input required type="text" class="form-control" id="new-country" name="newcountry" placeholder="Country">
+              </div>
+              <div class="form-group">
+                <label for="new-reporting">Reports To</label>
+                <input required type="text" class="form-control" id="new-reporting" name="newreporting" placeholder="Reports To">
+              </div>
+              <div class="form-group">
+                <label for="new-joined">Joined Date</label>
+                <input required type="date" class="form-control" name="newjoined" id="new-joined">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <div class="container my-5">
+      <div class="container buttonsDiv">
+        <button type="button" class="btn btn-primary" onclick="openCreateModal()">
+          New Member
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="location.reload();">Refresh</button>
+      </div>
       <table id="membersTable" class="table table-dark table-striped table-hover">
         <thead>
           <tr>

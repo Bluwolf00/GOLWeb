@@ -142,4 +142,99 @@ async function getAttendanceFromAPI() {
     return attendanceArray;
 }
 
-module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI };
+async function getScheduledEvents() {
+    var data;
+    try {
+        response = await fetch(`https://raid-helper.dev/api/v3/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
+            method: 'GET',
+            headers: {
+                'TagFilter': 'main',
+                'Content-Type': 'application/json',
+                'Authorization': `${process.env.OPORD_API_KEY}`,
+                'StartTimeFilter': new Date().toISOString()
+            }
+        });
+        data = await response.json();
+    } catch (error) {
+        data = error;
+    } finally {
+        return data;
+    }
+}
+
+async function getNextMission() {
+    var data;
+    var nextMission = {};
+
+    try {
+        data = await getScheduledEvents();
+        for (var i = 0; i < data.postedEvents.length; i++) {
+            if (data.postedEvents[i].title.includes("THURSDAY OPERATION") || data.postedEvents[i].title.includes("SUNDAY OPERATION")) {
+                var desc = data.postedEvents[0].description;
+                var missionName;
+        
+                if (desc.includes("Mission Name:")) {
+                    missionName = desc.substring(desc.indexOf("Mission Name:") + 13, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                } else if (desc.includes("#")) {
+                    missionName = desc.substring(desc.indexOf("#") + 1, desc.indexOf("\n", desc.indexOf("#")));
+                } else if (desc.includes("TBA")) {
+                    missionName = "TBA";
+                }
+
+                nextMission = {
+                    name: missionName,
+                    date: data.postedEvents[i].startTime,
+                    description: desc,
+                    eventId: data.postedEvents[i].id
+                };
+
+                break;
+            }
+        }
+        
+    } catch (error) {
+        return error;
+    }
+
+    // console.log("API: " + attendanceArray);
+
+    // Returns an array of objects containing the member's name and the number of events they have attended
+    return nextMission;
+}
+
+async function getNextTraining() {
+    var data;
+    var nextTraining = {};
+
+    data = await getScheduledEvents();
+
+    for (var i = 0; i < data.postedEvents.length; i++) {
+        if (data.postedEvents[i].title.includes("THURSDAY OPERATION")) {
+            var desc = data.postedEvents[0].description;
+            var trainingName;
+    
+            if (desc.includes("Training:")) {
+                trainingName = desc.substring(desc.indexOf("Training:") + 9, desc.indexOf("\n", desc.indexOf("Training:")));
+            } else if (desc.includes("TBA")) {
+                trainingName = "TBA";
+            }
+
+            if (trainingName == undefined) {
+                trainingName = "TBA";
+            }
+
+            nextTraining = {
+                name: trainingName,
+                date: data.postedEvents[i].startTime,
+                description: desc,
+                eventId: data.postedEvents[i].id
+            };
+
+            break;
+        }
+    }
+
+    return nextTraining;
+}
+
+module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining };

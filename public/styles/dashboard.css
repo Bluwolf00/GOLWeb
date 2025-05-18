@@ -19,6 +19,7 @@
     flex-direction: row;
     align-items: center;
     padding-left: 0.5%;
+    margin: 1% 0;
 }
 
 #bubble-dash > div.row {
@@ -84,4 +85,14 @@ span.bubble-text {
     padding: .375rem .75rem;
     border-radius: 5px;
     font-size: 16px;
+}
+
+.buttonsDiv {
+    margin: 1%;
+    justify-content: space-evenly;
+    display: flex;
+}
+
+.buttonsDiv > button {
+    padding: 10px 20px;
 }
