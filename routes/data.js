@@ -77,6 +77,43 @@ router.get('/getMemberAttendance', async (req, res) => {
 
 });
 
+
+router.get('/getMemberAttendance', async (req,res) => {
+    var name = req.query.name;
+    var content = {"thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1};
+    try {
+        temp = await db.getMemberAttendanceNew(name);
+        content.thursdays = temp.thursdays;
+        content.sundays = temp.sundays;
+        content.numberOfEventsAttended = temp.numberOfEventsAttended;
+    } catch (error) {
+        console.log(error);
+        res.status(500);
+    }
+    res.send(content);
+});
+
+// Needs rate limited
+router.get('/updateMemberLOAs', async (req,res) => {
+    var result = await db.updateMemberLOAs();
+    if (result == 203) {
+        res.status(203).send("No new LOAs found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("LOAs updated successfully.");
+    }
+});
+
+// Needs rate limited
+router.get('/updateAttendance', async (req,res) => {
+    var result = await db.updateMemberAttendance();
+    if (result == 203) {
+        res.status(203).send("No new attendance found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("Attendance updated successfully.");
+    }
+});
+
+
 // This is a protected route - Only accessible by admins and moderators who are logged in
 router.get('/getDashData', authPage, async (req, res) => {
     var data = await db.getDashboardData();
