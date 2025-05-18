@@ -160,8 +160,6 @@ async function getMemberLOAsFromAPI() {
 
         data = await response.json();
 
-        console.log("Data: " + data);
-
         // data = testJSON;
         var startPos;
         var endPos;
@@ -169,8 +167,6 @@ async function getMemberLOAsFromAPI() {
         for (var i = 0; i < data.length; i++) {
 
             // Ensure that the message is in the format we expect
-            console.log("Message: " + data[i].content);
-            console.log("Does Message include From: " + data[i].content.includes("From"));
             if (data[i].content.includes("From")) {
 
                 startPos = data[i].content.indexOf("From") + 6;
@@ -225,10 +221,6 @@ async function getMemberLOAsFromAPI() {
                 } else {
                     memberId = data[i].author.id;
                 }
-
-                console.log("Start Date: " + startDate);
-                console.log("End Date: " + endDate);
-                console.log("Member ID: " + memberId);
 
                 // Set the dates to UNIX time
                 startDate = Date.parse(startDate);
