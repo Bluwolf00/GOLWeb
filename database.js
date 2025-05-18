@@ -567,9 +567,12 @@ async function updateMemberAttendance(bypassCheck = false) {
 }
 
 async function updateMemberLOAs() {
+
+    // console.log("Updating LOAs...");
     var LOAs = await embeds.getMemberLOAsFromAPI();
 
     // Also update the LOAs in the database
+    // console.log("Sending LOAs to the database...");
     var result = await setMemberLOAStatuses(LOAs);
 
     return result;
@@ -585,26 +588,49 @@ async function setMemberLOAStatuses(LOAs) {
     try {
         for (var i = 0; i < LOAs.length; i++) {
             if (Date.now() > LOAs[i].startDate && Date.now() < LOAs[i].endDate) {
-                console.log("Member " + LOAs[i].memberId + " is on LOA");
+                // console.log("Member " + LOAs[i].memberId + " is on LOA");
                 [rows] = await pool.query(`
                     UPDATE Members, Attendance
-                    SET status = 'LOA'
+                    SET playerStatus = 'LOA'
                     WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [LOAs[i].memberId]);
-            } else {
-                console.log("Member " + LOAs[i].memberId + " is not on LOA");
+            }
+        }
+
+        // Now check for any members that were on LOA but are no longer on LOA
+
+        // Get all members that are on LOA
+        var [membersOnLOA] = await pool.query(`SELECT Attendance.MemberDiscordID FROM Members, Attendance WHERE Members.playerStatus = 'LOA' AND Members.MemberID = Attendance.MemberID`);
+
+        // Loop through the members on LOA and check if they are in the LOAs array
+        for (var i = 0; i < membersOnLOA.length; i++) {
+            var found = false;
+            for (var j = 0; j < LOAs.length; j++) {
+                if (membersOnLOA[i].MemberDiscordID == LOAs[j].memberId) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // If the member is not in the LOAs array, set their status to Active
+            if (!found) {
+                // console.log("Member " + membersOnLOA[i].MemberDiscordID + " is no longer on LOA");
                 [rows] = await pool.query(`
                     UPDATE Members, Attendance
-                    SET status = 'Active'
-                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [LOAs[i].memberId]);
+                    SET playerStatus = 'Active'
+                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [membersOnLOA[i].MemberDiscordID]);
             }
         }
     } catch (error) {
         console.log(error);
     } finally {
-        if (rows == null || rows[0].affectedRows == 0) {
+        if (typeof rows == "undefined") {
+            console.log("No members LOAs were updated");
+            result = 203;
+        } else if (rows.affectedRows == 0) {
             console.log("No members LOAs were updated");
             result = 203;
         } else {
+            console.log("LOAs Updated: " + rows.affectedRows);
             result = 200;
         }
         return result;
