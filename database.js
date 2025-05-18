@@ -327,12 +327,14 @@ async function performLogin(username, password, fallback) {
         try {
             [rows] = await pool.query(`
                 SELECT username,password
-                FROM Users
+                FROM users
                 WHERE username = ?`, [username]);
         } catch (error) {
             console.log(error);
         } finally {
             if (rows.length == 0) {
+                return null;
+            } else if (typeof rows == "undefined" || typeof rows == "null" || rows == null) {
                 return null;
             } else {
                 if (rows[0].password)
@@ -351,7 +353,7 @@ async function performLogin(username, password, fallback) {
 async function performRegister(username, password) {
     try {
         const result = await pool.query(`
-            INSERT INTO Users (username,password,role)
+            INSERT INTO users (username,password,role)
             VALUES (?,?,"member")`, [username, password]);
         return result[0].affectedRows > 0;
     } catch (error) {
@@ -365,7 +367,7 @@ async function getUserRole(username) {
     try {
         [rows] = await pool.query(`
             SELECT role
-            FROM Users
+            FROM users
             WHERE username = ?`, [username]);
     } catch (error) {
         console.log(error);
