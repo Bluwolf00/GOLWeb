@@ -66,32 +66,11 @@ router.get('/getRanks', async (req, res) => {
         var ranks = await db.getRanks(false, aboveOrBelow, currentRank);
     }
     res.send(ranks);
-    });
-
+});
 
 router.get('/getMemberAttendance', async (req, res) => {
     var name = req.query.name;
-    var attendance = { "numberOfEventsAttended": -1, "insertStatus": false };
-    try {
-        temp = await db.getMemberAttendance(name);
-        attendance.numberOfEventsAttended = temp.numberOfEventsAttended;
-        attendance.insertStatus = temp.insertStatus;
-        if (attendance.insertStatus) {
-            res.status(201);
-        } else {
-            res.status(200);
-        }
-        res.send(attendance);
-    } catch (error) {
-        res.status(500);
-        res.send(error.message);
-    }
-
-});
-
-router.get('/getMemberAttendance', async (req,res) => {
-    var name = req.query.name;
-    var content = {"thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1};
+    var content = { "thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1 };
     try {
         temp = await db.getMemberAttendanceNew(name);
         content.thursdays = temp.thursdays;
@@ -105,7 +84,7 @@ router.get('/getMemberAttendance', async (req,res) => {
 });
 
 // Needs rate limited
-router.get('/updateMemberLOAs', async (req,res) => {
+router.get('/updateMemberLOAs', async (req, res) => {
     var result = await db.updateMemberLOAs();
     if (result == 203) {
         res.status(203).send("No new LOAs found - No changes made.");
@@ -115,7 +94,7 @@ router.get('/updateMemberLOAs', async (req,res) => {
 });
 
 // Needs rate limited
-router.get('/updateAttendance', async (req,res) => {
+router.get('/updateAttendance', async (req, res) => {
     var result = await db.updateMemberAttendance();
     if (result == 203) {
         res.status(203).send("No new attendance found - No changes made.");
@@ -275,9 +254,9 @@ router.delete('/deleteMember', authPage, async (req, res) => {
     var result = await db.deleteMember(memberID);
     console.log("DELETION RESULT: " + result);
     if (result) {
-        res.status(200).send({"result" : "Member deleted successfully"});
+        res.status(200).send({ "result": "Member deleted successfully" });
     } else {
-        res.status(500).send({"result" : "Failed to delete member - Check if the member ID exists."});
+        res.status(500).send({ "result": "Failed to delete member - Check if the member ID exists." });
     }
 });
 

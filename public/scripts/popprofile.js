@@ -149,7 +149,7 @@ async function getProfile() {
     // console.log(data);
     playerName = data.UName;
     playerCountry = data.Country;
-    playerStatus = data.status;
+    playerStatus = data.playerStatus;
     playerRank = data.rankName;
     updateElement('name', playerName);
     updateElement('country', playerCountry);
@@ -272,7 +272,7 @@ function getBadges() {
 
                 counter++;
             }
-            console.log(data);
+            // console.log(data);
         });
 }
 
