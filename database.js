@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-
+const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
 dotenv.config()
@@ -11,29 +11,187 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
+
+function getPool() {
+    return pool;
+}
 // const result = await pool.query('SELECT * FROM Members')
 
-async function getMembers() {
+async function getMembers(includeParentName = false) {
     var rows = [null];
+    var query = '';
+    if (includeParentName == true) {
+        query = 'SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC'
+    } else {
+        query = 'SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
+    }
     try {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,status,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.Rank = Ranks.rankID');
+        [rows] = await pool.query(query);
     } catch (error) {
+        console.log(error);
     }
     return rows
 }
+
+async function getFullMemberInfo(memberID) {
+    var rows = [null];
+    try {
+        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
+        [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank AND m.MemberID = ? ORDER BY m.MemberID ASC', [memberID]);
+    } catch (error) {
+        console.log(error);
+    }
+    return rows[0]
+};
 
 async function getMember(name) {
     var rows = [null];
     try {
         rows = await pool.query(`
-            SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,status
+            SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,playerStatus
             FROM Members,Ranks
-            WHERE Members.Rank = Ranks.rankID AND UName = ?`, [name])
+            WHERE Members.playerRank = Ranks.rankID AND UName = ?`, [name])
     } catch (error) {
         console.log(error);
     } finally {
         return rows[0]
+    }
+}
+
+async function deleteMember(memberID) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            DELETE FROM Members
+            WHERE MemberID = ?`, [memberID])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
+async function getMemberParent(memberName) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT parentNodeId
+            FROM Members
+            WHERE UName = ?`, [memberName])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        }
+        return rows[0].parentNodeId;
+    }
+}
+
+async function getMemberNodeId(memberName) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT nodeId
+            FROM Members
+            WHERE UName = ?`, [memberName])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        }
+        return rows[0].nodeId;
+    }
+}
+
+async function getRankFromName(rankName) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT rankID
+            FROM Ranks
+            WHERE rankName = ?`, [rankName])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0].rankID;
+    }
+}
+
+async function updateMember(memberID, memberName, rank, country, parentName, status, dateOfJoin, dateOfPromo) {
+    var rows = [null];
+    try {
+
+        // Get the parent node ID from the name
+        // If the parent name is "None" AKA the top element, set the parent node ID to "root"
+        var parentNodeId = "root";
+        if (parentName.toString() !== "None") {
+            parentNodeId = await getMemberNodeId(parentName);
+            console.log("Parent Name: " + parentName);
+            console.log("Parent Node ID: " + parentNodeId);
+        }
+        var rankID = await getRankFromName(rank);
+        if (dateOfJoin == "") {
+            dateOfJoin = null;
+        }
+        if (dateOfPromo == "") {
+            dateOfPromo = null;
+        }
+
+        [rows] = await pool.query(`
+            UPDATE Members
+            SET playerRank = ?,
+                UName = ?,
+                Country = ?,
+                parentNodeId = ?,
+                playerStatus = ?,
+                DateOfJoin = ?,
+                DateOfPromo = ?
+            WHERE MemberID = ?`, [rankID, memberName, country, parentNodeId, status, dateOfJoin, dateOfPromo, memberID])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows
+    }
+}
+
+async function createMember(memberName, rank, country, parentName, dateOfJoin) {
+    var rows = [null];
+    try {
+        // Get the highest nodeId in the database
+        var [maxNodeId] = await pool.query('SELECT MAX(nodeId) AS maxNodeId FROM Members WHERE nodeId LIKE "E-%"');
+        var newNodeId = "E-" + ((parseInt(maxNodeId[0].maxNodeId.split("-")[1]) + 1) + "").padStart(4, '0');
+        // Get the parent node ID from the name
+        var parentNodeId = "root";
+        if (parentName !== "None" || parentName !== "") {
+            parentNodeId = await getMemberNodeId(parentName);
+        }
+
+        if (parentNodeId == null) {parentNodeId = "root";}
+
+        var rankID = await getRankFromName(rank);
+
+        var nick = "";
+        var playerStatus = "Active";
+        if (rank == "Reserve") {
+            playerStatus = "Reserve";
+        }
+
+        var response = await pool.query(`
+            INSERT INTO Members (UName,playerRank,Country,nodeId,parentNodeId,DateOfJoin,nick,playerStatus) VALUES (?,?,?,?,?,?,?,?)`, [memberName, rankID, country, newNodeId, parentNodeId, dateOfJoin, nick, playerStatus]);
+
+        if (response[0].affectedRows > 0) {
+            console.log("Member created successfully");
+            [rows] = await pool.query('SELECT MemberID FROM Members WHERE nodeId = ?', [newNodeId]);
+            var memberID = rows[0].MemberID;
+            console.log("Member ID: " + memberID);
+            return memberID;
+        }
+    } catch (error) {
+        console.log(error);
+        return null;
     }
 }
 
@@ -118,20 +276,27 @@ async function getVideos() {
     return rows;
 }
 
-async function getRanks(aboveOrBelow, currentRank) {
+async function getRanks(all, aboveOrBelow, currentRank) {
     var rows = null;
-    if (aboveOrBelow == "above") {
-        rows = await pool.query(`
-            SELECT rankName, prefix
+    if (all == true) {
+        [rows] = await pool.query(`
+            SELECT rankID, rankName, prefix
             FROM Ranks
-            WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
-            ORDER BY rankID DESC`, [currentRank]);
+            ORDER BY rankID ASC`);
     } else {
-        rows = await pool.query(`
-            SELECT rankName, prefix
-            FROM Ranks
-            WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
-            ORDER BY rankID ASC`, [currentRank]);
+        if (aboveOrBelow == "above") {
+            rows = await pool.query(`
+                SELECT rankName, prefix
+                FROM Ranks
+                WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
+                ORDER BY rankID DESC`, [currentRank]);
+        } else {
+            rows = await pool.query(`
+                SELECT rankName, prefix
+                FROM Ranks
+                WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
+                ORDER BY rankID ASC`, [currentRank]);
+        }
     }
     return rows;
 }
@@ -146,7 +311,7 @@ async function changeRank(member, newRank) {
         console.log("NEW RANK: " + newRank);
         rows = await pool.query(`
             UPDATE Members
-            SET Members.Rank = (SELECT rankID FROM Ranks WHERE prefix = ?)
+            SET Members.playerRank = (SELECT rankID FROM Ranks WHERE prefix = ?)
             WHERE UName = ?`, [newRank, member]);
     } catch (error) {
         console.log(error);
@@ -158,16 +323,21 @@ async function changeRank(member, newRank) {
 async function performLogin(username, password, fallback) {
 
     if (!fallback) {
-        var rows = null;
+        var rows = [null];
         try {
-            rows = await pool.query(`
-                SELECT UName,Password
-                FROM Admins
-                WHERE UName = ? AND Password = ?`, [username, password]);
+            [rows] = await pool.query(`
+                SELECT username,password
+                FROM Users
+                WHERE username = ?`, [username]);
         } catch (error) {
             console.log(error);
         } finally {
-            return rows
+            if (rows.length == 0) {
+                return null;
+            } else {
+                if (rows[0].password)
+                    return rows;
+            }
         }
     } else {
         if (username == process.env.ADMIN_USERNAME && password == process.env.ADMIN_PASSWORD) {
@@ -178,9 +348,37 @@ async function performLogin(username, password, fallback) {
     }
 }
 
-// This function will return the passed member's attendance record
-// DATABASE ONLY | DOES NOT DIRECTLY INTERACT WITH THE API
-async function getMemberAttendanceNew(name) {
+async function performRegister(username, password) {
+    try {
+        const result = await pool.query(`
+            INSERT INTO Users (username,password,role)
+            VALUES (?,?,"member")`, [username, password]);
+        return result[0].affectedRows > 0;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+async function getUserRole(username) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT role
+            FROM Users
+            WHERE username = ?`, [username]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0].role;
+        }
+    }
+}
+
+async function getMemberAttendance(name) {
     var rows = [null];
 
     // 200 = Changes made
@@ -266,7 +464,7 @@ async function updateMemberAttendance(bypassCheck = false) {
         var memberDetails = [];
         try {
             // Only update the members that are Active or LOA
-            var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE status NOT IN ("Inactive", "Reserve")');
+            var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE playerStatus NOT IN ("Inactive", "Reserve")');
 
             for (var i = 0; i < temp.length; i++) {
                 
@@ -369,9 +567,12 @@ async function updateMemberAttendance(bypassCheck = false) {
 }
 
 async function updateMemberLOAs() {
+
+    // console.log("Updating LOAs...");
     var LOAs = await embeds.getMemberLOAsFromAPI();
 
     // Also update the LOAs in the database
+    // console.log("Sending LOAs to the database...");
     var result = await setMemberLOAStatuses(LOAs);
 
     return result;
@@ -387,26 +588,49 @@ async function setMemberLOAStatuses(LOAs) {
     try {
         for (var i = 0; i < LOAs.length; i++) {
             if (Date.now() > LOAs[i].startDate && Date.now() < LOAs[i].endDate) {
-                console.log("Member " + LOAs[i].memberId + " is on LOA");
+                // console.log("Member " + LOAs[i].memberId + " is on LOA");
                 [rows] = await pool.query(`
                     UPDATE Members, Attendance
-                    SET status = 'LOA'
+                    SET playerStatus = 'LOA'
                     WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [LOAs[i].memberId]);
-            } else {
-                console.log("Member " + LOAs[i].memberId + " is not on LOA");
+            }
+        }
+
+        // Now check for any members that were on LOA but are no longer on LOA
+
+        // Get all members that are on LOA
+        var [membersOnLOA] = await pool.query(`SELECT Attendance.MemberDiscordID FROM Members, Attendance WHERE Members.playerStatus = 'LOA' AND Members.MemberID = Attendance.MemberID`);
+
+        // Loop through the members on LOA and check if they are in the LOAs array
+        for (var i = 0; i < membersOnLOA.length; i++) {
+            var found = false;
+            for (var j = 0; j < LOAs.length; j++) {
+                if (membersOnLOA[i].MemberDiscordID == LOAs[j].memberId) {
+                    found = true;
+                    break;
+                }
+            }
+
+            // If the member is not in the LOAs array, set their status to Active
+            if (!found) {
+                // console.log("Member " + membersOnLOA[i].MemberDiscordID + " is no longer on LOA");
                 [rows] = await pool.query(`
                     UPDATE Members, Attendance
-                    SET status = 'Active'
-                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [LOAs[i].memberId]);
+                    SET playerStatus = 'Active'
+                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [membersOnLOA[i].MemberDiscordID]);
             }
         }
     } catch (error) {
         console.log(error);
     } finally {
-        if (rows == null || rows[0].affectedRows == 0) {
+        if (typeof rows == "undefined") {
+            console.log("No members LOAs were updated");
+            result = 203;
+        } else if (rows.affectedRows == 0) {
             console.log("No members LOAs were updated");
             result = 203;
         } else {
+            console.log("LOAs Updated: " + rows.affectedRows);
             result = 200;
         }
         return result;
@@ -437,13 +661,73 @@ async function getMemberLOA(name) {
     }
 }
 
-module.exports = { getMembers, getMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, updateMemberLOAs, updateMemberAttendance, updateMemberAttendance, getMemberAttendanceNew, getMemberLOA };
+async function getDashboardData() {
+    // The dashboard data is a combination of the following:
+    // 1. The number of members eligible for the next rank
+    // 2. The member that is closest to the next rank
+    // 3. The number of members that are active
+    // 4. The number of members that are on LOA
+    // 5. The number of members that are recruits
+    // 6. The due date of the next server payment
+    // 7. The number of members that are leaders
+    // 8. The number of mission replays that are available
+    // 9. The next scheduled training
+    // 10. The next scheduled mission
+
+    // Query 1 - Get the number of members eligible for the next rank
+    // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
+
+    // Query 2 - Get the member that is closest to the next rank
+    // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
+
+    // Query 3 + 4 - Get the number of members that are active + on LOA
+    var rows = await getMembers(true);
+
+    var activeMembers = rows.filter(member => member.playerStatus == "Active").length;
+    var leaveMembers = rows.filter(member => member.playerStatus == "LOA").length;
+
+    // console.log("Active Members: " + activeMembers);
+    // console.log("Leave Members: " + leaveMembers);
+
+    // Query 5 - Get the number of members that are recruits
+    var recruits = rows.filter(member => member.rankName == "Recruit").length;
+
+    // console.log("Recruits: " + recruits);
+
+    // Query 6 - Get the due date of the next server payment
+    // To be implemented at a later date - this will be caluclated from a new table that will be created
+
+    // Query 7 - Get the number of members that are leaders
+    var leaders = rows.filter(member => (["Corporal","Sergeant","Second Lieutenant","First Lieutenant"].indexOf(member.rankName) > -1)).length;
+
+    // console.log("Leaders: " + leaders);
+
+    // Query 8 - Get the number of mission replays that are available
+    // To be implemented at a later date - this will be caluclated from a new table that will be created
+
+    // Query 9 - Get the next scheduled training
+    // Using the API to get the next scheduled training
+    var nextTraining = await embeds.getNextTraining();
+
+    // console.log("Next Training: " + nextTraining);
+
+    // Query 10 - Get the next scheduled mission
+    // Using the API to get the next scheduled mission
+    var nextMission = await embeds.getNextMission();
+
+    // console.log("Next Mission: " + nextMission);
+
+    var dashboardData = {
+        "activeMembers": activeMembers,
+        "leaveMembers": leaveMembers,
+        "recruits": recruits,
+        "nextTraining": nextTraining,
+        "nextMission": nextMission,
+        "leaders": leaders
+    }
+    
+    return dashboardData;
+}
 
 
-// async function getMember(name) {
-//     const rows = await pool.query(`
-//         SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,status
-//         FROM Members,Ranks
-//         WHERE Members.Rank = Ranks.rankID AND UName = ?`, [name])
-//     return rows[0]
-// }
+module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA };

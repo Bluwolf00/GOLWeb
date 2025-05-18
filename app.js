@@ -1,223 +1,169 @@
 const express = require('express');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const bodyParser = require('body-parser');
 const db = require('./database.js');
+const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
+const cors = require('cors');
+
+dotenv.config();
 
 const app = express();
 
 app.use(bodyParser.json());
 
+const sessionStore = new MySQLStore({ clearExpired: true }, db.getPool());
+
+sessionStore.onReady().then(() => {
+    console.log('MYSQL Session Store is ready');
+}).catch((error) => {
+    console.error('Error establishing the MySQL Session Store: ', error);
+});
+
 app.use(session({
-    secret: 'GOL'
+    secret: process.env.SESSION_SECRET, // To viewers on GitHub, I have changed the previous secret for security reasons.
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore
 }));
 
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
 app.set('view engine', 'ejs');
-
 app.use(express.static('public'));
-
-app.use(function(req,res,next) {
+app.use(function (req, res, next) {
     res.locals.loggedin = req.session.loggedin;
     next();
 });
 
+app.use(cors({
+    origin: `http://localhost:${process.env.PORT || 3000}`,
+    methods: ['GET', 'POST']
+}));
+
+// Dashboard
+
+const dashboard = require('./routes/dashboard.js');
+const dbData = require('./routes/data.js');
+
+app.use('/dashboard', dashboard);
+app.use('/data', dbData);
+
 // GET REQUESTS - PAGES
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
+    console.log(req.session);
+    // req.session.loggedin = false;
+
     res.render('pages/index', {
-        loggedin: req.session.loggedin
+        userLogged: req.session.loggedin,
+        username: req.session.username
     });
 });
 
-app.get('/home', (req,res) => {
+app.get('/home', (req, res) => {
+    console.log(req.session);
     res.render('pages/index', {
-        loggedin: req.session.loggedin
+        userLogged: req.session.loggedin,
+        username: req.session.username
     });
 });
 
-app.get('/about', (req,res) => {
+app.get('/about', (req, res) => {
     res.render('pages/about', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
-app.get('/roster', (req,res) => {
+app.get('/roster', (req, res) => {
     res.render('pages/roster', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
-app.get('/SOP', (req,res) => {
+app.get('/SOP', (req, res) => {
     res.render('pages/sop', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
-app.get('/Badges', (req,res) => {
+app.get('/Badges', (req, res) => {
     res.render('pages/badges', {
-        loggedin: req.session.loggedin
+        username: req.session.username
     });
 });
 
-app.get('/discord', (req,res) => {
+app.get('/discord', (req, res) => {
     res.redirect('https://discord.gg/fS6AppB8kg');
 });
 
-app.get('/profile', (req,res) => {
+app.get('/profile', (req, res) => {
     var playerN = req.query.name;
     // console.log(req.query.name);
     res.render('pages/profile', {
-        loggedin: req.session.loggedin
+        loggedin: req.session.loggedin,
+        username: req.session.username
     });
 });
 
-app.get('/mods', async (req,res) => {
+app.get('/mods', async (req, res) => {
     res.render('pages/mods', {
-        loggedin: req.session.loggedin
+        loggedin: req.session.loggedin,
+        username: req.session.username
     });
 });
 
-app.get('/orbat', async (req,res) => {
+app.get('/orbat', async (req, res) => {
     const data = await db.getMembers();
-    res.render('pages/roster_new', {data: data, loggedin: req.session.loggedin});
+    res.render('pages/roster_new', { data: data, loggedin: req.session.loggedin, username: req.session.username });
 });
 
-app.get('/login', (req,res) => {
+app.get('/error', (req, res) => {
+    var errorCode = req.query.error;
+    console.log(errorCode);
+    res.render('pages/error', {
+        error: errorCode,
+        username: req.session.username
+    });
+});
 
-    if (req.session.loggedin) {
-        req.session.loggedin = false;
-        req.session.destroy();
-        res.redirect('/home');
-    } else {
+app.get('/register', (req, res) => {
+    res.render('pages/register', {
+        username: req.session.username
+    });
+});
+
+app.get('/login', (req, res) => {
+
+    if (req.query.success) {
         res.render('pages/login', {
-            loggedin: req.session.loggedin
+            success: true
         });
-    }
-});
-
-// GET REQUESTS - DATA
-
-app.get('/memberinfo', async (req,res) => {
-    var member = await db.getMember(req.query.name);
-    // console.log(req.query.name);
-    res.send(member);
-});
-
-app.get('/memberbadges', async (req,res) => {
-    var badges = await db.getMemberBadges(req.query.name);
-    res.send(badges);
-});
-
-app.get('/getmembers', async (req,res) => {
-    const members = await db.getMembers();
-    res.send(members);
-});
-
-app.get('/getBadges', async (req,res) => {
-    const badges = await db.getBadges();
-    res.send(badges);
-});
-
-app.get('/getVideos', async (req,res) => {
-    
-    try {
-        const videos = await db.getVideos();
-        res.send(videos);
-    } catch (error) {
-        res.send(error);
-    }
-});
-
-app.get('/getRanks', async (req,res) => {
-    var aboveOrBelow = req.query.aboveOrBelow;
-    var currentRank = req.query.currentRank;
-    var ranks = await db.getRanks(aboveOrBelow, currentRank);
-    res.send(ranks);
-});
-
-app.get('/getMemberAttendance', async (req,res) => {
-    var name = req.query.name;
-    var content = {"thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1};
-    try {
-        temp = await db.getMemberAttendanceNew(name);
-        content.thursdays = temp.thursdays;
-        content.sundays = temp.sundays;
-        content.numberOfEventsAttended = temp.numberOfEventsAttended;
-    } catch (error) {
-        console.log(error);
-        res.status(500);
-    }
-    res.send(content);
-});
-
-// Needs rate limited
-app.get('/updateMemberLOAs', async (req,res) => {
-    var result = await db.updateMemberLOAs();
-    if (result == 203) {
-        res.status(203).send("No new LOAs found - No changes made.");
-    } else if (result == 200) {
-        res.status(200).send("LOAs updated successfully.");
-    }
-});
-
-// Needs rate limited
-app.get('/updateAttendance', async (req,res) => {
-    var result = await db.updateMemberAttendance();
-    if (result == 203) {
-        res.status(203).send("No new attendance found - No changes made.");
-    } else if (result == 200) {
-        res.status(200).send("Attendance updated successfully.");
-    }
-});
-
-// POST REQUESTS
-
-app.post('/changeRank', async (req,res) => {
-    // var member = req.body.member;
-    // var newRank = req.body.newRank;
-    var member = req.get('member');
-    var newRank = req.get('newRank');
-    var auth = req.get('Authorization');
-    if (auth != process.env.AUTH_TOKEN || auth != process.env.AUTH_TOKEN_2) {
-        res.status(403).send("Forbidden - Invalid Token");
-        return;
-    }
-
-    if (!member || !newRank) {
-        res.status(400).send("Bad Request - Missing Parameters");
-        return;
-    }
-
-    var result = await db.changeRank(member, newRank);
-    if (result[0].affectedRows > 0) {
-        res.status(200);
     } else {
-        res.status(500);
-        result[1] = "Failed to change rank - Check if the rank exists or if the member name is correct.";
-    }
-    res.send(result);
-});
-
-app.post('/performLogin', async (req,res) => {
-    var username = req.body.username;
-    var password = req.body.password;
-    var result = await db.performLogin(username, password, true);
-
-    if (result) {
-        req.session.loggedin = true;
-        res.redirect('/home');
-    } else {
-        res.send(result);
+        if (req.session.loggedin) {
+            req.session.loggedin = false;
+            req.session.username = null;
+            // req.session.destroy();
+            req.session.save(function () {
+                res.redirect('/');
+            })
+        } else {
+            res.render('pages/login', {
+                username: req.session.username
+            });
+        }
     }
 });
 
 // Error Catcher
 
-app.get('*', (req,res) => {
-    res.render('pages/error');
+app.get('*', (req, res) => {
+    res.render('pages/error', {
+        error: 404,
+        username: req.session.username
+    });
 });
 
 app.listen(process.env.PORT || 3000);

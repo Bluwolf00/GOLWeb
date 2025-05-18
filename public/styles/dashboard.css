@@ -1,0 +1,98 @@
+.info-bubble {
+    display: flex;
+    /* align-items: center; */
+    justify-content: space-between;
+    background-color: rgb(86, 108, 130);
+    border-radius: 15px;
+    padding-left: 10px;
+    color: white;
+    height: 110px;
+    transition: transform 0.3s ease;
+}
+
+.info-bubble:hover {
+    transform: scale(1.05);
+}
+
+.sub-nav > ul > li.nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 0.5%;
+    margin: 1% 0;
+}
+
+#bubble-dash > div.row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 5%;
+}
+
+span.bubble-text {
+    margin: 5px;
+    margin-right: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    align-self: center;
+}
+
+.digit, .digit-secondary {
+    display: flex;
+    justify-content: center;
+    background-color: #4aa3df;
+    border-radius: 15%;
+    padding: 10px;
+    width: 110px;
+}
+
+.longDigit > span {
+    width: 100% !important;
+}
+
+.longDigit {
+    width: 310px;
+    border-radius: 6%;
+}
+
+.digit-secondary {
+    background-color: #ef5555;
+}
+
+.digit > span, .digit-secondary > span {
+    font-size: 30px;
+    font-size: 30px;
+    width: 110px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    align-self: center;
+}
+
+/* Users Dashboard */
+
+.form-group {
+    padding: 2% 0;
+}
+
+.form-group > label {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.form-group > select {
+    width: 100%;
+    padding: .375rem .75rem;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.buttonsDiv {
+    margin: 1%;
+    justify-content: space-evenly;
+    display: flex;
+}
+
+.buttonsDiv > button {
+    padding: 10px 20px;
+}

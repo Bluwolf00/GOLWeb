@@ -9,6 +9,7 @@ async function getInfoFromAPI() {
     var savedVideos = [];
 
     // Channels to fetch videos from
+    // No these are not sensitive, they are public channels
     channels = ['UCuKMp2KWhQ69geXACQ0jf5A', 'UCTw6PJb5bCrsVPAVRUc-eTA'];
 
     // Loop through all channels
@@ -159,6 +160,8 @@ async function getMemberLOAsFromAPI() {
 
         data = await response.json();
 
+        console.log("Data: " + data);
+
         // data = testJSON;
         var startPos;
         var endPos;
@@ -166,6 +169,8 @@ async function getMemberLOAsFromAPI() {
         for (var i = 0; i < data.length; i++) {
 
             // Ensure that the message is in the format we expect
+            console.log("Message: " + data[i].content);
+            console.log("Does Message include From: " + data[i].content.includes("From"));
             if (data[i].content.includes("From")) {
 
                 startPos = data[i].content.indexOf("From") + 6;
@@ -221,6 +226,10 @@ async function getMemberLOAsFromAPI() {
                     memberId = data[i].author.id;
                 }
 
+                console.log("Start Date: " + startDate);
+                console.log("End Date: " + endDate);
+                console.log("Member ID: " + memberId);
+
                 // Set the dates to UNIX time
                 startDate = Date.parse(startDate);
                 endDate = Date.parse(endDate);
@@ -233,10 +242,16 @@ async function getMemberLOAsFromAPI() {
             }
         }
 
-        return LOAArray;
-
     } catch (err) {
         console.log(err);
+
+        LOAArray.push({
+            memberId: "Error",
+            startDate: "Error",
+            endDate: "Error"
+        });
+    } finally {
+        return LOAArray;
     }
 }
 
@@ -370,5 +385,113 @@ async function getAttendanceReport() {
 
     return attendanceReport;
 }
+async function getScheduledEvents() {
+    var data;
+    try {
+        response = await fetch(`https://raid-helper.dev/api/v3/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
+            method: 'GET',
+            headers: {
+                'TagFilter': 'main',
+                'Content-Type': 'application/json',
+                'Authorization': `${process.env.OPORD_API_KEY}`,
+                'StartTimeFilter': new Date().toISOString()
+            }
+        });
+        data = await response.json();
+    } catch (error) {
+        data = error;
+    } finally {
+        return data;
+    }
+}
 
-module.exports = { getInfoFromAPI, addVideosDuration, getAttendanceFromAPI, getMemberLOAsFromAPI, getAttendanceReport };
+async function getNextMission() {
+    var data;
+    var nextMission = {};
+
+    try {
+        data = await getScheduledEvents();
+        for (var i = 0; i < data.postedEvents.length; i++) {
+            if (data.postedEvents[i].title.includes("THURSDAY OPERATION") || data.postedEvents[i].title.includes("SUNDAY OPERATION")) {
+                var desc = data.postedEvents[0].description;
+                var missionName;
+                var missionPartOfDesc = desc.substring(desc.indexOf("Mission"));
+
+                // TODO - Clean up the code to differentiate between Sundays and Thursdays formatting
+
+                if (missionPartOfDesc.includes("TBA")) {
+                    missionName = "TBA";
+                } else {
+                    if (desc.includes("Mission Name:")) {
+                        missionName = desc.substring(desc.indexOf("Mission Name:") + 13, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                    } else if (desc.includes("Mission Details:")) {
+                        missionName = desc.substring(desc.indexOf("Mission Name:") + 16, desc.indexOf("\n", desc.indexOf("Mission Name:")));
+                    } else if (desc.includes("#")) {
+                        missionName = desc.substring(desc.indexOf("#") + 1, desc.indexOf("\n", desc.indexOf("#")));
+                    } else if (desc.includes("TBA")) {
+                        missionName = "TBA";
+                    }
+                }
+        
+
+                nextMission = {
+                    name: missionName,
+                    date: data.postedEvents[i].startTime,
+                    description: desc,
+                    eventId: data.postedEvents[i].id
+                };
+
+                break;
+            }
+        }
+        
+    } catch (error) {
+        return error;
+    }
+
+    // console.log("API: " + attendanceArray);
+
+    // Returns an array of objects containing the member's name and the number of events they have attended
+    return nextMission;
+}
+
+async function getNextTraining() {
+    var data;
+    var nextTraining = {};
+
+    data = await getScheduledEvents();
+
+    for (var i = 0; i < data.postedEvents.length; i++) {
+        if (data.postedEvents[i].title.includes("THURSDAY OPERATION")) {
+            var desc = data.postedEvents[0].description;
+            var trainingName;
+            var trainingPartOfDesc = desc.substring(0, desc.indexOf("Mission"));
+
+            // If the description of the event includes the word "TBA" anywhere in the Training section of the description, set the training name to "TBA"
+            // This is done to avoid the case where the MISSION name is TBA, but the training name is not
+            if (trainingPartOfDesc.includes("TBA")) {
+                trainingName = "TBA";
+            } else {
+                // Get the training name from the description
+                trainingName = desc.substring(desc.indexOf("Training:") + 9, desc.indexOf("\n", desc.indexOf("Training:")));
+
+                if (trainingName == "undefined") {
+                    trainingName = "TBA";
+                }
+    
+            }
+            nextTraining = {
+                name: trainingName,
+                date: data.postedEvents[i].startTime,
+                description: desc,
+                eventId: data.postedEvents[i].id
+            };
+
+            break;
+        }
+    }
+
+    return nextTraining;
+}
+
+module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining, getMemberLOAsFromAPI, getAttendanceReport };
