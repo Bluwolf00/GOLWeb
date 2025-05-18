@@ -72,7 +72,7 @@ router.get('/getMemberAttendance', async (req, res) => {
     var name = req.query.name;
     var content = { "thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1 };
     try {
-        temp = await db.getMemberAttendanceNew(name);
+        temp = await db.getMemberAttendance(name);
         content.thursdays = temp.thursdays;
         content.sundays = temp.sundays;
         content.numberOfEventsAttended = temp.numberOfEventsAttended;
