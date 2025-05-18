@@ -73,9 +73,15 @@ router.get('/getMemberAttendance', async (req, res) => {
     var content = { "thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1 };
     try {
         temp = await db.getMemberAttendance(name);
-        content.thursdays = temp.thursdays;
-        content.sundays = temp.sundays;
-        content.numberOfEventsAttended = temp.numberOfEventsAttended;
+        if (temp == null || temp == false) {
+            content.thursdays = 0;
+            content.sundays = 0;
+            content.numberOfEventsAttended = 0;
+        } else {
+            content.thursdays = temp.thursdays;
+            content.sundays = temp.sundays;
+            content.numberOfEventsAttended = temp.numberOfEventsAttended;
+        }
     } catch (error) {
         console.log(error);
         res.status(500);
