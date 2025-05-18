@@ -24,7 +24,7 @@ router.get('/getmembers', async (req, res) => {
     var members;
 
     if (typeof withParents !== "undefined") {
-        if (withParents == true) {
+        if (withParents.toString() == "true") {
             members = await db.getMembers(true);
         } else {
             members = await db.getMembers(false);

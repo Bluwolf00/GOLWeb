@@ -20,7 +20,7 @@ function getPool() {
 async function getMembers(includeParentName = false) {
     var rows = [null];
     var query = '';
-    if (includeParentName) {
+    if (includeParentName == true) {
         query = 'SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC'
     } else {
         query = 'SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
@@ -127,8 +127,10 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
         // Get the parent node ID from the name
         // If the parent name is "None" AKA the top element, set the parent node ID to "root"
         var parentNodeId = "root";
-        if (!parentName == "None") {
-            parentNodeId = await getMemberParent(parentName);
+        if (parentName.toString() !== "None") {
+            parentNodeId = await getMemberNodeId(parentName);
+            console.log("Parent Name: " + parentName);
+            console.log("Parent Node ID: " + parentNodeId);
         }
         var rankID = await getRankFromName(rank);
         if (dateOfJoin == "") {

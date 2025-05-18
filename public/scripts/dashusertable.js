@@ -114,7 +114,7 @@ async function openEditModal(memberID) {
         parentelement.value = data.parentUName;
         parentelement.removeAttribute("readonly");
     }
-    statuselement.value = data.status;
+    statuselement.value = data.playerStatus;
     if (data.DateOfJoin == null) {
         joineddateelement.value = "";
     } else {
