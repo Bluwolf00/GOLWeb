@@ -1,6 +1,6 @@
 // Org Chart from https://github.com/bumbeishvili/org-chart/tree/master
 
-function createOrg(data) {
+async function createOrg(data) {
     new d3.OrgChart()
         .nodeUpdate(function (d, i, arr) {
             if (d.data.nodeId == "root") {
@@ -128,32 +128,50 @@ async function updateServer() {
 // Retrieve the data from the server and create the org chart
 async function init() {
     await updateServer();
-    fetch('/data/getmembers?withParents=false')
-        .then(res => res.json())
-        .then(data => {
-            var newdata = data.filter(function (el) {
-                if (el.nodeId != null) {
-                    return el;
-                }
-            });
+    var res = await fetch('/data/getmembers?withParents=false');
+    var data = await res.json();
 
-            // Create dummy data for the root node
-            var root = {
-                nodeId: "root",
-                parentNodeId: null,
-                Country: "Sweden",
-                rankName: "Root",
-                rankPath: "",
-                UName: "Root",
-                playerStatus: "Active",
-                numberOfEventsAttended: 0,
-                thursday: 0,
-                sunday: 0
-            }
-            newdata.unshift(root);
-            
-            createOrg(newdata)
-        });
+    var newdata = data.filter(function (el) {
+        if (el.nodeId != null) {
+            return el;
+        }
+    });
+
+    // Create dummy data for the root node
+    var root = {
+        nodeId: "root",
+        parentNodeId: null,
+        Country: "Sweden",
+        rankName: "Root",
+        rankPath: "",
+        UName: "Root",
+        playerStatus: "Active",
+        numberOfEventsAttended: 0,
+        thursday: 0,
+        sunday: 0
+    }
+    newdata.unshift(root);
+    
+    createOrg(newdata);
+
+    // Get the number of active members from the data
+    var activeMembers = newdata.filter(function (el) {
+        return el.playerStatus == "Active";
+    });
+    document.getElementById("activePlayers").innerHTML = activeMembers.length;
+
+    // Get the total number of members from the data
+    document.getElementById("membersCount").innerHTML = newdata.length - 1;
+
+    var fullMembers = newdata.filter(function (el) {
+        return el.playerStatus == "Active" || el.playerStatus == "Inactive" || el.playerStatus == "LOA";
+    });
+    document.getElementById("fullMembers").innerHTML = fullMembers.length;
+
+    var reservists = newdata.filter(function (el) {
+        return el.playerStatus == "Reserve";
+    });
+    document.getElementById("reservistsCount").innerHTML = reservists.length;
 };
 
 init();
