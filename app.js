@@ -89,6 +89,12 @@ app.get('/SOP', (req, res) => {
     });
 });
 
+app.get('/ranks', (req, res) => {
+    res.render('pages/ranks', {
+        username: req.session.username
+    });
+});
+
 app.get('/Badges', (req, res) => {
     res.render('pages/badges', {
         username: req.session.username

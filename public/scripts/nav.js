@@ -19,6 +19,10 @@ $(document).ready(function () {
             document.getElementById("aboutEntry").classList.add("active");
             break;
 
+        case "Ranks":
+            document.getElementById("ranksEntry").classList.add("active");
+            break;
+
         case "Orbat":
             document.getElementById("orbatEntry").classList.add("active");
             break;
