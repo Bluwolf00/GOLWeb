@@ -10,10 +10,11 @@ p {
   height: 90%;
   filter: drop-shadow(2px 4px 6px black);
   transition: transform 0.3s;
+  transform: scale(0.7);
 }
 
 .rankThumb:hover {
-  transform: scale(1.1);
+  transform: scale(0.9);
 }
 
 .toned-down {
