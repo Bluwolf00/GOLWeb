@@ -697,6 +697,20 @@ footer {
   border-radius: 100%;
 }
 
+/* SOPs */
+
+#sopContainer > div.row{
+  margin: 1em 0;
+}
+
+.card-guide {
+  border-bottom-color: #1b6d1b;
+}
+
+.card-aac {
+  border-bottom-color: #0083af;
+}
+
 /* Medias */
 
 @media screen and (max-width: 1050px) and (min-width: 511px) {
