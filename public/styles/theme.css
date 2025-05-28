@@ -273,6 +273,9 @@ body {
 
 .card {
   height: 100%;
+}
+
+.video-card {
   border-bottom: 2px solid red;
 }
 
@@ -703,11 +706,11 @@ footer {
   margin: 0 0;
 }
 
-.card-guide {
+.card-guide, .card-ribbon {
   border-bottom-color: #1b6d1b;
 }
 
-.card-aac {
+.card-aac, .card-qualif {
   border-bottom-color: #0083af;
 }
 

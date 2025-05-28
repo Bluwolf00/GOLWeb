@@ -2,13 +2,18 @@ var badgeName = "";
 var badgeDescription = "";
 var badgePath = "";
 
-function createCard(name, description, path) {
+function createCard(name, description, path, isQuali) {
     var parentDiv = document.getElementById('badgeDiv');
     var col = document.createElement('div');
     col.className = 'col';
     parentDiv.appendChild(col);
     var card = document.createElement('div');
-    card.className = 'card h-100';
+    if (isQuali) {
+        card.className = 'card h-100 card-qualif';
+    } else {
+        card.className = 'card h-100 card-ribbon';
+    }
+    // card.className = 'card h-100';
     col.appendChild(card);
     var cardImage = document.createElement('img');
     cardImage.className = 'card-img-top';
@@ -41,7 +46,8 @@ async function getAllBadges() {
             badge.badgePath = 'img/badge/Placeholder_Badge.png';
         }
         badgePath = badge.badgePath;
-        createCard(badgeName, badgeDescription, badgePath);
+        isQuali = badge.isQualification;
+        createCard(badgeName, badgeDescription, badgePath, isQuali);
         console.log(badgeName);
     });
 }

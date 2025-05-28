@@ -8,6 +8,7 @@ function updateVideo(title, duration, description, author, videoId, caseNum) {
     var buttonElement = document.getElementById('video-' + caseNum + '-button');
 
     titleElement.innerHTML = title;
+    titleElement.href = "https://www.youtube.com/watch?v=" + videoId;
     if (duration > 60) {
         durationElement.innerHTML = (duration / 60) + ' mins';
     } else {
