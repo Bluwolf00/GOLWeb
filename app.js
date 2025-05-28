@@ -50,6 +50,7 @@ const dbData = require('./routes/data.js');
 
 app.use('/dashboard', dashboard);
 app.use('/data', dbData);
+app.use('/sop', require('./routes/sop.js'));
 
 // GET REQUESTS - PAGES
 
@@ -95,7 +96,7 @@ app.get('/ranks', (req, res) => {
     });
 });
 
-app.get('/Badges', (req, res) => {
+app.get('/badges', (req, res) => {
     res.render('pages/badges', {
         username: req.session.username
     });

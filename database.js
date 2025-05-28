@@ -354,7 +354,7 @@ async function performRegister(username, password) {
     try {
         const result = await pool.query(`
             INSERT INTO users (username,password,role)
-            VALUES (?,?,"member")`, [username, password]);
+            VALUES (?,?,"public")`, [username, password]);
         return result[0].affectedRows > 0;
     } catch (error) {
         console.log(error);

@@ -486,4 +486,8 @@ async function getNextTraining() {
     return nextTraining;
 }
 
-module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining, getMemberLOAsFromAPI, getAttendanceReport };
+function getSOPUrl(id) {
+    return `https://docs.google.com/document/d/${id}/preview`
+}
+
+module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining, getMemberLOAsFromAPI, getAttendanceReport, getSOPUrl };

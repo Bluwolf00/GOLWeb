@@ -14,18 +14,19 @@ const authPage = async (req,res,next) => {
             } else {
                 // Forbidden - Client lacks permission
                 // res.status(403).send("403 Forbidden");
-                res.redirect(403, '/error?error=403');
+                res.redirect('/error?error=403');
+                
             }
         } catch (error) {
             // Error - Database error
             // res.status(500).send("500 Internal Server Error");
-            res.redirect(500, '/login');
+            res.redirect('/login');
         }
 
     } else {
         // Unauthorized - Client not logged in
         // res.status(401).send("401 Unauthorized");
-        res.redirect(401, '/login');
+        res.redirect('/login');
     }
 }
 
@@ -39,18 +40,19 @@ const authMemberPage = async (req,res,next) => {
             } else {
                 // Forbidden - Client lacks permission
                 // res.status(403).send("403 Forbidden");
-                res.redirect(403, '/error?error=403');
+                res.redirect('/error?error=403');
             }
         } catch (error) {
             // Error - Database error
             // res.status(500).send("500 Internal Server Error");
-            res.redirect(500, '/login');
+            res.redirect('/login');
         }
 
     } else {
         // Unauthorized - Client not logged in
         // res.status(401).send("401 Unauthorized");
-        res.redirect(401, '/login');
+        // res.redirect(200, '/login');
+        res.redirect('/login');
     }
 }
 
