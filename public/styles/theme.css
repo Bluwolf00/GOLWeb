@@ -700,7 +700,7 @@ footer {
 /* SOPs */
 
 #sopContainer > div.row{
-  margin: 1em 0;
+  margin: 0 0;
 }
 
 .card-guide {
@@ -830,4 +830,8 @@ footer {
     padding: 0 0.2rem;
     padding-bottom: 0.5rem;
   }
+
+  #sopContainer > div.row{
+  margin: 0 0;
+}
 }
