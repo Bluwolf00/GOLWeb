@@ -706,12 +706,17 @@ footer {
   margin: 0 0;
 }
 
+.card-sop {
+  border-bottom: 2px solid darkred;
+  transition: border-color 0.3s;
+}
+
 .card-guide, .card-ribbon {
-  border-bottom-color: #1b6d1b;
+  border-bottom: 2px solid #1b6d1b;
 }
 
 .card-aac, .card-qualif {
-  border-bottom-color: #0083af;
+  border-bottom: 2px solid #0083af;
 }
 
 /* Medias */
