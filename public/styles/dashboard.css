@@ -113,3 +113,12 @@ span.bubble-text {
 #badgeTableBody > tr > td {
     text-align: center;
 }
+
+.form-check-input {
+    width: 1.15em;
+    height: 1.15em;
+}
+
+.form-check-input[type="checkbox"] {
+    border-radius: .35em;
+}
