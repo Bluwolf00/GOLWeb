@@ -31,7 +31,10 @@ router.get('/users', authPage, async (req,res) => {
 
 // ROUTES THAT ARE NOT YET IMPLEMENTED
 router.get('/badges', authPage, async (req,res) => {
-    res.redirect('error?error=404');
+    // res.redirect('error?error=404');
+    res.render('pages/dashbadges', {
+        username: req.session.username
+    });
 });
 
 router.get('/sop', authPage, async (req,res) => {

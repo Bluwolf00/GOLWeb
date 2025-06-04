@@ -15,7 +15,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
   </script>
-  <script src="/scripts/dashusertable.js"></script>
 </head>
 
 <%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
@@ -46,96 +45,86 @@
     </div>
     <% } %>
 
-    <%- include('../partials/dashnav', {pageName: "Users"}) %>
+    <%- include('../partials/dashnav', {pageName: "Badges"}) %>
 
-    <div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal fade" id="editBadgeModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Edit User</h5>
+            <h5 class="modal-title">Edit Badge</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form action="/data/updateMember" method="POST">
+          <form action="/data/updateBadge" method="POST" enctype="multipart/form-data" id="updateBadgeForm">
             <div class="modal-body">
               <div class="form-group">
-                <label for="memberid">ID</label>
-                <input type="text" class="form-control" id="memberid" name="memberid" placeholder="ID">
+                <label for="badgeid">Badge ID</label>
+                <input type="text" class="form-control" id="badgeid" name="badge-id" placeholder="Badge ID" readonly>
               </div>
               <div class="form-group">
-                <label for="uname">Name</label>
-                <input type="text" class="form-control" id="uname" name="uname" placeholder="Name">
+                <label for="name">Badge Name</label>
+                <input required type="text" class="form-control" id="name" name="name" placeholder="Badge Name">
               </div>
               <div class="form-group">
-                <label for="rank">Rank</label>
-                <select name="rank" id="rank">
-                </select>
+                <label for="desc">Badge Description</label>
+                <textarea class="form-control" name="new-desc" id="desc" rows="3" placeholder="Badge Description"
+                  required></textarea>
               </div>
               <div class="form-group">
-                <label for="country">Country</label>
-                <input type="text" class="form-control" id="country" name="country" placeholder="Country">
+                <label for="qual" class="form-check-label">Qualification</label>
+                <input type="checkbox" class="form-check-input" name="qual" id="qual">
               </div>
               <div class="form-group">
-                <label for="reporting">Reports To</label>
-                <input type="text" class="form-control" id="reporting" name="reporting" placeholder="Reports To">
+                <label for="new-image">Badge Image</label><br>
+                <input type="file" class="form-control-file" name="image" id="image" accept=".png" required>
               </div>
               <div class="form-group">
-                <label for="status">Status</label>
-                <select name="status" id="status">
-                  <option value="Active">Active</option>
-                  <option value="LOA">LOA</option>
-                </select>
+                <img src="" alt="" id="editBadgeImagePreview" class="img-thumbnail"
+                  style="max-width: 200px; max-height: 200px;">
               </div>
-              <div class="form-group">
-                <label for="joined">Joined Date</label>
-                <input type="date" class="form-control" name="joined" id="joined">
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editBadgeModal')">Close</button>
+                <button type="submit" class="btn btn-primary">Save</button>
               </div>
-              <div class="form-group">
-                <label for="promoDate">Promotion Date</label>
-                <input type="date" class="form-control" name="promoDate" id="promoDate">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Close</button>
-              <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal fade" id="createBadgeModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Create Member</h5>
+            <h5 class="modal-title">Create Badge</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form action="/data/createMember" method="POST">
+          <form action="/data/createBadge" method="POST" enctype="multipart/form-data" id="createBadgeForm">
             <div class="modal-body">
               <div class="form-group">
-                <label for="new-uname">Name</label>
-                <input required type="text" class="form-control" id="new-uname" name="newuname" placeholder="Name">
+                <label for="new-name">Badge Name</label>
+                <input required type="text" class="form-control" id="new-name" name="newname" placeholder="Badge Name">
               </div>
               <div class="form-group">
-                <label for="new-rank">Rank</label>
-                <select required name="newrank" id="new-rank">
-                </select>
+                <label for="new-desc">Badge Description</label>
+                <textarea class="form-control" name="new-desc" id="newdesc" rows="3" placeholder="Badge Description"
+                  required></textarea>
               </div>
               <div class="form-group">
-                <label for="new-country">Country</label>
-                <input required type="text" class="form-control" id="new-country" name="newcountry" placeholder="Country">
+                <label for="new-qual" class="form-check-label">Qualification</label>
+                <input type="checkbox" class="form-check-input" name="new-qual" id="newqual">
               </div>
               <div class="form-group">
-                <label for="new-reporting">Reports To</label>
-                <input required type="text" class="form-control" id="new-reporting" name="newreporting" placeholder="Reports To">
+                <label for="new-image">Badge Image</label><br>
+                <input type="file" class="form-control-file" name="new-image" id="newimage" accept=".png" required><br>
+                <small class="text-body-secondary">File must be in PNG format and must be either 1:1 or 1:4 scale. Must be less than 6MB</small>
               </div>
               <div class="form-group">
-                <label for="new-joined">Joined Date</label>
-                <input required type="date" class="form-control" name="newjoined" id="new-joined">
+                <img src="" alt="" id="badgeImagePreview" class="img-thumbnail"
+                  style="max-width: 200px; max-height: 200px;">
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('createUserModal')">Close</button>
-                <button type="submit" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('createBadgeModal')">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
               </div>
             </div>
           </form>
@@ -146,35 +135,29 @@
     <div class="container my-5">
       <div class="container buttonsDiv">
         <button type="button" class="btn btn-primary" onclick="openCreateModal()">
-          New Member
+          New Badge
         </button>
         <button type="button" class="btn btn-secondary" onclick="location.reload();">Refresh</button>
       </div>
-      <table id="membersTable" class="table table-dark table-striped table-hover">
+      <table id="badgesTable" class="table table-dark table-striped table-hover">
         <thead>
           <tr>
             <th scope="col">ID</th>
             <th scope="col">Name</th>
-            <th scope="col">Rank</th>
-            <th scope="col">Country</th>
-            <th scope="col">Reports To</th>
-            <th scope="col">Status</th>
-            <th scope="col">Joined</th>
-            <th scope="col">Promoted</th>
+            <th scope="col">Qualification</th>
+            <th scope="col">Description</th>
+            <th scope="col">Image</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
-        <tbody id="membersTableBody">
+        <tbody id="badgeTableBody">
           <!-- Rows will be populated here by JavaScript -->
           <tr>
             <th scope="row">1</th>
+            <td><img src="" alt=""></td>
             <td>John Doe</td>
             <td>Corporal</td>
             <td>USA</td>
-            <td>Kerry Smith</td>
-            <td>Active</td>
-            <td>2023-01-01</td>
-            <td>2023-02-01</td>
             <td>
               <button class="btn btn-primary">Edit</button>
               <button class="btn btn-danger">Delete</button>
@@ -183,13 +166,10 @@
 
           <tr>
             <th scope="row">2</th>
+            <td><img src="" alt=""></td>
             <td>Oksman</td>
             <td>Lieutenant</td>
             <td>Sweden</td>
-            <td>None</td>
-            <td>Active</td>
-            <td>2016-01-01</td>
-            <td>2018-02-01</td>
             <td>
               <button class="btn btn-primary">Edit</button>
               <button class="btn btn-danger">Delete</button>
@@ -199,13 +179,14 @@
       </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-    </script>
+    </script> -->
     <script defer>
       var isloggedIn = "<%= loggedin %>"
     </script>
     <script src="/scripts/checkLogged.js"></script>
+    <script src="/scripts/dashbadgeModal.js"></script>
   </main>
 
   <footer>

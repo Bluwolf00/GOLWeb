@@ -196,8 +196,48 @@ async function createMember(memberName, rank, country, parentName, dateOfJoin) {
 }
 
 async function getBadges() {
-    const [rows] = await pool.query('SELECT badgeName,badgePath,isQualification,badgeDescription FROM Badges ORDER BY isQualification,badgeName ASC')
+    const [rows] = await pool.query('SELECT badgeID,badgeName,badgePath,isQualification,badgeDescription FROM Badges ORDER BY isQualification,badgeName ASC')
     return rows
+}
+
+async function getBadge(badgeID) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT badgeID,badgeName,badgePath,isQualification,badgeDescription
+            FROM Badges
+            WHERE badgeID = ?`, [badgeID])
+    }
+    catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0];
+        }
+    }
+}
+
+async function updateBadge(badgeID, badgeName, badgeFile, isQualification, badgeDescription) {
+    var rows = [null];
+    try {
+
+        // First, save the badgeFile to the server
+        
+
+        [rows] = await pool.query(`
+            UPDATE Badges
+            SET badgeName = ?,
+                badgePath = ?,
+                isQualification = ?,
+                badgeDescription = ?
+            WHERE badgeID = ?`, [badgeName, badgePath, isQualification, badgeDescription, badgeID]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows
+    }
 }
 
 async function getMemberBadges(name) {
@@ -285,13 +325,13 @@ async function getRanks(all, aboveOrBelow, currentRank) {
             ORDER BY rankID ASC`);
     } else {
         if (aboveOrBelow == "above") {
-            rows = await pool.query(`
+            [rows] = await pool.query(`
                 SELECT rankName, prefix
                 FROM Ranks
                 WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
                 ORDER BY rankID DESC`, [currentRank]);
         } else {
-            rows = await pool.query(`
+            [rows] = await pool.query(`
                 SELECT rankName, prefix
                 FROM Ranks
                 WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
@@ -301,8 +341,6 @@ async function getRanks(all, aboveOrBelow, currentRank) {
     return rows;
 }
 
-// Remember to fix the ranks order in the database as pv2 is higher than pv1
-
 // POST REQUESTS
 async function changeRank(member, newRank) {
     var rows = null;
@@ -311,12 +349,28 @@ async function changeRank(member, newRank) {
         console.log("NEW RANK: " + newRank);
         rows = await pool.query(`
             UPDATE Members
-            SET Members.playerRank = (SELECT rankID FROM Ranks WHERE prefix = ?)
-            WHERE UName = ?`, [newRank, member]);
+            SET Members.playerRank = (SELECT rankID FROM Ranks WHERE rankName = ?)
+            WHERE MemberID = ?`, [newRank, member]);
     } catch (error) {
         console.log(error);
     } finally {
         return rows
+    }
+}
+
+async function getSeniorMembers() {
+    // This function will return the members that are Corporal and above
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT MemberID,UName,rankName,nodeId,parentNodeId
+            FROM Ranks,Members
+            WHERE Members.playerRank = Ranks.rankID AND Ranks.rankID < 5
+            ORDER BY Members.playerRank ASC`);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
     }
 }
 
@@ -732,4 +786,4 @@ async function getDashboardData() {
 }
 
 
-module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA };
+module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getBadge, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA, getSeniorMembers };

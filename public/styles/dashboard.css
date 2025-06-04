@@ -96,3 +96,20 @@ span.bubble-text {
 .buttonsDiv > button {
     padding: 10px 20px;
 }
+
+/* Badges Dashboard */
+
+.badge-dash-image {
+    width: 50%;
+    height: 50%;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+#badgesTable > thead > tr > th {
+    text-align: center;
+}
+
+#badgeTableBody > tr > td {
+    text-align: center;
+}

@@ -32,10 +32,118 @@ async function populateTable() {
             <td>
               <button class="btn btn-primary" onclick="openEditModal(${member.MemberID})">Edit</button>
               <button class="btn btn-danger" onclick="deleteMember(${member.MemberID})">Delete</button>
+              <button class="btn btn-success" onclick="tempModal(${member.MemberID}, '${member.UName}', '${member.rankName}', 'promote')">Promote</button>
+              <button class="btn btn-danger" onclick="tempModal(${member.MemberID}, '${member.UName}', '${member.rankName}', 'demote')">Demote</button>
             </td>
         `;
         tableBody.appendChild(row);
     });
+}
+
+async function tempModal(memberID, memberName, memberRank, action) {
+    const modal = new bootstrap.Modal(document.getElementById('confirmModal'), {
+        backdrop: 'static'
+    });
+
+    console.log("Member ID: " + memberID);
+    console.log("Member Name: " + memberName);
+    console.log("Member Rank: " + memberRank);
+
+    var prevent = false;
+    var confirmButton = document.getElementById('confirmAction');
+
+    const actionText = document.getElementById('confirmMessage');
+    // actionText.textContent = action === 'promote' ? 'Promote' : 'Demote';
+    if (action === 'promote') {
+        var f = await fetch('/data/getRanks?aboveOrBelow=above&currentRank=' + memberRank);
+        var rankData = await f.json();
+        var newRank = rankData[0]?.rankName || null;
+        if (rankData.length === 0) {
+            createAlert('This member is already at the highest rank.', 'danger', 'confirmModal');
+            prevent = true;
+        }
+
+        actionText.innerHTML = `Are you sure you want to promote <span class='highlight'>${memberName}</span><br>From <span class='highlight'>${memberRank}</span><br>To <span class='highlight'>${newRank}</span>?`;
+        confirmButton.innerHTML = 'Promote';
+        confirmButton.className = 'btn btn-success';
+    } else {
+        var f = await fetch('/data/getRanks?aboveOrBelow=demote&currentRank=' + memberRank);
+        var rankData = await f.json();
+        var newRank = rankData[0]?.rankName || null;
+        if (rankData.length === 0) {
+            createAlert('This member is already at the lowest rank.', 'danger', 'confirmModal');
+            prevent = true;
+        }
+
+        actionText.innerHTML = `Are you sure you want to demote <span class='highlight'>${memberName}</span><br>From <span class='highlight'>${memberRank}</span><br>To <span class='highlight'>${newRank}</span>?`;
+        confirmButton.innerHTML = 'Demote';
+        confirmButton.className = 'btn btn-danger';
+    }
+
+    modal.show();
+
+    confirmButton.onclick = async function () {
+        if (memberID && !prevent) {
+            await changeMemberRankByOne(memberID, action, newRank);
+            closeModal('tempModal');
+        } else {
+            createAlert('Please select a valid member.', 'danger', 'confirmModal');
+        }
+    };
+}
+
+function createAlert(message, type, form) {
+    var alert = document.createElement("div");
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = "alert";
+    alert.innerHTML = message +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    alert.id = "imageAlertMessage";
+    var formEl = document.getElementById(form)
+    formEl.prepend(alert);
+    return alert;
+}
+
+async function changeMemberRankByOne(memberID, promoteOrDemote, newRank) {
+
+    var response;
+    var result;
+
+    switch (promoteOrDemote) {
+        case 'promote':
+            response = await fetch('/data/changeRank', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "memberID": memberID, "newRank": newRank })
+            });
+            result = await response.json();
+            console.log("PROMOTION RESULT: " + result);
+            break;
+
+        case 'demote':
+            response = await fetch('/data/changeRank', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "memberID": memberID, "newRank": newRank })
+            });
+            result = await response.json();
+            console.log("DEMOTION RESULT: " + result);
+            break;
+
+        default:
+            break;
+    }
+
+    if (response.ok) {
+        alert('Member promoted successfully');
+        location.reload();
+    } else {
+        alert('Failed to promote member');
+    }
 }
 
 async function deleteMember(memberID) {
@@ -48,12 +156,12 @@ async function deleteMember(memberID) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ "memberID" : memberID })
+            body: JSON.stringify({ "memberID": memberID })
         });
 
         var result = await response.json();
         console.log("DELETION RESULT: " + result);
-    
+
         if (response.ok) {
             alert('Member deleted successfully');
             location.reload();
@@ -97,7 +205,7 @@ async function openEditModal(memberID) {
     const idelement = document.getElementById('memberid');
     const nameelement = document.getElementById('uname');
     const countryelement = document.getElementById('country');
-    const parentelement = document.getElementById('reporting');
+    const parentSelect = document.getElementById('reporting');
     const statuselement = document.getElementById('status');
     const joineddateelement = document.getElementById('joined');
     const promoelement = document.getElementById('promoDate');
@@ -107,12 +215,9 @@ async function openEditModal(memberID) {
     nameelement.value = data.UName;
     rankSelect.value = data.rankName;
     countryelement.value = data.Country;
-    if (data.parentUName == null) {
-        parentelement.value = "None";
-        parentelement.setAttribute("readonly", "true");
-    } else {
-        parentelement.value = data.parentUName;
-        parentelement.removeAttribute("readonly");
+
+    if (data.playerStatus == null) {
+        statuselement.value = "Inactive";
     }
     statuselement.value = data.playerStatus;
     if (data.DateOfJoin == null) {
@@ -125,7 +230,36 @@ async function openEditModal(memberID) {
     } else {
         promoelement.value = new Date(data.DateOfPromo).toISOString().split('T')[0];
     }
-    
+
+    // Get all available parents (Members with a higher rank, that are leaders)
+
+    const parentResponse = await fetch('/data/seniorMembers');
+    const parentData = await parentResponse.json();
+    // Clear existing options
+    parentSelect.innerHTML = '';
+    // Populate the select element with new options
+    var option = document.createElement('option');
+    option.value = "None";
+    option.text = "None";
+    parentSelect.appendChild(option);
+    for (var p of parentData) {
+        var option = document.createElement('option');
+        option.value = p.UName;
+        option.text = p.UName;
+        parentSelect.appendChild(option);
+        if (p.MemberID == data.MemberID) {
+            option.selected = true; // Select the current member's parent
+        }
+    }
+
+    if (data.parentUName == null) {
+        parentSelect.value = "None";
+        parentSelect.setAttribute("readonly", "true");
+    } else {
+        parentSelect.value = data.parentUName;
+        parentSelect.removeAttribute("readonly");
+    }
+
     modal.show();
 }
 

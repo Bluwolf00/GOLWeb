@@ -6,6 +6,15 @@ const bcrypt = require('bcryptjs');
 const middle = require('../middle.js');
 const authPage = middle.authPage;
 
+const multer = require('multer');
+var store = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
 
 // -- GET REQUESTS - DATA --
 
@@ -46,6 +55,20 @@ router.get('/getBadges', async (req, res) => {
     res.send(badges);
 });
 
+router.get('/getBadge', async (req, res) => {
+    const badgeID = req.query.badgeID;
+    if (!badgeID) {
+        res.status(400).send("Bad Request - Missing badgeID parameter");
+        return;
+    }
+    const badge = await db.getBadge(badgeID);
+    if (badge) {
+        res.send(badge);
+    } else {
+        res.status(404).send("Not Found - Badge does not exist");
+    }
+});
+
 router.get('/getVideos', async (req, res) => {
 
     try {
@@ -60,6 +83,11 @@ router.get('/getRanks', async (req, res) => {
     var all = req.query.all;
     var aboveOrBelow = req.query.aboveOrBelow;
     var currentRank = req.query.currentRank;
+    if (typeof currentRank === "string") {
+        currentRank = currentRank.replaceAll("_", " ");
+    } else {
+        currentRank = null;
+    }
     if (all == "true") {
         var ranks = await db.getRanks(true);
     } else {
@@ -106,6 +134,18 @@ router.get('/updateAttendance', async (req, res) => {
         res.status(203).send("No new attendance found - No changes made.");
     } else if (result == 200) {
         res.status(200).send("Attendance updated successfully.");
+    }
+});
+
+
+// This route will return a list of members who are considered "senior members"/"leadership" based on their rank.
+router.get('/seniorMembers', authPage, async (req, res) => {
+    try {
+        const members = await db.getSeniorMembers();
+        res.send(members);
+    } catch (error) {
+        console.error("Error fetching senior members:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -195,6 +235,21 @@ router.post('/updateMember', authPage, async (req, res) => {
     }
 });
 
+router.post('/changeRank', authPage, async (req, res) => {
+    var member = req.body.memberID;
+    var newRank = req.body.newRank;
+    if (!member || !newRank) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+    var result = await db.changeRank(member, newRank);
+    if (result[0].affectedRows > 0) {
+        res.status(200).send({ "result": "Member promoted successfully" });
+    } else {
+        res.status(500).send({ "result": "Failed to promote member - Check if the rank exists or if the member name is correct." });
+    }
+});
+
 router.post('/createMember', authPage, async (req, res) => {
     var memberName = req.body.newuname;
     var memberRank = req.body.newrank;
@@ -217,6 +272,24 @@ router.post('/createMember', authPage, async (req, res) => {
     } else if (!result) {
         res.status(500);
         res.redirect(referer + "?createSuccess=0");
+    }
+});
+
+router.post('/updateBadge', authPage, async (req, res) => {
+    var badgeID = req.body.badgeID;
+    var badgeName = req.body.badgeName;
+    var badgeDescription = req.body.badgeDescription;
+    var badgeImage = req.body.badgeImage;
+
+    if (!badgeID || !badgeName || !badgeDescription || !badgeImage) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+    var result = await db.updateBadge(badgeID, badgeName, badgeDescription, badgeImage);
+    if (result.affectedRows > 0) {
+        res.status(200).send({ "result": "Badge updated successfully" });
+    } else {
+        res.status(500).send({ "result": "Failed to update badge - Check if the badge ID exists." });
     }
 });
 
@@ -264,6 +337,12 @@ router.delete('/deleteMember', authPage, async (req, res) => {
     } else {
         res.status(500).send({ "result": "Failed to delete member - Check if the member ID exists." });
     }
+});
+
+// Catcher
+
+router.get('*', (req, res) => {
+    res.status(404).send({ "error": "Not Found - The requested resource does not exist." });
 });
 
 module.exports = router;

@@ -62,8 +62,9 @@
                 <input type="text" class="form-control" id="memberid" name="memberid" placeholder="ID">
               </div>
               <div class="form-group">
-                <label for="uname">Name</label>
+                <label for="uname">Name</label><br>
                 <input type="text" class="form-control" id="uname" name="uname" placeholder="Name">
+                <small class="form-text">This should match the username on Discord (excl. The rank prefix)</small>
               </div>
               <div class="form-group">
                 <label for="rank">Rank</label>
@@ -76,7 +77,11 @@
               </div>
               <div class="form-group">
                 <label for="reporting">Reports To</label>
-                <input type="text" class="form-control" id="reporting" name="reporting" placeholder="Reports To">
+                <!-- <input type="text" class="form-control" id="reporting" name="reporting" placeholder="Reports To"> -->
+                <select name="reporting" id="reporting" class="form-select">
+                  <option value="None">None</option>
+                  <!-- Options will be populated by JavaScript -->
+                </select>
               </div>
               <div class="form-group">
                 <label for="status">Status</label>
@@ -103,6 +108,24 @@
       </div>
     </div>
 
+    <div class="modal fade" id="confirmModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Action</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="confirmModalBody">
+            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmAction">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal fade" id="createUserModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -123,11 +146,13 @@
               </div>
               <div class="form-group">
                 <label for="new-country">Country</label>
-                <input required type="text" class="form-control" id="new-country" name="newcountry" placeholder="Country">
+                <input required type="text" class="form-control" id="new-country" name="newcountry"
+                  placeholder="Country">
               </div>
               <div class="form-group">
                 <label for="new-reporting">Reports To</label>
-                <input required type="text" class="form-control" id="new-reporting" name="newreporting" placeholder="Reports To">
+                <input required type="text" class="form-control" id="new-reporting" name="newreporting"
+                  placeholder="Reports To">
               </div>
               <div class="form-group">
                 <label for="new-joined">Joined Date</label>
