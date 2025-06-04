@@ -19,6 +19,7 @@
     "express-session": "^1.18.1",
     "mongodb": "^6.10.0",
     "multer": "^2.0.1",
-    "mysql2": "^3.11.5"
+    "mysql2": "^3.11.5",
+    "nodefs": "^0.0.2"
   }
 }

@@ -9,12 +9,13 @@ const authPage = middle.authPage;
 const multer = require('multer');
 var store = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/');
+        cb(null, 'public/img/badge/');
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
+const upload = multer({ storage: store });
 
 // -- GET REQUESTS - DATA --
 
@@ -66,6 +67,16 @@ router.get('/getBadge', async (req, res) => {
         res.send(badge);
     } else {
         res.status(404).send("Not Found - Badge does not exist");
+    }
+});
+
+router.get('/getAllBadgePaths', authPage, async (req, res) => {
+    try {
+        const allBadges = await db.getAllBadgePaths();
+        res.send(allBadges);
+    } catch (error) {
+        res.status(500).send("Internal Server Error - Unable to retrieve badge paths");
+        console.error("Error fetching badge paths:", error);
     }
 });
 
@@ -275,21 +286,58 @@ router.post('/createMember', authPage, async (req, res) => {
     }
 });
 
-router.post('/updateBadge', authPage, async (req, res) => {
-    var badgeID = req.body.badgeID;
-    var badgeName = req.body.badgeName;
-    var badgeDescription = req.body.badgeDescription;
-    var badgeImage = req.body.badgeImage;
+router.post('/updateBadge', [authPage, upload.single('image')], async (req, res) => {
+    var badgeID = req.body.badgeid;
+    var badgeName = req.body.name;
+    var badgeDescription = req.body.desc;
+    var badgeIsQualification = req.body.qual;
+    var badgeImage = req.file;
+    var neworexisting = req.body.uploadimage;
+    var badgeImgPath = null;
 
-    if (!badgeID || !badgeName || !badgeDescription || !badgeImage) {
-        res.status(400).send("Bad Request - Missing Parameters");
+    if (!badgeID || !badgeName || !badgeDescription || typeof badgeIsQualification === "undefined") {
+        res.status(400).send("Bad Request - Missing Parameters." + req.body);
         return;
     }
-    var result = await db.updateBadge(badgeID, badgeName, badgeDescription, badgeImage);
-    if (result.affectedRows > 0) {
-        res.status(200).send({ "result": "Badge updated successfully" });
+
+    if (badgeIsQualification === "on") {
+        badgeIsQualification = 1;
     } else {
-        res.status(500).send({ "result": "Failed to update badge - Check if the badge ID exists." });
+        badgeIsQualification = 0;
+    }
+
+    // If neworexisting is set to "new", we will upload a new image, otherwise we will use the passed imagePath
+    if (neworexisting === "existing") {
+        // If the user chose to use an existing image, we will use the path provided in the form
+        badgeImgPath = req.body.existingimage;
+        if (!badgeImgPath) {
+            res.status(400).send("Bad Request - No existing image path provided.");
+            return;
+        } else if (badgeImgPath.startsWith("/")) {
+            // If the path starts with a slash, we need to remove it to get the correct path
+            badgeImgPath = badgeImgPath.substring(1);
+        }
+    } else {
+        try {
+            if (badgeImage) {
+                // If an image is uploaded, use its path
+                badgeImgPath = (badgeImage.destination.split("public/")[1]) + badgeImage.filename; // This will be the path to the uploaded file
+            } else {
+                badgeImgPath = null; // If no image is uploaded, use a placeholder or existing path
+                console.log("No image uploaded, using existing badge image path.");
+            }
+        } catch (error) {
+            console.error("Error processing uploaded image:", error);
+            res.status(500).send("Error processing uploaded image: " + error.message);
+            return;
+        }
+    }
+
+    var result = await db.updateBadge(badgeID, badgeName, badgeIsQualification, badgeDescription, badgeImgPath);
+    if (result.affectedRows > 0) {
+        res.status(200).redirect('/dashboard/badges?editSuccess=1');
+    } else {
+        res.status(500).redirect('/dashboard/badges?editSuccess=0');
     }
 });
 

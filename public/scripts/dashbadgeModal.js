@@ -1,6 +1,10 @@
 var imgEl = document.getElementById("badgeImagePreview");
-var badgeImageInput = document.getElementById("newimage");
+var imgElEdit = document.getElementById("editBadgeImagePreview");
+var badgeImageInputNew = document.getElementById("newimage");
+var badgeImageInputExisting = document.getElementById("image");
 var form = document.getElementById("createBadgeForm");
+const editCheckbox = document.getElementById("uploadimage");
+const badgeImageSelect = document.getElementById("existingimage");
 
 async function openCreateModal() {
     const modal = new bootstrap.Modal(document.getElementById('createBadgeModal'), {
@@ -13,8 +17,11 @@ async function closeModal(elementId) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(elementId));
     if (modal) {
         if (modal._element.id === "createBadgeModal") {
-            badgeImageInput.value = ""; // Clear the input
+            badgeImageInputNew.value = ""; // Clear the input
             imgEl.src = ""; // Clear the image preview
+        } else if (modal._element.id === "editBadgeModal") {
+            badgeImageInputExisting.value = ""; // Clear the input
+            imgElEdit.src = ""; // Clear the image preview
         }
         modal.hide();
     }
@@ -47,12 +54,25 @@ async function editBadge(badgeID) {
     const isQualificationInput = document.getElementById("qual");
     const badgeIDInput = document.getElementById("badgeid");
 
-    
+    var response = await fetch('/data/getAllBadgePaths');
+    var allBadges = await response.json();
+    for (var badge of allBadges) {
+        var filename = badge.split('/').pop();
+        var option = document.createElement("option");
+        option.value = badge;
+        option.textContent = filename;
+        option.className = "badge-option";
+        badgeImageSelect.appendChild(option);
+        if (badge === `/${badgeData.badgePath}`) {
+            badgeImageSelect.value = badge;
+        }
+    }
+
     badgeNameInput.value = badgeData.badgeName;
-    badgeDescriptionInput.value = badgeData.badgeDescription; 
+    badgeDescriptionInput.value = badgeData.badgeDescription;
     isQualificationInput.checked = badgeData.isQualification;
     badgeIDInput.value = badgeData.badgeID;
-    badgePreview.src = badgeData.badgePath ? `/${badgeData.badgePath}` : 'img/badge/Placeholder_Badge.png';
+    badgePreview.src = badgeData.badgePath ? `/${badgeData.badgePath}` : '/img/badge/Placeholder_Badge.png';
 
     modal.show();
 }
@@ -88,68 +108,140 @@ async function populateBadges() {
     });
 }
 
-async function init() {
-    badgeImageInput.addEventListener("change", function (event) {
-        var file = event?.target?.files[0];
-        if (file && isImage(file.name)) {
+async function handleBadgeImage() {
+    var file = this.files[0];
+    var eleId = this.id;
+    if (file && isImage(file.name)) {
 
-            // Create an Image object to check dimensions
-            var img = new Image();
+        // Create an Image object to check dimensions
+        var img = new Image();
 
-            img.src = URL.createObjectURL(file);
+        img.src = URL.createObjectURL(file);
 
-            img.onload = function () {
-                
-                // Check if the image is less than 6MB
-                if (file.size > 6 * 1024 * 1024) {
-                    console.log("Image size exceeds 6MB.");
+        img.onload = function () {
+
+            // Check if the image is less than 6MB
+            if (file.size > 6 * 1024 * 1024) {
+                console.log("Image size exceeds 6MB.");
+                if (eleId === "newimage") {
                     imgEl.src = ""; // Clear the image preview
-                    badgeImageInput.value = ""; // Clear the input
-                    var existingAlert = document.getElementById("imageAlertMessage");
-                    if (!existingAlert) {
-                        createAlert("Please upload an image smaller than 6MB.", "danger", form.id);
-                    }
-                    return;
+                    badgeImageInputNew.value = ""; // Clear the input
+                } else if (eleId === "image") {
+                    imgElEdit.src = ""; // Clear the image preview
+                    badgeImageInputExisting.value = ""; // Clear the input
                 }
-                
-                // Check if the image is square or has a 1:4 aspect ratio
-                if (img.width === img.height || img.width / img.height === 0.25) {
-                    // Clear previous image
-                    imgEl.src = "";
+                var existingAlert = document.getElementById("imageAlertMessage");
+                if (!existingAlert) {
+                    createAlert("Please upload an image smaller than 6MB.", "danger", form.id);
+                }
+                return;
+            }
+
+            // Check if the image is square or has a 1:4 aspect ratio
+            if (img.width === img.height || img.width / img.height === 0.25) {
+                if (eleId === "newimage") {
+                    imgEl.src = ""; // Clear the image preview
                     // Create and assign a new object URL for the image
                     imgEl.src = img.src;
                     imgEl.onload = function () {
                         // Revoke the object URL after the image has loaded
                         URL.revokeObjectURL(img.src);
                     };
-
-                    if (document.getElementById("imageAlertMessage") !== null) {
-                        document.getElementById("imageAlertMessage").remove();
-                    }
-                } else {
-                    imgEl.src = ""; // Clear the image preview
-                    // alert("Please upload a square image or an image with a 1:4 aspect ratio.");
-                    badgeImageInput.value = ""; // Clear the input
-                    var existingAlert = document.getElementById("imageAlertMessage");
-                    if (!existingAlert) {
-                        createAlert("Please upload a square image or an image with a 1:4 aspect ratio.", "danger", form.id);
-                    }
-                    return;
+                } else if (eleId === "image") {
+                    imgElEdit.src = ""; // Clear the image preview
+                    // Create and assign a new object URL for the image
+                    imgElEdit.src = img.src;
+                    imgElEdit.onload = function () {
+                        // Revoke the object URL after the image has loaded
+                        URL.revokeObjectURL(img.src);
+                    };
                 }
-            }
-        } else {
-            var existingAlert = document.getElementById("imageAlertMessage");
-            if (!existingAlert) {
-                createAlert("Please upload a .PNG image", "danger", form.id);
-                imgEl.src = ""; // Clear the image preview
-                badgeImageInput.value = ""; // Clear the input
+
+                if (document.getElementById("imageAlertMessage") !== null) {
+                    document.getElementById("imageAlertMessage").remove();
+                }
+
+            } else {
+                if (eleId === "newimage") {
+                    imgEl.src = ""; // Clear the image preview
+                    badgeImageInputNew.value = ""; // Clear the input
+                } else if (eleId === "image") {
+                    imgElEdit.src = ""; // Clear the image preview
+                    badgeImageInputExisting.value = ""; // Clear the input
+                }
+                var existingAlert = document.getElementById("imageAlertMessage");
+                if (!existingAlert) {
+                    createAlert("Please upload a square image or an image with a 1:4 aspect ratio.", "danger", form.id);
+                }
+                return;
             }
         }
-    });
+    } else {
+        var existingAlert = document.getElementById("imageAlertMessage");
+        if (!existingAlert) {
+            createAlert("Please upload a .PNG image", "danger", form.id);
+            if (eleId === "newimage") {
+                imgEl.src = ""; // Clear the image preview
+                badgeImageInputNew.value = ""; // Clear the input
+            } else if (eleId === "image") {
+                imgElEdit.src = ""; // Clear the image preview
+                badgeImageInputExisting.value = ""; // Clear the input
+            }
+        }
+    }
+}
+
+async function init() {
+    badgeImageInputNew.addEventListener("change", handleBadgeImage);
+    badgeImageInputExisting.addEventListener("change", handleBadgeImage);
 
     // Populate the badges table on page load
     // No need to call await, it will run asynchronously
     populateBadges();
+
+    editCheckbox.addEventListener("click", function (event) {
+        // If the checkname is checked, enable the file upload group
+        if (this.checked) {
+            console.log("Checkbox is checked");
+            document.getElementById("editBadgeImageGroupNew").classList = "form-group";
+            document.getElementById("editBadgeImagePreview").setAttribute("src", "");
+            document.getElementById("editBadgeImageGroupExisting").classList = "form-group d-none";
+        } else {
+            console.log("Checkbox is unchecked");
+            document.getElementById("editBadgeImageGroupNew").classList = "form-group d-none";
+            var currentSrc = document.getElementById("existingimage").value;
+            document.getElementById("editBadgeImagePreview").setAttribute("src", currentSrc);
+            document.getElementById("image").value = "";
+            document.getElementById("editBadgeImageGroupExisting").classList = "form-group";
+        }
+    });
+
+    editCheckbox.addEventListener("touchend", function (event) {
+        // If the checkname is checked, enable the file upload group
+        if (this.checked) {
+            // console.log("Checkbox is checked");
+            document.getElementById("editBadgeImageGroupNew").classList = "form-group";
+            document.getElementById("editBadgeImageGroupExisting").classList = "form-group d-none";
+            document.getElementById("editBadgeImagePreview").setAttribute("src", "");
+        } else {
+            // console.log("Checkbox is unchecked");
+            document.getElementById("editBadgeImageGroupNew").classList = "form-group d-none";
+            var currentSrc = document.getElementById("existingimage").value;
+            document.getElementById("editBadgeImagePreview").setAttribute("src", currentSrc);
+            document.getElementById("image").value = "";
+            document.getElementById("editBadgeImageGroupExisting").classList = "form-group";
+        }
+    });
+
+    badgeImageSelect.addEventListener("change", function (event) {
+        var selectedImage = event.target.value;
+        if (typeof selectedImage !== 'undefined') {
+            // Set the image preview to the selected badge image
+            console.log("Selected image:", selectedImage);
+            // imageElement.src = selectedImage;
+            document.getElementById("editBadgeImagePreview").setAttribute("src", selectedImage);
+        }
+    });
 }
 
 init();

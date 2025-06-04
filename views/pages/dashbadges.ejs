@@ -24,10 +24,10 @@
     <% if (typeof editSuccess !== 'undefined') { %>
     <div class="container text-center">
       <% if (editSuccess == 1) { %>
-      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Badge Successfully
         Updated!</div>
       <% } else if (editSuccess == 0){ %>
-      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Badge Failed to
         Update!</div>
       <% } %>
     </div>
@@ -36,10 +36,10 @@
     <% if (typeof createSuccess !== 'undefined') { %>
     <div class="container text-center">
       <% if (createSuccess == 1) { %>
-      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Badge Successfully
         Created!</div>
       <% } else if (createSuccess == 0){ %>
-      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Badge Failed to be
         Created!</div>
       <% } %>
     </div>
@@ -58,7 +58,7 @@
             <div class="modal-body">
               <div class="form-group">
                 <label for="badgeid">Badge ID</label>
-                <input type="text" class="form-control" id="badgeid" name="badge-id" placeholder="Badge ID" readonly>
+                <input type="text" class="form-control" id="badgeid" name="badgeid" placeholder="Badge ID" readonly>
               </div>
               <div class="form-group">
                 <label for="name">Badge Name</label>
@@ -66,16 +66,26 @@
               </div>
               <div class="form-group">
                 <label for="desc">Badge Description</label>
-                <textarea class="form-control" name="new-desc" id="desc" rows="3" placeholder="Badge Description"
+                <textarea class="form-control" name="desc" id="desc" rows="3" placeholder="Badge Description"
                   required></textarea>
               </div>
               <div class="form-group">
-                <label for="qual" class="form-check-label">Qualification</label>
+                <label for="qual" class="form-check-label">Badge is a Qualification</label>
                 <input type="checkbox" class="form-check-input" name="qual" id="qual">
               </div>
               <div class="form-group">
-                <label for="new-image">Badge Image</label><br>
-                <input type="file" class="form-control-file" name="image" id="image" accept=".png" required>
+                <small class="form-text" for="uploadimage">Upload a new image?</small>
+                <input type="checkbox" class="form-check-input" name="uploadimage" id="uploadimage"><br>
+              </div>
+              <div class="form-group" id="editBadgeImageGroupExisting">
+                <label for="existingimage">Badge Image - Existing</label><br>
+                <select class="form-select" name="existingimage" id="existingimage">
+
+                </select>
+              </div>
+              <div class="form-group d-none" id="editBadgeImageGroupNew">
+                <label for="image">Badge Image - Upload New</label><br>
+                <input type="file" class="form-control-file" name="image" id="image" accept=".png">
               </div>
               <div class="form-group">
                 <img src="" alt="" id="editBadgeImagePreview" class="img-thumbnail"

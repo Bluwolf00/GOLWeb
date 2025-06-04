@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
+const fs = require('fs');
 dotenv.config()
 
 const pool = mysql.createPool({
@@ -219,20 +220,55 @@ async function getBadge(badgeID) {
     }
 }
 
-async function updateBadge(badgeID, badgeName, badgeFile, isQualification, badgeDescription) {
+async function getAllBadgePaths() {
+    var paths = [null];
+    try {
+        __dirname = process.cwd() + "\\public\\img\\badge";
+        console.log("Current directory: " + __dirname);
+        var out = fs.readdirSync(__dirname);
+        // , (err, files) => {
+        //     if (err) {
+        //         console.error("Error reading badge directory:", err);
+        //         return;
+        //     }
+        //     // Filter out non-image files and create paths
+        //     // paths = files.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
+        //     for (var i = 0; i < files.length; i++) {
+        //         console.log("File: " + files[i]);
+        //         if (files[i].endsWith('.png') || files[i].endsWith('.jpg') || files[i].endsWith('.jpeg') || files[i].endsWith('.gif')) {
+        //             console.log("Adding path: " + `/img/badge/${files[i]}`);
+        //             paths.push(`/img/badge/${files[i]}`);
+        //         }
+        //     }
+        //     console.log("Badge paths: ", paths);
+        // });
+        paths = out.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
+        return paths;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function updateBadge(badgeID, badgeName, isQualification, badgeDescription, badgePath) {
     var rows = [null];
     try {
-
-        // First, save the badgeFile to the server
-        
-
-        [rows] = await pool.query(`
-            UPDATE Badges
-            SET badgeName = ?,
-                badgePath = ?,
-                isQualification = ?,
-                badgeDescription = ?
-            WHERE badgeID = ?`, [badgeName, badgePath, isQualification, badgeDescription, badgeID]);
+        // console.log("Updating badge path: " + badgePath);
+        if (badgePath == null || badgePath == "") {
+            [rows] = await pool.query(`
+                UPDATE Badges
+                SET badgeName = ?,
+                    isQualification = ?,
+                    badgeDescription = ?
+                WHERE badgeID = ?`, [badgeName, isQualification, badgeDescription, badgeID]);
+        } else {
+            [rows] = await pool.query(`
+                UPDATE Badges
+                SET badgeName = ?,
+                    badgePath = ?,
+                    isQualification = ?,
+                    badgeDescription = ?
+                WHERE badgeID = ?`, [badgeName, badgePath, isQualification, badgeDescription, badgeID]);
+        }
     } catch (error) {
         console.log(error);
     } finally {
@@ -786,4 +822,4 @@ async function getDashboardData() {
 }
 
 
-module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getBadge, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA, getSeniorMembers };
+module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getBadge, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA, getSeniorMembers, updateBadge, getAllBadgePaths };
