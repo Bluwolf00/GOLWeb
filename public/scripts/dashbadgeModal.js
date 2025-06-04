@@ -2,7 +2,7 @@ var imgEl = document.getElementById("badgeImagePreview");
 var imgElEdit = document.getElementById("editBadgeImagePreview");
 var badgeImageInputNew = document.getElementById("newimage");
 var badgeImageInputExisting = document.getElementById("image");
-var form = document.getElementById("createBadgeForm");
+var form;
 const editCheckbox = document.getElementById("uploadimage");
 const badgeImageSelect = document.getElementById("existingimage");
 
@@ -31,7 +31,7 @@ function isImage(filename) {
     return /\.(png)$/i.test(filename);
 }
 
-function createAlert(message, type, form) {
+function createAlert(message, type, form, timeout = -1) {
     var alert = document.createElement("div");
     alert.className = `alert alert-${type} alert-dismissible fade show`;
     alert.role = "alert";
@@ -40,6 +40,14 @@ function createAlert(message, type, form) {
     alert.id = "imageAlertMessage";
     var formEl = document.getElementById(form)
     formEl.prepend(alert);
+
+    if (timeout > 0) {
+        setTimeout(function () {
+            if (document.getElementById("imageAlertMessage") !== null) {
+                $('#imageAlertMessage').alert('close');
+            }
+        }, timeout);
+    }
 }
 
 async function editBadge(badgeID) {
@@ -111,6 +119,12 @@ async function populateBadges() {
 async function handleBadgeImage() {
     var file = this.files[0];
     var eleId = this.id;
+
+    if (eleId === "newimage") {
+        form = document.getElementById("createBadgeForm");
+    } else {
+        form = document.getElementById("updateBadgeForm");
+    }
     if (file && isImage(file.name)) {
 
         // Create an Image object to check dimensions
@@ -132,7 +146,7 @@ async function handleBadgeImage() {
                 }
                 var existingAlert = document.getElementById("imageAlertMessage");
                 if (!existingAlert) {
-                    createAlert("Please upload an image smaller than 6MB.", "danger", form.id);
+                    createAlert("Please upload an image smaller than 6MB.", "danger", form.id, 5000);
                 }
                 return;
             }
@@ -171,7 +185,7 @@ async function handleBadgeImage() {
                 }
                 var existingAlert = document.getElementById("imageAlertMessage");
                 if (!existingAlert) {
-                    createAlert("Please upload a square image or an image with a 1:4 aspect ratio.", "danger", form.id);
+                    createAlert("Please upload a square image or an image with a 1:4 aspect ratio.", "danger", form.id, 5000);
                 }
                 return;
             }
@@ -179,7 +193,7 @@ async function handleBadgeImage() {
     } else {
         var existingAlert = document.getElementById("imageAlertMessage");
         if (!existingAlert) {
-            createAlert("Please upload a .PNG image", "danger", form.id);
+            createAlert("Please upload a .PNG image", "danger", form.id, 5000);
             if (eleId === "newimage") {
                 imgEl.src = ""; // Clear the image preview
                 badgeImageInputNew.value = ""; // Clear the input
@@ -202,12 +216,12 @@ async function init() {
     editCheckbox.addEventListener("click", function (event) {
         // If the checkname is checked, enable the file upload group
         if (this.checked) {
-            console.log("Checkbox is checked");
+            // console.log("Checkbox is checked");
             document.getElementById("editBadgeImageGroupNew").classList = "form-group";
             document.getElementById("editBadgeImagePreview").setAttribute("src", "");
             document.getElementById("editBadgeImageGroupExisting").classList = "form-group d-none";
         } else {
-            console.log("Checkbox is unchecked");
+            // console.log("Checkbox is unchecked");
             document.getElementById("editBadgeImageGroupNew").classList = "form-group d-none";
             var currentSrc = document.getElementById("existingimage").value;
             document.getElementById("editBadgeImagePreview").setAttribute("src", currentSrc);
