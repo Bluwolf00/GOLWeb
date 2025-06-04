@@ -223,7 +223,9 @@ async function getBadge(badgeID) {
 async function getAllBadgePaths() {
     var paths = [null];
     try {
-        __dirname = process.cwd() + "\\public\\img\\badge";
+        // __dirname = process.cwd() + "\\public\\img\\badge";
+        // On the dedicated server, the path is formatted different
+        __dirname = process.cwd() + "/public/img/badge";
         console.log("Current directory: " + __dirname);
         var out = fs.readdirSync(__dirname);
         paths = out.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
