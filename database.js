@@ -226,22 +226,6 @@ async function getAllBadgePaths() {
         __dirname = process.cwd() + "\\public\\img\\badge";
         console.log("Current directory: " + __dirname);
         var out = fs.readdirSync(__dirname);
-        // , (err, files) => {
-        //     if (err) {
-        //         console.error("Error reading badge directory:", err);
-        //         return;
-        //     }
-        //     // Filter out non-image files and create paths
-        //     // paths = files.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
-        //     for (var i = 0; i < files.length; i++) {
-        //         console.log("File: " + files[i]);
-        //         if (files[i].endsWith('.png') || files[i].endsWith('.jpg') || files[i].endsWith('.jpeg') || files[i].endsWith('.gif')) {
-        //             console.log("Adding path: " + `/img/badge/${files[i]}`);
-        //             paths.push(`/img/badge/${files[i]}`);
-        //         }
-        //     }
-        //     console.log("Badge paths: ", paths);
-        // });
         paths = out.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
         return paths;
     } catch (error) {
