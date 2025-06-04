@@ -230,6 +230,7 @@ async function getAllBadgePaths() {
         return paths;
     } catch (error) {
         console.log(error);
+        return error;
     }
 }
 
