@@ -30,6 +30,9 @@ There are a few external libraries being used on the site:
 - D3
   - Also including a forked repo for the org chart - [Org-Chart by bumbeishvili](https://github.com/bumbeishvili/org-chart/tree/master)
 - JQuery
+- NodeFS
+- Multer
+- BCrypt
 
 ## Features
 
