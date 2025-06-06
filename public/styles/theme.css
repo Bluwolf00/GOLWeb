@@ -36,6 +36,12 @@ svg.icon-secondary {
   align-content: center;
 }
 
+.loginAlert {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+}
+
 header {
   height: 85px;
   margin: auto 1em;

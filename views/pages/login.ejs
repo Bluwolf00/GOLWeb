@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/styles/theme.css">
     <script src="/scripts/logoHover.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script defer src="/scripts/login.js"></script>
 
     <style>
         .logInSection {
@@ -46,7 +47,7 @@
         </div>
     </div>
 
-    <main>
+    <main id="mainContent">
         <div class="container border-bottom text-center">
 
             <div class="px-4" id="front-hero">
@@ -58,7 +59,7 @@
             <section class="logInSection">
                 <h1>Log In</h1>
 
-                <form action="/data/performLogin" method="POST">
+                <form action="" method="POST" id="loginForm">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
@@ -67,7 +68,7 @@
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Log In</button>
+                    <button type="submit" class="btn btn-primary" id="loginButton">Log In</button>
                 </form>
             </section>
 

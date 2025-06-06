@@ -451,6 +451,9 @@ async function getSeniorMembers() {
 
 async function performLogin(username, password, fallback) {
 
+    console.log("Performing login for user: " + username);
+    console.log("Password: " + password);
+
     if (!fallback) {
         var rows = [null];
         try {
@@ -466,8 +469,13 @@ async function performLogin(username, password, fallback) {
             } else if (typeof rows == "undefined" || typeof rows == "null" || rows == null) {
                 return null;
             } else {
-                if (rows[0].password)
-                    return rows;
+                var hashedPassword = rows[0].password;
+                // Compare the password with the hashed password
+                if (bcrypt.compareSync(password, hashedPassword)) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
     } else {
@@ -484,6 +492,20 @@ async function performRegister(username, password) {
         const result = await pool.query(`
             INSERT INTO users (username,password,role)
             VALUES (?,?,"public")`, [username, password]);
+        return result[0].affectedRows > 0;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+async function resetPassword(username, newPassword) {
+    try {
+        const hashedPassword = newPassword;
+        const result = await pool.query(`
+            UPDATE users
+            SET password = ?
+            WHERE username = ?`, [hashedPassword, username]);
         return result[0].affectedRows > 0;
     } catch (error) {
         console.log(error);
@@ -865,4 +887,4 @@ module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updat
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
-    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers };
+    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword };

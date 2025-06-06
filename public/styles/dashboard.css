@@ -69,6 +69,25 @@ span.bubble-text {
     align-self: center;
 }
 
+#changePasswordBtn {
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.4));
+}
+
+#togglePassword, #toggleConfirmPassword {
+    cursor: pointer;
+    float: right;
+    margin-left: -25px;
+    margin-top: -30px;
+    right: 10px;
+    position: relative;
+    font-size: 1.25em;
+    z-index: 100;
+}
+
 /* Users Dashboard */
 
 .form-group {
