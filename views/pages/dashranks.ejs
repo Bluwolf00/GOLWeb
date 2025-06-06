@@ -15,7 +15,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
   </script>
-  <script src="/scripts/dashusertable.js"></script>
+  <script src="/scripts/dashrankstable.js"></script>
 </head>
 
 <%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
@@ -25,10 +25,10 @@
     <% if (typeof editSuccess !== 'undefined') { %>
     <div class="container text-center">
       <% if (editSuccess == 1) { %>
-      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Rank Successfully
         Updated!</div>
       <% } else if (editSuccess == 0){ %>
-      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Rank Failed to
         Update!</div>
       <% } %>
     </div>
@@ -37,18 +37,18 @@
     <% if (typeof createSuccess !== 'undefined') { %>
     <div class="container text-center">
       <% if (createSuccess == 1) { %>
-      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member Successfully
+      <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Rank Successfully
         Created!</div>
       <% } else if (createSuccess == 0){ %>
-      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to be
+      <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Rank Failed to be
         Created!</div>
       <% } %>
     </div>
     <% } %>
 
-    <%- include('../partials/dashnav', {pageName: "Users"}) %>
+    <%- include('../partials/dashnav', {pageName: "Ranks"}) %>
 
-    <div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal fade" id="editRankModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">

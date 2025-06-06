@@ -24,7 +24,7 @@ async function getMembers(includeParentName = false) {
     if (includeParentName == true) {
         query = 'SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC'
     } else {
-        query = 'SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
+        query = 'SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
     }
     try {
         // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
@@ -223,10 +223,11 @@ async function getBadge(badgeID) {
 async function getAllBadgePaths() {
     var paths = [null];
     try {
-        // __dirname = process.cwd() + "\\public\\img\\badge";
         // On the dedicated server, the path is formatted different
+        // __dirname = process.cwd() + "\\public\\img\\badge";
         __dirname = process.cwd() + "/public/img/badge";
-        console.log("Current directory: " + __dirname);
+        
+        // Return all files in the badges directory that are images
         var out = fs.readdirSync(__dirname);
         paths = out.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
         return paths;
@@ -275,6 +276,57 @@ async function getMemberBadges(name) {
         console.log(error);
     } finally {
         return rows
+    }
+}
+
+async function getMembersAssignedToBadge(badgeID) {
+    var rows = [null];
+    try {
+        rows = await pool.query(`
+            SELECT MemberBadges.MemberID,UName,DateAcquired
+            FROM Members,MemberBadges
+            WHERE MemberBadges.badgeID = ? AND Members.MemberID = MemberBadges.MemberID
+            ORDER BY DateAcquired DESC`, [badgeID])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows
+    }
+}
+
+async function assignBadgeToMembers(memberIDs, badgeID, dateAcquired) {
+    var rows = [];
+    var result;
+    try {
+        // Loop through the member IDs and insert the badge for each member
+        for (var i = 0; i < memberIDs.length; i++) {
+            result = await pool.query(`
+                INSERT INTO MemberBadges (badgeID,MemberID,DateAcquired)
+                VALUES (?,?,?)`, [badgeID, memberIDs[i], dateAcquired]);
+            rows.push(result[0]);
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0];
+    }
+}
+
+async function removeBadgeFromMembers(memberIDs, badgeID) {
+    var rows = [];
+    var result;
+    try {
+        // Loop through the member IDs and insert the badge for each member
+        for (var i = 0; i < memberIDs.length; i++) {
+            result = await pool.query(`
+                DELETE FROM MemberBadges
+                WHERE badgeID = ? AND MemberID = ?`, [badgeID, memberIDs[i]]);
+            rows.push(result[0]);
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0];
     }
 }
 
@@ -809,4 +861,8 @@ async function getDashboardData() {
 }
 
 
-module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember, getMemberBadges, getBadges, getBadge, getVideos, getRanks, changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs, getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA, getSeniorMembers, updateBadge, getAllBadgePaths };
+module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
+    getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks,
+    changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
+    getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
+    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers };

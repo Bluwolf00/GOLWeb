@@ -46,11 +46,6 @@ router.get('/getmembers', async (req, res) => {
     res.send(members);
 });
 
-router.get('/getmemberswparents', async (req, res) => {
-    const members = await db.getMembers();
-    res.send(members);
-});
-
 router.get('/getBadges', async (req, res) => {
     const badges = await db.getBadges();
     res.send(badges);
@@ -167,6 +162,16 @@ router.get('/getDashData', authPage, async (req, res) => {
     res.send(data);
 });
 
+router.get('/assignedToBadge', authPage, async (req, res) => {
+    var badgeID = req.query.badgeID;
+    if (!badgeID) {
+        res.status(400).send("Bad Request - Missing badgeID parameter");
+        return;
+    }
+    var members = await db.getMembersAssignedToBadge(badgeID);
+    res.send(members);
+});
+
 // -- POST REQUESTS - DATA --
 
 // Despite being a request that recieves data, this is a POST request to ensure authentication is used
@@ -249,11 +254,12 @@ router.post('/updateMember', authPage, async (req, res) => {
 router.post('/changeRank', authPage, async (req, res) => {
     var member = req.body.memberID;
     var newRank = req.body.newRank;
+    var bypassParent = req.body.bypassParent;
     if (!member || !newRank) {
         res.status(400).send("Bad Request - Missing Parameters");
         return;
     }
-    var result = await db.changeRank(member, newRank);
+    var result = await db.changeRank(member, newRank, bypassParent);
     if (result[0].affectedRows > 0) {
         res.status(200).send({ "result": "Member promoted successfully" });
     } else {
@@ -338,6 +344,67 @@ router.post('/updateBadge', [authPage, upload.single('image')], async (req, res)
         res.status(200).redirect('/dashboard/badges?editSuccess=1');
     } else {
         res.status(500).redirect('/dashboard/badges?editSuccess=0');
+    }
+});
+
+router.post('/assignBadge', authPage, async (req, res) => {
+    var memberIDs = req.body.members; // This should be an array of member IDs
+    var badgeID = req.body.badgeID;
+    var dateAwarded = req.body.dateAcquired;
+
+    if (!memberIDs || !badgeID) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    if (Array.isArray(memberIDs)) {
+        // If memberIDs is an array, remove the memberIDs that are already assigned to the badge
+        var [assignedMembers] = await db.getMembersAssignedToBadge(badgeID);
+        var membersToBeAdded = [];
+        var membersToBeRemoved = [];
+
+        // Filter out the member IDs that are already assigned to the badge
+        membersToBeAdded = memberIDs.filter(memberID => {
+            return !assignedMembers.some(assignedMember => parseInt(memberID) === parseInt(assignedMember.MemberID));
+        });
+        
+        // If there are members that already have the badge, but are not in the new list, we will add them to the removedFromMembers array
+        for (const assignedMember of assignedMembers) {
+            if (!memberIDs.includes(assignedMember.MemberID.toString())) {
+                membersToBeRemoved.push(assignedMember.MemberID);
+            }
+        }
+    }
+
+    if (memberIDs.length === 0) {
+        res.status(400).send("Bad Request - No new members to assign to the badge.");
+        return;
+    }
+
+    var result;
+    var rowsSummed = 0;
+
+    if (membersToBeAdded.length > 0) {
+        result = await db.assignBadgeToMembers(membersToBeAdded, badgeID, dateAwarded);
+        rowsSummed = result.affectedRows;
+
+        if (result.affectedRows === 0) {
+            res.status(500).send({ "result": "Failed to assign badge - Check if the badge ID exists or if the member IDs are correct." });
+            return;
+        }
+    }
+
+
+    if (membersToBeRemoved.length > 0) {
+        // If there are members that need to be removed from the badge, we will remove them
+        result = await db.removeBadgeFromMembers(membersToBeRemoved, badgeID);
+        rowsSummed += result.affectedRows;
+    }
+   
+    if (rowsSummed > 0) {
+        res.status(200).send({ "result": "Badge updated successfully!", "status": 200 });
+    } else {
+        res.status(500).send({ "result": "Failed to update badge - Check if the badge ID exists or if the member IDs are correct." });
     }
 });
 

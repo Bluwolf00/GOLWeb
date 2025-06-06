@@ -122,3 +122,7 @@ span.bubble-text {
 .form-check-input[type="checkbox"] {
     border-radius: .35em;
 }
+
+#badgeTableBody > tr > td > button.btn {
+    margin: 5px 10px;
+}
