@@ -451,9 +451,6 @@ async function getSeniorMembers() {
 
 async function performLogin(username, password, fallback) {
 
-    console.log("Performing login for user: " + username);
-    console.log("Password: " + password);
-
     if (!fallback) {
         var rows = [null];
         try {
@@ -465,17 +462,13 @@ async function performLogin(username, password, fallback) {
             console.log(error);
         } finally {
             if (rows.length == 0) {
-                return null;
+                return false;
             } else if (typeof rows == "undefined" || typeof rows == "null" || rows == null) {
-                return null;
+                return false;
             } else {
                 var hashedPassword = rows[0].password;
                 // Compare the password with the hashed password
-                if (bcrypt.compareSync(password, hashedPassword)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return bcrypt.compareSync(password, hashedPassword);
             }
         }
     } else {

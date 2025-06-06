@@ -189,34 +189,41 @@ router.post('/performLogin', async (req, res) => {
         req.session.loggedin = true;
         req.session.username = username;
         req.session.save();
-        res.status(200).send({"result" : result, "status" : 200, "message" : "Successfully logged in."});
+        res.status(200).send({ "result": result, "status": 200, "message": "Successfully logged in." });
         return;
     } else {
-        res.status(401).send({"result" : result, "status" : 401, "message" : "Invalid username or password."});
+        res.status(401).send({ "result": result, "status": 401, "message": "Invalid username or password." });
         return;
     }
 });
 
 router.post('/performRegister', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, confirmPassword } = req.body;
 
     // Check if the username already exists
     let result = await db.performLogin(username, password, false);
-    console.log(result);
-
+    console.log("Perform Login Result: ", result);
+    
+    // Validate the passwords
+    const passwordValidation = validatePasswords(password, confirmPassword);
+    if (passwordValidation.status === 400) {
+        res.status(400).send(passwordValidation);
+        return;
+    }
+    
     if (result) {
-        res.status(409); // Conflict
-        res.redirect('/register?error=existinguser');
+        res.status(409).send({ "fullStatus": "Bad Request - Username already taken.", "statusMessage": "Error: Username already taken" }); // Conflict
+        return;
     } else {
         // Hash the password before storing it
         const hashedPassword = await bcrypt.hash(password, 10);
         result = await db.performRegister(username, hashedPassword);
         if (result) {
-            res.status(201); // Created
-            res.redirect('/login?success=true');
+            res.status(201).send({ "fullStatus": "Success - Registration Sucessful.", "statusMessage": "Success: Registration Sucessful. Redirecting..."});
         } else {
-            res.send(result);
+            res.status(500).send({ "fullStatus": "Internal Server Error", "statusMessage": "Server Error: Please try again later." });
         }
+        return;
     }
 });
 
@@ -368,7 +375,7 @@ router.post('/assignBadge', authPage, async (req, res) => {
         membersToBeAdded = memberIDs.filter(memberID => {
             return !assignedMembers.some(assignedMember => parseInt(memberID) === parseInt(assignedMember.MemberID));
         });
-        
+
         // If there are members that already have the badge, but are not in the new list, we will add them to the removedFromMembers array
         for (const assignedMember of assignedMembers) {
             if (!memberIDs.includes(assignedMember.MemberID.toString())) {
@@ -401,7 +408,7 @@ router.post('/assignBadge', authPage, async (req, res) => {
         result = await db.removeBadgeFromMembers(membersToBeRemoved, badgeID);
         rowsSummed += result.affectedRows;
     }
-   
+
     if (rowsSummed > 0) {
         res.status(200).send({ "result": "Badge updated successfully!", "status": 200 });
     } else {
@@ -414,18 +421,18 @@ router.post('/resetPassword', authPage, async (req, res) => {
 
     // Check if the new password and confirm password match
     if (newPassword !== confirmPassword) {
-        res.status(400).send({"fullStatus" : "Bad Request - Passwords do not match.", "statusMessage" : "Error: Passwords do not match."});
+        res.status(400).send({ "fullStatus": "Bad Request - Passwords do not match.", "statusMessage": "Error: Passwords do not match." });
         return;
     }
 
     if (!newPassword || newPassword.length < 8) {
-        res.status(400).send({"fullStatus" : "Bad Request - Password must be at least 8 characters long.", "statusMessage" : "Error: Password must be at least 8 characters long."});
+        res.status(400).send({ "fullStatus": "Bad Request - Password must be at least 8 characters long.", "statusMessage": "Error: Password must be at least 8 characters long." });
         return;
     }
 
     // Check password strength
     if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
-        res.status(400).send({"fullStatus" : "Bad Request - Password must contain at least one uppercase letter, one lowercase letter, and one number.", "statusMessage" : "Error: Password must contain at least one uppercase letter, one lowercase letter, and one number."});
+        res.status(400).send({ "fullStatus": "Bad Request - Password must contain at least one uppercase letter, one lowercase letter, and one number.", "statusMessage": "Error: Password must contain at least one uppercase letter, one lowercase letter, and one number." });
         return;
     }
 
@@ -434,13 +441,13 @@ router.post('/resetPassword', authPage, async (req, res) => {
         const result = await db.resetPassword(req.session.username, hashedPassword);
 
         if (result) {
-            res.status(200).send({"fullStatus" : "SUCCESS: Password reset successfully!", "statusMessage" : "Password reset successfully!"});
+            res.status(200).send({ "fullStatus": "SUCCESS: Password reset successfully!", "statusMessage": "Password reset successfully!" });
         } else {
-            res.status(500).send({"fullStatus" : "Internal Server Error - Unable to reset password.", "statusMessage" : "Error: Unable to reset password. Please try again later."});
+            res.status(500).send({ "fullStatus": "Internal Server Error - Unable to reset password.", "statusMessage": "Error: Unable to reset password. Please try again later." });
         }
     } catch (error) {
         console.error("Error resetting password:", error);
-        res.status(500).send({"fullStatus" : "Internal Server Error - Unable to reset password.", "statusMessage" : "Error: Unable to reset password. Please try again later."});
+        res.status(500).send({ "fullStatus": "Internal Server Error - Unable to reset password.", "statusMessage": "Error: Unable to reset password. Please try again later." });
     }
 });
 
@@ -495,5 +502,24 @@ router.delete('/deleteMember', authPage, async (req, res) => {
 router.get('*', (req, res) => {
     res.status(404).send({ "error": "Not Found - The requested resource does not exist." });
 });
+
+// Helper Functions
+
+function validatePasswords(password, confirmPassword) {
+    if (password !== confirmPassword) {
+        return { "fullStatus": "Bad Request - Passwords do not match.", "statusMessage": "Error: Passwords do not match.", "status": 400 };
+    }
+
+    if (!password || password.length < 8) {
+        return { "fullStatus": "Bad Request - Password must be at least 8 characters long.", "statusMessage": "Error: Password must be at least 8 characters long.", "status": 400 };
+    }
+
+    // Check password strength
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+        return { "fullStatus": "Bad Request - Password must contain at least one uppercase letter, one lowercase letter, and one number.", "statusMessage": "Error: Password must contain at least one uppercase letter, one lowercase letter, and one number.", "status": 400 };
+    }
+
+    return { "fullStatus": "SUCCESS: Passwords are valid.", "statusMessage": "Passwords are valid.", "status": 200 };
+}
 
 module.exports = router;

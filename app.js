@@ -137,9 +137,15 @@ app.get('/error', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.render('pages/register', {
-        username: req.session.username
-    });
+
+    if (typeof req.session.loggedin === 'undefined') {
+        res.render('pages/register', {
+            username: req.session.username
+        });
+    } else {
+        res.redirect('/home');
+    }
+
 });
 
 app.get('/login', (req, res) => {

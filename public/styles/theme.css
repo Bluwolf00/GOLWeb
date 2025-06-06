@@ -36,12 +36,6 @@ svg.icon-secondary {
   align-content: center;
 }
 
-.loginAlert {
-  position: absolute;
-  z-index: 100;
-  width: 100%;
-}
-
 header {
   height: 85px;
   margin: auto 1em;
@@ -723,6 +717,32 @@ footer {
 
 .card-aac, .card-qualif {
   border-bottom: 2px solid #0083af;
+}
+
+/* Login */
+.form-help, .form-help > * {
+  text-align: left;
+}
+
+#togglePassword, #toggleConfirmPassword {
+    cursor: pointer;
+    float: right;
+    margin-left: -25px;
+    margin-top: -30px;
+    right: 10px;
+    position: relative;
+    font-size: 1.25em;
+    z-index: 100;
+}
+
+/* Misc */
+
+.alert-holder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
 }
 
 /* Medias */

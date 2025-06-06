@@ -1,4 +1,4 @@
-async function performLogin() {
+async function performRegister() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
@@ -38,7 +38,7 @@ async function performLogin() {
 
 function createAlert(message, type, form, timeout = -1) {
     var alert = document.createElement("div");
-    alert.className = `alert alert-${type} alert-dismissible fade show loginAlert`;
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
     alert.role = "alert";
     alert.innerHTML = message +
         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
@@ -61,12 +61,12 @@ function init() {
     if (loginButton) {
         loginButton.addEventListener('click', async function(event) {
             event.preventDefault(); // Prevent the default form submission
-            performLogin(); // Call the login function
+            performRegister(); // Call the login function
         });
 
         loginForm.addEventListener('submit', async function(event) {
             event.preventDefault(); // Prevent the default form submission
-            performLogin(); // Call the login function
+            performRegister(); // Call the login function
         });
     } else {
         console.error("Login button not found.");
