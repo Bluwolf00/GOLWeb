@@ -102,6 +102,25 @@ router.get('/getRanks', async (req, res) => {
     res.send(ranks);
 });
 
+router.get('/getCompRanks', authPage, async (req, res) => {
+    var ranks = await db.getComprehensiveRanks();
+    res.send(ranks);
+});
+
+router.get('/getRankByID', authPage, async (req, res) => {
+    var rankID = req.query.rankID;
+    if (!rankID) {
+        res.status(400).send("Bad Request - Missing rankID parameter");
+        return;
+    }
+    var rank = await db.getRankByID(rankID);
+    if (rank) {
+        res.send(rank);
+    } else {
+        res.status(404).send("Not Found - Rank does not exist");
+    }
+});
+
 router.get('/getMemberAttendance', async (req, res) => {
     var name = req.query.name;
     var content = { "thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1 };
@@ -298,6 +317,19 @@ router.post('/createMember', authPage, async (req, res) => {
         res.status(500);
         res.redirect(referer + "?createSuccess=0");
     }
+});
+
+router.post('/updateRank', authPage, async (req, res) => {
+    var rankName = req.body.rankname;
+    var rankDescription = req.body.description;
+    var rankPrefix = req.body.prefix;
+
+    // if (!rankName || !rankDescription || !rankPrefix) {
+    //     res.status(400).send("Bad Request - Missing Parameters.");
+    //     return;
+    // }
+
+    res.status(307).send({message : "This endpoint is not yet implemented. Please try again later."});
 });
 
 router.post('/updateBadge', [authPage, upload.single('image')], async (req, res) => {

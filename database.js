@@ -73,22 +73,22 @@ async function deleteMember(memberID) {
     }
 }
 
-async function getMemberParent(memberName) {
-    var rows = [null];
-    try {
-        [rows] = await pool.query(`
-            SELECT parentNodeId
-            FROM Members
-            WHERE UName = ?`, [memberName])
-    } catch (error) {
-        console.log(error);
-    } finally {
-        if (rows.length == 0) {
-            return null;
-        }
-        return rows[0].parentNodeId;
-    }
-}
+// async function getMemberParent(memberName) {
+//     var rows = [null];
+//     try {
+//         [rows] = await pool.query(`
+//             SELECT parentNodeId
+//             FROM Members
+//             WHERE UName = ?`, [memberName])
+//     } catch (error) {
+//         console.log(error);
+//     } finally {
+//         if (rows.length == 0) {
+//             return null;
+//         }
+//         return rows[0].parentNodeId;
+//     }
+// }
 
 async function getMemberNodeId(memberName) {
     var rows = [null];
@@ -118,6 +118,24 @@ async function getRankFromName(rankName) {
         console.log(error);
     } finally {
         return rows[0].rankID;
+    }
+}
+
+async function getRankByID(rankID) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT rankID,rankName,prefix,rankPath,rankDescription
+            FROM Ranks
+            WHERE rankID = ?`, [rankID])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0];
+        }
     }
 }
 
@@ -414,6 +432,22 @@ async function getRanks(all, aboveOrBelow, currentRank) {
         }
     }
     return rows;
+}
+
+async function getComprehensiveRanks() {
+    // This function will return all ranks with their nodeId and parentNodeId
+    // This is used to populate the rank tree in the dashboard
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT rankID, rankName, prefix, rankPath, rankDescription
+            FROM Ranks
+            ORDER BY rankID ASC`);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
 }
 
 // POST REQUESTS
@@ -877,7 +911,7 @@ async function getDashboardData() {
 
 
 module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
-    getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks,
+    getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword };

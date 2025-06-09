@@ -138,7 +138,7 @@ app.get('/error', (req, res) => {
 
 app.get('/register', (req, res) => {
 
-    if (typeof req.session.loggedin === 'undefined') {
+    if (typeof req.session.loggedin === 'undefined' || req.session.loggedin === false) {
         res.render('pages/register', {
             username: req.session.username
         });

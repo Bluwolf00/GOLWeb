@@ -56,7 +56,9 @@ router.get('/videos', authPage, async (req,res) => {
 });
 
 router.get('/ranks', authPage, async (req,res) => {
-    res.redirect('error?error=404');
+    res.render('pages/dashranks', {
+        username: req.session.username
+    });
 });
 
 router.get('/loas', authPage, async (req,res) => {

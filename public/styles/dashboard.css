@@ -145,3 +145,14 @@ span.bubble-text {
 #badgeTableBody > tr > td > button.btn {
     margin: 5px 10px;
 }
+
+/* Ranks Dashboard */
+
+.rank-image {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+.rankDescription {
+    font-size: smaller;
+}

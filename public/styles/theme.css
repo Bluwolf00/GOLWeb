@@ -322,6 +322,7 @@ h3.fs-2:hover {
 
 .feature>p {
   transition: color 0.3s;
+  text-align: left;
 }
 
 .feature>p:hover {
