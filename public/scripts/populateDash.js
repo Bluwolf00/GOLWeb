@@ -24,11 +24,11 @@ async function populateDash() {
     var data = await response.json();
 
     // Not implemented yet
-    // var promotions = data.promotions;
-    // var nextPromotion = data.nextPromotion;
     // var nextPaymentDate = data.nextPaymentDate;
     // var numberOfReplays = data.numberOfReplays;
-
+    
+    var promotions = data.promotions;
+    var nextPromotion = data.nextPromotion;
     var activeMembers = data.activeMembers;
     var leaveMembers = data.leaveMembers;
     var recruits = data.recruits;
@@ -38,6 +38,8 @@ async function populateDash() {
 
     // Initialise the elements
 
+    var promotionsElement = document.getElementById("promotions");
+    var nextPromotionElement = document.getElementById("next-promotion");
     var activeMembersElement = document.getElementById("active-members");
     var leaveMembersElement = document.getElementById("loas");
     var recruitsElement = document.getElementById("recruits");
@@ -46,6 +48,12 @@ async function populateDash() {
     var leadersElement = document.getElementById("leaders");
 
     // Populate the dashboard
+
+    promotionsElement.innerHTML = promotions;
+    nextPromotionElement.innerHTML = nextPromotion;
+    if (nextPromotion.length > 14) {
+        nextPromotionElement.classList.add("fs-24");
+    }
 
     activeMembersElement.innerHTML = activeMembers;
     leaveMembersElement.innerHTML = leaveMembers;

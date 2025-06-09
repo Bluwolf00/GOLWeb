@@ -12,6 +12,10 @@
   box-sizing: border-box;
 }
 
+.fs-24 {
+  font-size: 24px !important;
+}
+
 .sec-highlight {
   color: var(--blu-secondary);
 }

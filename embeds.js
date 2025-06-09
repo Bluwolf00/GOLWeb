@@ -405,7 +405,7 @@ async function getNextMission() {
         data = await getScheduledEvents();
         for (var i = 0; i < data.postedEvents.length; i++) {
             if (data.postedEvents[i].title.includes("THURSDAY OPERATION") || data.postedEvents[i].title.includes("SUNDAY OPERATION")) {
-                var desc = data.postedEvents[0].description;
+                var desc = data.postedEvents[i].description;
                 var missionName;
                 var missionPartOfDesc = desc.substring(desc.indexOf("Mission"));
 
@@ -434,6 +434,13 @@ async function getNextMission() {
                 };
 
                 break;
+            } else {
+                nextMission = {
+                    name: "TBA",
+                    date: "TBA",
+                    description: "TBA",
+                    eventId: "TBA"
+                };
             }
         }
         
@@ -447,6 +454,9 @@ async function getNextMission() {
     return nextMission;
 }
 
+// This function returns the next training event
+// It searches for the next event with "THURSDAY OPERATION" in the title and extracts the training name from the description
+// This function will be refactored in the future to pull training schedules from a different source instead of scraping the name.
 async function getNextTraining() {
     var data;
     var nextTraining = {};
@@ -455,9 +465,11 @@ async function getNextTraining() {
 
     for (var i = 0; i < data.postedEvents.length; i++) {
         if (data.postedEvents[i].title.includes("THURSDAY OPERATION")) {
-            var desc = data.postedEvents[0].description;
+            var desc = data.postedEvents[i].description;
             var trainingName;
             var trainingPartOfDesc = desc.substring(0, desc.indexOf("Mission"));
+
+            console.log("Training Part of Desc: " + trainingPartOfDesc);
 
             // If the description of the event includes the word "TBA" anywhere in the Training section of the description, set the training name to "TBA"
             // This is done to avoid the case where the MISSION name is TBA, but the training name is not
@@ -465,7 +477,13 @@ async function getNextTraining() {
                 trainingName = "TBA";
             } else {
                 // Get the training name from the description
-                trainingName = desc.substring(desc.indexOf("Training:") + 9, desc.indexOf("\n", desc.indexOf("Training:")));
+                // If the line starts with a #, it is a heading, if the line starts with a *, it is the training name
+                trainingName = desc.substring(desc.indexOf("Training:") + 9, desc.indexOf("\n", (desc.indexOf(":") + 15)));
+
+                // Remove any * or # from the training name
+                trainingName = trainingName.replace(/[*#]/g, "");
+
+                trainingName = trainingName.trim(); // Trim the training name to remove any whitespace
 
                 if (trainingName == "undefined") {
                     trainingName = "TBA";
@@ -480,6 +498,13 @@ async function getNextTraining() {
             };
 
             break;
+        } else {
+            nextTraining = {
+                name: "TBA",
+                date: "TBA",
+                description: "TBA",
+                eventId: "TBA"
+            };
         }
     }
 

@@ -855,13 +855,55 @@ async function getDashboardData() {
     // 10. The next scheduled mission
 
     // Query 1 - Get the number of members eligible for the next rank
-    // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
-
     // Query 2 - Get the member that is closest to the next rank
-    // This will be implmeneted when the ADMIN Branch is merged with the main branch, as the main branch contains the updated attendance records
+    var rows = await getMembers(true);
+    var eligible = 0;
+    var difference = -1;
+    var nextEligibleMember = null;
+
+    // Loop through the members and check if they are eligible for the next rank
+
+    for (var row of rows) {
+        if (row.rankName == "Recruit") {
+            if (row.numberOfEventsAttended >= 4) {
+                // If the member is a Recruit and has attended at least 4 events, they are eligible for the next rank
+                eligible++;
+            }
+            if ((Math.abs(row.numberOfEventsAttended - 4) < difference) || difference == -1) {
+                // If the member is closer to the next rank than the current difference, update the difference
+                difference = Math.abs(row.numberOfEventsAttended - 4);
+                nextEligibleMember = `${row.rankName} ${row.UName}`;
+            }
+        }
+
+        if (row.rankName == "Private" && row.numberOfEventsAttended >= 30) {
+            if (row.numberOfEventsAttended >= 30) {
+                // If the member is a Private and has attended at least 30 events, they are eligible for the next rank
+                eligible++;
+            }
+
+            if ((Math.abs(row.numberOfEventsAttended - 30) < difference) || difference == -1) {
+                // If the member is closer to the next rank than the current difference, update the difference
+                difference = Math.abs(row.numberOfEventsAttended - 30);
+                nextEligibleMember = `${row.rankName} ${row.UName}`;
+            }
+        }
+
+        if (row.rankName == "Private Second Class" && row.numberOfEventsAttended >= 60) {
+            if (row.numberOfEventsAttended >= 60) {
+                // If the member is a Private Second Class and has attended at least 60 events, they are eligible for the next rank
+                eligible++;
+            }
+
+            if ((Math.abs(row.numberOfEventsAttended - 60) < difference) || difference == -1) {
+                // If the member is closer to the next rank than the current difference, update the difference
+                difference = Math.abs(row.numberOfEventsAttended - 60);
+                nextEligibleMember = `${row.rankName} ${row.UName}`;
+            }
+        }
+    }
 
     // Query 3 + 4 - Get the number of members that are active + on LOA
-    var rows = await getMembers(true);
 
     var activeMembers = rows.filter(member => member.playerStatus == "Active").length;
     var leaveMembers = rows.filter(member => member.playerStatus == "LOA").length;
@@ -889,15 +931,17 @@ async function getDashboardData() {
     // Using the API to get the next scheduled training
     var nextTraining = await embeds.getNextTraining();
 
-    // console.log("Next Training: " + nextTraining);
+    console.log("Next Training: " + nextTraining.name);
 
     // Query 10 - Get the next scheduled mission
     // Using the API to get the next scheduled mission
     var nextMission = await embeds.getNextMission();
 
-    // console.log("Next Mission: " + nextMission);
+    // console.log("Next Mission: " + nextMission.name);
 
     var dashboardData = {
+        "promotions": eligible,
+        "nextPromotion": nextEligibleMember,
         "activeMembers": activeMembers,
         "leaveMembers": leaveMembers,
         "recruits": recruits,
