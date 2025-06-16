@@ -146,11 +146,12 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
         // Get the parent node ID from the name
         // If the parent name is "None" AKA the top element, set the parent node ID to "root"
         var parentNodeId = "root";
-        if (parentName.toString() !== "None") {
+        if (parentName.toString() !== "None" || parentName.toString() !== "") {
             parentNodeId = await getMemberNodeId(parentName);
-            console.log("Parent Name: " + parentName);
-            console.log("Parent Node ID: " + parentNodeId);
+            // console.log("Parent Name: " + parentName);
+            // console.log("Parent Node ID: " + parentNodeId);
         }
+        if (parentNodeId == null) {parentNodeId = "root";}
         var rankID = await getRankFromName(rank);
         if (dateOfJoin == "") {
             dateOfJoin = null;
@@ -841,6 +842,34 @@ async function getMemberLOA(name) {
     }
 }
 
+async function getSOPs() {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC
+            FROM Sop
+            ORDER BY sopID ASC`);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
+async function getSOPbyID(id) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC
+            FROM Sop
+            WHERE sopID = ?`, [id]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0];
+    }
+}
+
 async function getDashboardData() {
     // The dashboard data is a combination of the following:
     // 1. The number of members eligible for the next rank
@@ -869,7 +898,7 @@ async function getDashboardData() {
                 // If the member is a Recruit and has attended at least 4 events, they are eligible for the next rank
                 eligible++;
             }
-            if ((Math.abs(row.numberOfEventsAttended - 4) < difference) || difference == -1) {
+            if (((Math.abs(row.numberOfEventsAttended - 4)) < difference) || difference == -1) {
                 // If the member is closer to the next rank than the current difference, update the difference
                 difference = Math.abs(row.numberOfEventsAttended - 4);
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
@@ -958,4 +987,4 @@ module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updat
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
-    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword };
+    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID };

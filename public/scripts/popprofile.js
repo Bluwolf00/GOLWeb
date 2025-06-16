@@ -223,6 +223,9 @@ async function getProfile() {
 
     updateElement('status', playerStatus);
     // updateProfile();
+
+    // Update the title of the page with the player's name
+    document.title = "GOL Profile - " + playerName;
 }
 
 // This function is used to get the user badges for the profile page and display them

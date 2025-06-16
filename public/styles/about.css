@@ -41,6 +41,7 @@ h4 {
     right: 2rem;
     height: 4px;
     background: var(--blu-bg);
+    border-radius: 2px;
 }
 
 .circle {

@@ -174,6 +174,30 @@ router.get('/seniorMembers', authPage, async (req, res) => {
     }
 });
 
+router.get('/getSOPs', async (req, res) => {
+    try {
+        const sops = await db.getSOPs();
+        res.send(sops);
+    } catch (error) {
+        console.error("Error fetching SOPs:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get('/getSOPbyID', async (req, res) => {
+    var sopID = req.query.sopID;
+    if (!sopID) {
+        res.status(400).send("Bad Request - Missing sopID parameter");
+        return;
+    }
+    try {
+        const sop = await db.getSOPbyID(sopID);
+        res.send(sop);
+    } catch (error) {
+        console.error("Error fetching SOPs:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 // This is a protected route - Only accessible by admins and moderators who are logged in
 router.get('/getDashData', authPage, async (req, res) => {
@@ -262,7 +286,10 @@ router.post('/updateMember', authPage, async (req, res) => {
         res.status(400).send(`Bad Request - Missing Parameters : ${memberID}, ${memberName}, ${memberRank}, ${memberCountry}, ${memberParent}, ${memberStatus}`);
         return;
     }
+
     var result = await db.updateMember(memberID, memberName, memberRank, memberCountry, memberParent, memberStatus, memberJoined, memberPromo);
+
+    // If the page already has a query string, append the editSuccess parameter to it
     var referer = req.get('referer');
     if (referer.indexOf('?') > -1) {
         referer = referer.substring(0, referer.indexOf('?'));

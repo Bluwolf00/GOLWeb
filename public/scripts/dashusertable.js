@@ -242,15 +242,45 @@ async function openEditModal(memberID) {
     option.value = "None";
     option.text = "None";
     parentSelect.appendChild(option);
+    var activeGroup = document.createElement('optgroup');
+    activeGroup.label = "Active Leaders";
+    activeGroup.id = "activeLeaders";
     for (var p of parentData) {
         var option = document.createElement('option');
         option.value = p.UName;
         option.text = p.UName;
-        parentSelect.appendChild(option);
+        activeGroup.appendChild(option);
         if (p.MemberID == data.MemberID) {
             option.selected = true; // Select the current member's parent
         }
     }
+    parentSelect.appendChild(activeGroup);
+
+    // Append reservist parent options
+    // These are hard coded for now, but could be fetched from the server if needed
+    var reservistGroup = document.createElement('optgroup');
+    reservistGroup.label = "Reservist Leaders";
+    reservistGroup.id = "reservistLeaders";
+    var reservistOptions = [
+        { value: "Knight", text: "Knight" },
+        { value: "Camel", text: "Camel" },
+        { value: "Flay", text: "Flay" }
+    ];
+
+    reservistOptions.forEach(optionData => {
+        var option = document.createElement('option');
+        option.value = optionData.value;
+        option.text = optionData.text;
+        option.disabled = true; // Disable reservist options
+        if (data.rankName !== "Reservist") {
+            option.disabled = false; // Enable if the member is not a reservist
+        }
+        reservistGroup.appendChild(option);
+        if (optionData.value == data.parentUName) {
+            option.selected = true; // Select the current member's parent
+        }
+    });
+    parentSelect.appendChild(reservistGroup);
 
     if (data.parentUName == null) {
         parentSelect.value = "None";
@@ -259,6 +289,8 @@ async function openEditModal(memberID) {
         parentSelect.value = data.parentUName;
         parentSelect.removeAttribute("readonly");
     }
+
+    switchReporting();
 
     modal.show();
 }
@@ -300,4 +332,150 @@ async function openCreateModal() {
     modal.show();
 }
 
+function switchReporting() {
+    const parentSelect = document.getElementById('reporting');
+    const selectedRank = document.getElementById('rank').value;
+    const memberStatus = document.getElementById('status');
+
+    // console.log("Selected Rank: " + selectedRank);
+
+    if (selectedRank === 'Reserve') {
+        // Disable all active leader options
+        Array.from(parentSelect.options).forEach(option => {
+            if (option.parentNode.label === "Active Leaders") {
+                option.disabled = true;
+            }
+            if (option.parentNode.label === "Reservist Leaders") {
+                option.disabled = false; // Enable reservist options
+            }
+        });
+        memberStatus.value = "Reserve"; // Set status to Reservist
+        memberStatus.setAttribute("readonly", "true");
+        memberStatus.disabled = true; // Disable status selection
+        memberStatus.classList.add("hover-blocked"); // Add a class to visually block the status option
+    } else {
+        // Enable all active leader options
+        Array.from(parentSelect.options).forEach(option => {
+            if (option.parentNode.label === "Active Leaders") {
+                option.disabled = false;
+            }
+            if (option.parentNode.label === "Reservist Leaders") {
+                option.disabled = true; // Disable reservist options
+            }
+        });
+        memberStatus.value = "Active"; // Set status to Reservist
+        memberStatus.setAttribute("readonly", "false");
+        memberStatus.disabled = false; // Disable status selection
+        memberStatus.classList = "form-select"; // Add a class to visually block the status option
+    }
+
+    // If the selected rank is not 'Reservist', ensure the parent select is not readonly
+    if (selectedRank !== 'Reserve') {
+        parentSelect.removeAttribute("readonly");
+    } else {
+        parentSelect.setAttribute("readonly", "true");
+    }
+}
+
+async function onEditSubmit() {
+    const memberid = document.getElementById('memberid').value;
+    const uname = document.getElementById('uname').value;
+    const rank = document.getElementById('rank').value;
+    const country = document.getElementById('country').value;
+    const reporting = document.getElementById('reporting').value;
+    const status = document.getElementById('status').value;
+    
+    const joined = document.getElementById('joined').value;
+    const promoDate = document.getElementById('promoDate').value;
+
+    if (!memberid || !uname || !rank || !country || !reporting || !status) {
+        createAlert('Please fill in all fields.', 'danger', 'editUserModal');
+        return;
+    }
+
+    const response = await fetch('/data/updateMember', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            memberid,
+            uname,
+            rank,
+            country,
+            reporting,
+            status,
+            joined,
+            promoDate
+        })
+    });
+
+    if (response.ok) {
+        createAlert('Member updated successfully', 'success', 'editUserModal', 3000);
+        setTimeout(() => {
+            closeModal('editUserModal');
+        }, 3000);
+        populateTable();
+    } else {
+        createAlert('Failed to update member', 'danger', 'editUserModal', 3000);
+    }
+}
+
+function createAlert(message, type, form, timeout = -1) {
+    var alert = document.createElement("div");
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = "alert";
+    alert.innerHTML = message +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    alert.id = "imageAlertMessage";
+    var formEl = document.getElementById(form)
+    formEl.prepend(alert);
+
+    if (timeout > 0) {
+        setTimeout(function () {
+            if (document.getElementById("imageAlertMessage") !== null) {
+                $('#imageAlertMessage').alert('close');
+            }
+        }, timeout);
+    }
+}
+
+// TODO
+function init() {
+    const rankSelect = document.getElementById('rank');
+    rankSelect.addEventListener('change', async function () {
+        switchReporting();
+        const selectedRank = rankSelect.value;
+        const parentSelect = document.getElementById('reporting');
+        if (selectedRank === 'Reserve') {
+            var firstReservistOption = parentSelect.querySelector('optgroup[label="Reservist Leaders"] option');
+        if (firstReservistOption) {
+            parentSelect.value = firstReservistOption.value; // Set to the first reservist leader
+        } else {
+            parentSelect.value = "None"; // Fallback if no reservist leaders are available
+        }
+        } else {
+            var firstActiveOption = parentSelect.querySelector('optgroup[label="Active Leaders"] option');
+        if (firstActiveOption) {
+            parentSelect.value = firstActiveOption.value; // Set to the first active leader
+        } else {
+            parentSelect.value = "None"; // Fallback if no active leaders are available
+        }
+        }
+        
+    });
+
+    const editModalSubmit = document.getElementById('editUserModalSubmit');
+    editModalSubmit.addEventListener('click', async function (e) {
+        e.preventDefault();
+        await onEditSubmit();
+    });
+    const editUserForm = document.getElementById('editUserForm');
+    editUserForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await onEditSubmit();
+    });
+}
+
 populateTable();
+init();

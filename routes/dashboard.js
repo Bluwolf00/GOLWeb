@@ -48,7 +48,9 @@ router.get('/badges', authPage, async (req,res) => {
 });
 
 router.get('/sop', authPage, async (req,res) => {
-    res.redirect('error?error=404');
+    res.render('pages/dashsop', {
+        username: req.session.username
+    });
 });
 
 router.get('/videos', authPage, async (req,res) => {

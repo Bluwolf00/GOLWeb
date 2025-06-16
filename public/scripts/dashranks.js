@@ -57,7 +57,7 @@ async function closeModal(elementId) {
     }
 }
 
-async function openRankModal(rankID) {
+async function openEditModal(rankID) {
     const modal = new bootstrap.Modal(document.getElementById('editRankModal'));
     const response = await fetch(`/data/getRankByID?rankID=${rankID}`);
     

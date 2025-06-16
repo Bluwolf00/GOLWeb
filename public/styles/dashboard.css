@@ -1,3 +1,11 @@
+/* MISC */
+
+.hover-blocked {
+    cursor: not-allowed;
+}
+
+/* DASH */
+
 .info-bubble {
     display: flex;
     /* align-items: center; */
