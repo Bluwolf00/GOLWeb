@@ -27,7 +27,7 @@ async function populate() {
             <td><span class="text-body-secondary rankDescription">${rank.rankDescription}</span></td>
             <td><img src="/${rank.rankPath}" alt="${rank.prefix}" class="rank-image"></td>
             <td>
-              <button class="btn btn-primary" onclick="openRankModal(${rank.rankID})">Edit</button>
+              <button class="btn btn-primary" onclick="openEditModal(${rank.rankID})">Edit</button>
             </td>
         `;
         // <button class="btn btn-danger" onclick="deleteMember(${rank.ID})">Delete</button>
@@ -88,6 +88,7 @@ async function openEditModal(rankID) {
     insignia.disabled = true;
     
     modal.show();
+    return modal;
 }
 
 function createAlert(message, type, form, timeout = -1) {
@@ -107,13 +108,6 @@ function createAlert(message, type, form, timeout = -1) {
             }
         }, timeout);
     }
-}
-
-function openEditModal(rankID) {
-    // Open the modal for editing the rank
-    const modal = document.getElementById('editRankModal');
-    
-    
 }
 
 init();

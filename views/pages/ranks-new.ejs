@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GOL Ranks</title>
+    <link rel="icon" type="image/png" href="/img/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/theme.css">
+    <link rel="stylesheet" href="/styles/ranks.css">
+    <script src="/scripts/logoHover.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        function toggleAirRoles() {
+            var sideDescription = document.getElementById("airmanDesc");
+            var mainDescription = document.getElementById("mainDesc");
+
+            sideDescription.classList.toggle('show');
+            mainDescription.classList.toggle('hide');
+
+            // sideDescription.classList.toggle('hide');
+        }
+
+        function toggleSquad(squad) {
+            var hellfish = document.getElementById("hellfishBtn");
+            var hellfishContainer = document.getElementById("hellfishRankContainer");
+            var AAC = document.getElementById("AACBtn");
+            var aacContainer = document.getElementById("aacRankContainer");
+
+            hellfish.classList.toggle('squadActive');
+            AAC.classList.toggle('squadActive');
+
+            hellfishContainer.classList.toggle('show');
+            aacContainer.classList.toggle('show');
+
+            // if (squad === 'hellfish') {
+            //     hellfishContainer.classList.add('show');
+            //     aacContainer.classList.remove('show');
+            // } else if (squad === 'AAC') {
+            //     hellfishContainer.classList.remove('show');
+            //     aacContainer.classList.add('show');
+            // }
+        }
+    </script>
+    <!-- To Be Added - Not Currently Working -->
+    <!-- <script src="/scripts/populateRanks.js"></script> -->
+</head>
+
+<%- include('../partials/headernav', {pageTitle: "Ranks"}) %>
+
+<body>
+    <main>
+        <div class="container text-center">
+            <div class="px-4" id="front-hero">
+                <img id="front-logo" class="d-block mx-auto mb-4" src="/img/logo_new.png" alt="">
+                <h1 class="fw-bold text-body-emphasis mainHead">Guerrillas of Liberation</h1>
+                <h1 class="fw-bold abtUs">Ranks and Responsibilities</h1>
+            </div>
+        </div>
+        <div class="container text-center" id="squadButtons">
+            <div class="row">
+                <div class="col">
+                    <p class="lead">There are a number of ranks in the GOL. Most are obtainable from attendance and veterancy, others are only obtained from specialisation in a particular subject.<br>The below tables shows, the insignia of the rank, the name and description of the rank, the insignia of the rank at the same level </p>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Squad Buttons -->
+                <div class="col-sm-2">
+                    <button class="squadBtn squadActive" id="hellfishBtn"
+                        onclick="toggleSquad('hellfish')">Infantry</button>
+                </div>
+                <div class="col-sm-2"><button class="squadBtn" id="AACBtn" onclick="toggleSquad('AAC')">Air Corps</button></div>
+                <!-- <button class="squadBtn" id="testBtn" onclick="toggleAirRoles()">Test</button> -->
+            </div>
+        </div>
+
+        <div class="container rankContainer my-5 hide show" id="hellfishRankContainer">
+            <div class="row">
+                <div class="col">
+                    <h2 class="rankBreak">Enlisted Ranks</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Recruit -->
+                    <img class="rankThumb" src="/img/rank/R.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Recruit <span class="rankPrefix">(Rct)</span></h2>
+                    <p class="rankDesc">
+                        New players who have joined the group, are usually paired with a veteran to be assisted. No
+                        prior experience is required, we take of all players of all levels of experience.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Private -->
+                    <img class="rankThumb" src="/img/rank/P.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Private <span class="rankPrefix">(Pvt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Base Level Membership.</span><br>
+                        All players are expected to leave feedback to assist in improving the group's experience. All
+                        players are expected to follow the rules of conduct in and outside the game. <br>
+                        <span class="bold">Promotion after attending 2 Thursday + 2 Sunday events.</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Private Second Class -->
+                    <img class="rankThumb" src="/img/rank/PSC.png" alt="" id="pscIns">
+                </div>
+                <div class="col">
+                    <div class="rankDescDiv" id="mainDesc">
+                        <h2 class="rankHead">Private Second Class <span class="rankPrefix">(Psc)</span></h2>
+                        <p class="rankDesc">
+                            <span class="bold">Experienced</span><br>
+                            This player has been in the clan for an extended period (3 months+) and is part of the
+                            experienced player corps. They should assist with helping new players and conduct themselves
+                            professionally. <br>
+                            <span class="bold">Promotion after 30 played events.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Airman - Equivalent Level -->
+                    <img id="airmanIns" class="rankThumb toned-down" src="/img/rank/Amn_C.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Private First Class -->
+                    <img class="rankThumb" src="/img/rank/PFC.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Private First Class <span class="rankPrefix">(Pfc)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Senior Experienced</span><br>
+                        This player has been in the clan for an extended period (6 months+) and is part of the
+                        experienced player corps. They should assist with helping new players and conduct themselves
+                        professionally.<br>
+                        <span class="bold">Promotion after 60 played events.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Airman First Class - Equivalent Level -->
+                    <img class="rankThumb toned-down" src="/img/rank/A1C_C.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Specialist -->
+                    <img class="rankThumb" src="/img/rank/Spc.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Specialist <span class="rankPrefix">(Spc)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Specialised Veteran</span><br>
+                        This player has been in the clan for an extended period (6 months+) and conducts themselves
+                        professionally in their senior enlisted role. Assists team leaders with handling new players and
+                        offers help to the leaders in-game. This rank is given to players who have specialised in a
+                        certain gameplay role for example (Driving, Mortar, Anti-Tank, Medical etc.)<br>
+                        <span class="bold">Promotion based on NCO Decision.</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Lance Corporal -->
+                    <img class="rankThumb" src="/img/rank/LCpl.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Lance Corporal <span class="rankPrefix">(LCpl)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Veteran</span><br>
+                        This player has been in the clan for an extended period (6 months+) and conducts themselves
+                        professionally in their senior enlisted role. Assists team leaders with handling new players and
+                        offers help to the leaders in-game.<br>
+                        <span class="bold">Promotion based on NCO Decision.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Senior Airman - Equivalent Level -->
+                    <img class="rankThumb toned-down" src="/img/rank/SrA_C.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <h2 class="rankBreak">NCO Ranks</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Corporal -->
+                    <img class="rankThumb" src="/img/rank/Cpl.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Corporal <span class="rankPrefix">(Cpl)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Junior NCO</span><br>
+                        Assist Administration - Promotions/Recruitment/Editing/Admin.<br>
+                        Team Leader obligation.<br>
+                        Squad Leader capable.<br>
+                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Sergeant -->
+                    <img class="rankThumb" src="/img/rank/Sgt.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Sergeant <span class="rankPrefix">(Sgt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Experienced NCO</span><br>
+                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
+                        Squad/Team Leader obligation.<br>
+                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Staff Sergeant - Equivalent Level -->
+                    <img class="rankThumb toned-down" src="/img/rank/SSgtA.png" alt="">
+                </div>
+            </div>
+
+            <!-- <div class="row">
+                <div class="col-sm-2">
+                    Staff Sergeant
+                    <img class="rankThumb" src="/img/rank/SSgt.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Staff Sergeant <span class="rankPrefix">(SSgt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Senior NCO</span><br>
+                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
+                        Platoon/Squad Leader obligation.<br>
+                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    Staff Sergeant - Equivalent Level
+                    <img class="rankThumb toned-down" src="/img/rank/SSgtA.png" alt="">
+                </div>
+            </div> -->
+
+            <div class="row">
+                <div class="col">
+                    <h2 class="rankBreak">Officer Ranks</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Second Lieutenant -->
+                    <img class="rankThumb" src="/img/rank/2LT_new.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Second Lieutenant <span class="rankPrefix">(2lt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Acting GOL Second in Command</span><br>
+                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
+                        Platoon/Squad Leader obligation.<br>
+                        <span class="bold">Elected based on NCO Decision.</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- First Lieutenant -->
+                    <img class="rankThumb" src="/img/rank/1LT.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">First Lieutenant <span class="rankPrefix">(Lt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Acting GOL Leader</span><br>
+                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
+                        Platoon/Squad Leader obligation.<br>
+                        <span class="bold">Elected based on NCO Decision.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- AAC Ranks -->
+
+
+        <div class="container rankContainer my-5 hide" id="aacRankContainer">
+            <div class="row">
+                <div class="col">
+                    <h2 class="rankBreak">Pilot Ranks</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Airman -->
+                    <img class="rankThumb" src="/img/rank/Amn_C.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Airman <span class="rankPrefix">(Amn)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Qualified Pilot</span><br>
+                        Has completed flight training to a acceptable standard.
+                        Familiar with Raven, Angel and Hammer roles.<br>
+                        <span class="bold">Eligible after attending 20 events as Pvt.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Private Second Class - Equivalent -->
+                    <img class="rankThumb toned-down" src="/img/rank/PSC.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Airman - Equivalent Level -->
+                    <img class="rankThumb" src="/img/rank/A1C_C.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Airman First Class <span class="rankPrefix">(A1C)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Experienced Pilot</span><br>
+                        This member has further developed their flight skills beyond the basic standards.
+                        Familiar with Giant, Para-Rescueman and Fixed-Wing Callsigns.<br>
+                        <span class="bold">Must have obtained Medical Qualification II or Higher.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Private Second Class -->
+                    <img class="rankThumb toned-down" src="/img/rank/PFC.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Senior Airman - Equivalent Level -->
+                    <img class="rankThumb" src="/img/rank/SrA_C.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Senior Airman <span class="rankPrefix">(SrA)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Veteran Pilot</span><br>
+                        This member has demonstrated an advanced understanding of flight mechanics and procedures, while
+                        additionally holding a higher standard of skill level. The duties of the member will include
+                        assisting new pilots during operations (Flight Lead, Guidance, etc.)<br>
+                        <span class="bold">Promotion based on NCO Decision.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Lance Corporal -->
+                    <img class="rankThumb toned-down" src="/img/rank/LCpl.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <h2 class="rankBreak">NCO Ranks</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Staff Sergeant - Equivalent Level -->
+                    <img class="rankThumb" src="/img/rank/SSgtA.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Staff Sergeant <span class="rankPrefix">(SSgt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Experienced NCO Pilot</span><br>
+                        Assists administration - Promotions/Recruitment/Training<br>
+                        Develops and maintains SOP<br>
+                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <!-- Sergeant -->
+                    <img class="rankThumb toned-down" src="/img/rank/Sgt.png" alt="">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Staff Sergeant -->
+                    <img class="rankThumb" src="/img/rank/TSgt.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Technical Sergeant <span class="rankPrefix">(TSgt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Senior NCO Pilot</span><br>
+                        <span class="bold">Acting AAC Second in Command</span><br>
+                        Assists administration - Promotions/Recruitment/Training<br>
+                        Develops and maintains SOP<br>
+                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <h2 class="rankBreak">Officer Ranks</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    <!-- Second Lieutenant -->
+                    <img class="rankThumb" src="/img/rank/2LT_new.png" alt="">
+                </div>
+                <div class="col">
+                    <h2 class="rankHead">Second Lieutenant <span class="rankPrefix">(2lt)</span></h2>
+                    <p class="rankDesc">
+                        <span class="bold">Acting GOL Second in Command</span><br>
+                        <span class="bold">Acting Leader of AAC</span><br>
+                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
+                        Platoon/Squad Leader obligation.<br>
+                        <span class="bold">Elected based on NCO Decision.</span>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+        </script>
+    </main>
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+</body>
+
+</html>

@@ -68,11 +68,20 @@
       </div>
     </div>
 
+    <div class="container my-3 py-4 border-bottom">
+      <div class="row text-center">
+        <div class="col">
+          <button class="btn btn-primary" id="changePasswordBtn" onclick="openModal('resetPasswordModal')">Change
+            Password</button>
+        </div>
+      </div>
+    </div>
+
     <div class="container my-5" id="bubble-dash">
       <div class="row">
         <div class="col-sm-3">
           <div class="info-bubble">
-            <span class="bubble-text">Number of Promotions Available</span>
+            <span class="bubble-text">Promotions Available</span>
             <div class="digit">
               <span id="promotions">#</span>
             </div>
@@ -166,11 +175,43 @@
       </div>
     </div>
 
-    <div class="container my-5 py-5 border-top">
-      <div class="row text-center">
-        <div class="col">
-          <button class="btn btn-primary" id="changePasswordBtn" onclick="openModal('resetPasswordModal')">Change
-            Password</button>
+    <div class="container my-5 py-5">
+      <div class="row">
+        <div class="col-md-5" id="promotions-col">
+          <h2 class="text-center mb-4">Member Promotions</h2>
+          <table class="table table-dark table-striped table-hover shadow">
+            <thead>
+              <tr style="text-align: center;">
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Current Rank</th>
+                <th scope="col">Next Rank</th>
+                <th scope="col">Remaining Events</th>
+                <!-- <th scope="col">Last Active</th> -->
+              </tr>
+            </thead>
+            <tbody id="promotions-list">
+              <!-- Member list will be populated here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-5" id="loas-col">
+          <h2 class="text-center mb-4">Member LOAs</h2>
+          <table class="table table-dark table-striped table-hover shadow" id="loas-table">
+            <thead>
+              <tr style="text-align: center;">
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Current Rank</th>
+                <th scope="col">LOA Start Date</th>
+                <th scope="col">LOA End Date</th>
+              </tr>
+            </thead>
+            <tbody id="loa-list">
+              <!-- LOA list will be populated here -->
+            </tbody>
+            </table>
         </div>
       </div>
     </div>

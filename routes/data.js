@@ -102,7 +102,7 @@ router.get('/getRanks', async (req, res) => {
     res.send(ranks);
 });
 
-router.get('/getCompRanks', authPage, async (req, res) => {
+router.get('/getCompRanks', async (req, res) => {
     var ranks = await db.getComprehensiveRanks();
     res.send(ranks);
 });
@@ -351,10 +351,8 @@ router.post('/updateRank', authPage, async (req, res) => {
     var rankDescription = req.body.description;
     var rankPrefix = req.body.prefix;
 
-    // if (!rankName || !rankDescription || !rankPrefix) {
-    //     res.status(400).send("Bad Request - Missing Parameters.");
-    //     return;
-    // }
+    // Search the description string for script tags and remove them
+    rankDescription = rankDescription.replace(/<script.*?>.*?<\/script>/g, '');
 
     res.status(307).send({message : "This endpoint is not yet implemented. Please try again later."});
 });
@@ -472,6 +470,64 @@ router.post('/assignBadge', authPage, async (req, res) => {
         res.status(200).send({ "result": "Badge updated successfully!", "status": 200 });
     } else {
         res.status(500).send({ "result": "Failed to update badge - Check if the badge ID exists or if the member IDs are correct." });
+    }
+});
+
+router.post('/createSOP', authPage, async (req, res) => {
+    const { sopTitle, authors, sopDescription, sopType, isAAC, isRestricted } = req.body;
+    const sopDocID = req.file ? req.file.filename : null;
+
+    if (!sopTitle || !authors || !sopDescription || !sopType) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    try {
+        const result = await db.createSOP(sopTitle, authors, sopDescription, sopType, isAAC, sopDocID, isRestricted);
+        if (result) {
+            res.status(201).send({ "result": "SOP created successfully", "status": 201 });
+        } else {
+            res.status(500).send({ "result": "Failed to create SOP - Check if the SOP already exists." });
+        }
+    } catch (error) {
+        console.error("Error creating SOP:", error);
+        res.status(500).send({ "result": "Internal Server Error - Unable to create SOP." });
+    }
+});
+
+router.post('/editSOP', authPage, async (req, res) => {
+    const { sopID, sopTitle, authors, sopDescription, sopType, isAAC, isRestricted } = req.body;
+    const sopDocID = req.file ? req.file.filename : null;
+
+    if (!sopID || !sopTitle || !authors || !sopDescription || !sopType) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    // Check if the authors are valid
+    if (authors.contains(',')) {
+        // If authors are provided as a comma-separated string, split them into an array
+        var authorList = authors.split(',').map(author => author.trim());
+        // Validate each author and check if their name returns a valid member
+        for (const author of authorList) {
+            const member = await db.getMember(author);
+            if (!member || member.length === 0) {
+                res.status(400).send({ "result": `Bad Request - Author "${author}" does not exist.` });
+                return;
+            }
+        }        
+    }
+
+    try {
+        const result = await db.editSOP(sopID, sopTitle, authors, sopDescription, sopType, isAAC, sopDocID, isRestricted);
+        if (result) {
+            res.status(200).send({ "result": "SOP updated successfully", "status": 200 });
+        } else {
+            res.status(500).send({ "result": "Failed to update SOP - Check if the SOP exists." });
+        }
+    } catch (error) {
+        console.error("Error updating SOP:", error);
+        res.status(500).send({ "result": "Internal Server Error - Unable to update SOP." });
     }
 });
 

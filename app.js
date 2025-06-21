@@ -96,6 +96,12 @@ app.get('/ranks', (req, res) => {
     });
 });
 
+app.get('/oldranks', (req, res) => {
+    res.render('pages/ranks-old', {
+        username: req.session.username
+    });
+});
+
 app.get('/badges', (req, res) => {
     res.render('pages/badges', {
         username: req.session.username

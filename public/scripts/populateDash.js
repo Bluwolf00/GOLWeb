@@ -35,6 +35,9 @@ async function populateDash() {
     var nextTraining = data.nextTraining;
     var nextMission = data.nextMission;
     var leaders = data.leaders;
+    var memberPromotions = data.memberPromotions;
+    var memberLOAs = data.memberLOAs;
+    var nextServerPayment = data.nextPaymentDue;
 
     // Initialise the elements
 
@@ -46,6 +49,7 @@ async function populateDash() {
     var nextTrainingElement = document.getElementById("nextTraining");
     var nextMissionElement = document.getElementById("nextMission");
     var leadersElement = document.getElementById("leaders");
+    var nextServerPaymentElement = document.getElementById("nextServerPayment");
 
     // Populate the dashboard
 
@@ -61,6 +65,78 @@ async function populateDash() {
     nextTrainingElement.innerHTML = nextTraining.name;
     nextMissionElement.innerHTML = nextMission.name;
     leadersElement.innerHTML = leaders;
+    nextServerPaymentElement.innerHTML = `${nextServerPayment} Days`;
+    if (nextServerPayment < 2) {
+        nextServerPaymentElement.innerHTML = `${nextServerPayment} Day`;
+    }
+
+    // Promotion Table
+    // Populate the promotion table including the number of events each member has to go through before being promoted
+    
+    var promoTableBody = document.getElementById("promotions-list");
+    promoTableBody.innerHTML = ""; // Clear existing rows
+
+    // Sort the member promotions by the number of events to go in ascending order
+    memberPromotions.sort((a, b) => a.eventsToGo - b.eventsToGo);
+
+    memberPromotions.forEach(member => {
+        var row = document.createElement("tr");
+        row.classList.add("member-row");
+
+        // If this is the first member, add a special class for styling
+        if (member === memberPromotions[0]) {
+            row.style.borderBottomWidth = "4px";
+        }
+
+        // Member is inactive or on leave of absence
+        if (member.memberStatus === "LOA" || member.memberStatus === "Inactive") {
+            row.classList.add("table-warning");
+            row.style.color = "black";
+        }
+
+        // Member is active and has achieved the required number of events for promotion
+        if (member.eventsToGo === 0) {
+            row.classList.add("table-success");
+            row.style.color = "black";
+        }
+
+        row.innerHTML = `
+            <th><a href="/profile?name=${member.UName}" class="nav-link">${member.UName}</a></th>
+            <td>${member.memberStatus}</td>
+            <td>${member.rankName}</td>
+            <td>${member.nextRank}</td>
+            <th style="text-align: center;">${member.eventsToGo}</th>
+        `;
+        promoTableBody.appendChild(row);
+    });
+
+
+    // Member LOA Table
+
+    var loaTableBody = document.getElementById("loa-list");
+    loaTableBody.innerHTML = ""; // Clear existing rows
+
+    memberLOAs.forEach(member => {
+        var row = document.createElement("tr");
+        row.classList.add("member-row");
+
+        var startDate = new Date(member.startDate).toLocaleDateString("en-GB", {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+        var endDate = new Date(member.endDate).toLocaleDateString("en-GB", {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+
+        row.innerHTML = `
+            <th><a href="/profile?name=${member.UName}" class="nav-link">${member.UName}</a></th>
+            <td>${member.playerStatus}</td>
+            <td>${member.rankName}</td>
+            <td style="text-align: center;">${startDate}</td>
+            <td style="text-align: center;">${endDate}</td>
+        `;
+        loaTableBody.appendChild(row);
+    });
+
 }
 
 async function resetPassword() {

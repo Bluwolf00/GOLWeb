@@ -225,6 +225,11 @@ async function getMemberLOAsFromAPI() {
                 // Set the dates to UNIX time
                 startDate = Date.parse(startDate);
                 endDate = Date.parse(endDate);
+                
+                if (isNaN(startDate) || isNaN(endDate)) {
+                    // console.log("Error parsing dates for member: " + memberId);
+                    continue; // Skip this entry if dates are invalid
+                }
 
                 LOAArray.push({
                     memberId: memberId,
@@ -243,6 +248,13 @@ async function getMemberLOAsFromAPI() {
             endDate: "Error"
         });
     } finally {
+        if (LOAArray.length == 0) {
+            LOAArray.push({
+                memberId: "No LOAs found",
+                startDate: "No LOAs found",
+                endDate: "No LOAs found"
+            });
+        }
         return LOAArray;
     }
 }
@@ -469,7 +481,7 @@ async function getNextTraining() {
             var trainingName;
             var trainingPartOfDesc = desc.substring(0, desc.indexOf("Mission"));
 
-            console.log("Training Part of Desc: " + trainingPartOfDesc);
+            // console.log("Training Part of Desc: " + trainingPartOfDesc);
 
             // If the description of the event includes the word "TBA" anywhere in the Training section of the description, set the training name to "TBA"
             // This is done to avoid the case where the MISSION name is TBA, but the training name is not

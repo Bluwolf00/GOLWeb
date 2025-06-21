@@ -12,8 +12,8 @@ async function populate() {
     sops.forEach(sop => {
         const row = document.createElement('tr');
 
-        if (sop.rankDescription === null || sop.rankDescription === '') {
-            sop.rankDescription = 'No description available';
+        if (sop.sopDescription === null || sop.sopDescription === '' || sop.sopDescription === undefined) {
+            sop.sopDescription = 'No description available';
         }
 
         if (sop.isAAC === 1 || sop.isAAC === '1') {
@@ -40,6 +40,38 @@ async function populate() {
     });
 }
 
+async function handleCreateSOP() {
+    const formData = new FormData(document.getElementById('createSopForm'));
+        const response = await fetch('/data/createSop', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            createAlert('SOP created successfully!', 'success', 'createSopModal', 3000);
+            closeModal('createSopModal');
+            populate();
+        } else {
+            createAlert('Failed to create SOP. Please try again.', 'danger', 'createSopModal', 3000);
+        }
+}
+
+async function handleEditSOP() {
+    const formData = new FormData(document.getElementById('editSopForm'));
+    const response = await fetch('/data/editSop', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (response.ok) {
+        createAlert('SOP updated successfully!', 'success', 'editSopModal', 3000);
+        closeModal('editSopModal');
+        populate();
+    } else {
+        createAlert('Failed to update SOP. Please try again.', 'danger', 'editSopModal', 3000);
+    }
+}
+
 // Function that will hold all functions that will be called when the file is called
 function init() {
     populate();
@@ -53,6 +85,18 @@ function init() {
         event.preventDefault();
         createAlert('This feature is not yet implemented.', 'warning', 'editSopModal', 3000);
     });
+
+    document.getElementById('submitSopCreateBtn').addEventListener('click', async (event) => {
+        event.preventDefault();
+        await handleCreateSOP();
+    });
+
+    document.getElementById('createSopForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await handleCreateSOP();
+    });
+
+    
 }
 
 async function closeModal(elementId) {
@@ -73,29 +117,21 @@ async function openEditModal(sopID) {
     
     const sop = await response.json();
 
-    console.log(sop);
+    // console.log(sop);
 
     var sopTitle = document.getElementById('sopTitle');
     sopTitle.value = sop.sopTitle;
-    sopTitle.ariaDisabled = true;
-    sopTitle.disabled = true;
     var authors = document.getElementById('authors');
     authors.value = sop.prefix;
-    authors.ariaDisabled = true;
-    authors.disabled = true;
 
     var description = document.getElementById('description');
-    description.value = sop.rankDescription;
+    description.value = sop.sopDescription;
 
     var docid = document.getElementById('documentType');
     docid.value = sop.sopType;
-    docid.ariaDisabled = true;
-    docid.disabled = true;
 
     var docid = document.getElementById('documentID');
     docid.value = sop.sopDocID;
-    docid.ariaDisabled = true;
-    docid.disabled = true;
     
     modal.show();
 }
@@ -117,6 +153,13 @@ function createAlert(message, type, form, timeout = -1) {
             }
         }, timeout);
     }
+}
+
+async function openCreateModal() {
+    const modal = new bootstrap.Modal(document.getElementById('createSopModal'), {
+        backdrop: 'static'
+    });
+    modal.show();
 }
 
 init();

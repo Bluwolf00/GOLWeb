@@ -15,11 +15,11 @@ async function performRegister() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.status === 200) {
-                    createAlert("Login successful! Redirecting...", "success", "mainContent", 3000);
+                    createAlert("Login successful! Redirecting...", "success", "mainContent", 2000);
                     setTimeout(() => {
                         // Redirect to the dashboard after a successful login
                         window.location.href = '/dashboard';
-                    }, 3000);
+                    }, 2000);
                 } else {
                     createAlert(data.message, "danger", "mainContent", 5000);
                 }

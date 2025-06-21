@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
 const fs = require('fs');
+const { start } = require('repl');
 dotenv.config()
 
 const pool = mysql.createPool({
@@ -151,7 +152,7 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
             // console.log("Parent Name: " + parentName);
             // console.log("Parent Node ID: " + parentNodeId);
         }
-        if (parentNodeId == null) {parentNodeId = "root";}
+        if (parentNodeId == null) { parentNodeId = "root"; }
         var rankID = await getRankFromName(rank);
         if (dateOfJoin == "") {
             dateOfJoin = null;
@@ -189,7 +190,7 @@ async function createMember(memberName, rank, country, parentName, dateOfJoin) {
             parentNodeId = await getMemberNodeId(parentName);
         }
 
-        if (parentNodeId == null) {parentNodeId = "root";}
+        if (parentNodeId == null) { parentNodeId = "root"; }
 
         var rankID = await getRankFromName(rank);
 
@@ -245,7 +246,7 @@ async function getAllBadgePaths() {
         // On the dedicated server, the path is formatted different
         // __dirname = process.cwd() + "\\public\\img\\badge";
         __dirname = process.cwd() + "/public/img/badge";
-        
+
         // Return all files in the badges directory that are images
         var out = fs.readdirSync(__dirname);
         paths = out.filter(file => /\.(png|jpg|jpeg|gif)$/i.test(file)).map(file => `/img/badge/${file}`);
@@ -609,7 +610,7 @@ async function isAttendanceUpdated() {
         var calcTime = new Date().getTime().valueOf() - (3600000 * 12);
         var [rows] = await pool.query('SELECT lastUpdate FROM Attendance ORDER BY lastUpdate DESC LIMIT 1;');
         var lastUpdateInt = Date.parse(rows[0].lastUpdate).valueOf();
-    
+
         if (lastUpdateInt > calcTime) {
             console.log("Attendance records are up to date, no need to update");
             return true;
@@ -648,10 +649,10 @@ async function updateMemberAttendance(bypassCheck = false) {
             var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE playerStatus NOT IN ("Inactive", "Reserve")');
 
             for (var i = 0; i < temp.length; i++) {
-                
+
                 // If the member is in the attendance records, add their attendance records to the memberDetails array
                 for (var j = 0; j < attendanceRecords.length; j++) {
-                                        
+
                     // console.log("Checking member: " + temp[i].UName + " against attendance record: " + attendanceRecords[j].memberName);
 
                     var formatName = temp[i].UName.replace(" ", "");
@@ -870,6 +871,55 @@ async function getSOPbyID(id) {
     }
 }
 
+async function createSOP(sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            INSERT INTO sop (sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted)
+            VALUES (?,?,?,?,?,?,?)`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0];
+    }
+}
+
+async function editSOP(sopID, sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            UPDATE sop
+            SET sopTitle = ?, sopDescription = ?, authors = ?, sopType = ?, sopDocID = ?, isAAC = ?, isRestricted = ?
+            WHERE sopID = ?`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted, sopID]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows[0];
+    }
+}
+
+function daysUntilNext15th() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  // Set the 15th of this month
+  let fifteenth = new Date(year, month, 15);
+
+  // If today is past the 15th, move to next month
+  if (today > fifteenth) {
+    fifteenth = new Date(year, month + 1, 15);
+  }
+
+  // Calculate the difference in milliseconds and convert to days
+  const oneDay = 1000 * 60 * 60 * 24;
+  const diffDays = Math.ceil((fifteenth - today) / oneDay);
+
+  return diffDays;
+}
+
+console.log(`Days until the next 15th: ${daysUntilNext15th()}`);
+
 async function getDashboardData() {
     // The dashboard data is a combination of the following:
     // 1. The number of members eligible for the next rank
@@ -885,14 +935,19 @@ async function getDashboardData() {
 
     // Query 1 - Get the number of members eligible for the next rank
     // Query 2 - Get the member that is closest to the next rank
-    var rows = await getMembers(true);
+    var rows = await getMembers(false);
     var eligible = 0;
     var difference = -1;
     var nextEligibleMember = null;
+    var memberPromos = [];
 
     // Loop through the members and check if they are eligible for the next rank
 
     for (var row of rows) {
+
+        // console.log("Checking member: " + row.UName + " with rank: " + row.rankName + " and events attended: " + row.numberOfEventsAttended);
+
+        // Check for Recruits working towards Private
         if (row.rankName == "Recruit") {
             if (row.numberOfEventsAttended >= 4) {
                 // If the member is a Recruit and has attended at least 4 events, they are eligible for the next rank
@@ -903,12 +958,22 @@ async function getDashboardData() {
                 difference = Math.abs(row.numberOfEventsAttended - 4);
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
             }
+            memberPromos.push({
+                "UName": row.UName,
+                "rankName": row.rankName,
+                "numberOfEventsAttended": row.numberOfEventsAttended,
+                "nextRank": "Private",
+                "eventsToGo": Math.abs(row.numberOfEventsAttended - 4),
+                "memberStatus": row.playerStatus
+            });
         }
 
-        if (row.rankName == "Private" && row.numberOfEventsAttended >= 30) {
+        // Check for Private ranks working towards Private Second Class
+        if (row.rankName == "Private") {
             if (row.numberOfEventsAttended >= 30) {
                 // If the member is a Private and has attended at least 30 events, they are eligible for the next rank
                 eligible++;
+                // console.log("Member " + row.UName + " is eligible for the next rank");
             }
 
             if ((Math.abs(row.numberOfEventsAttended - 30) < difference) || difference == -1) {
@@ -916,18 +981,47 @@ async function getDashboardData() {
                 difference = Math.abs(row.numberOfEventsAttended - 30);
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
             }
+            var eventsToGo = Math.abs(row.numberOfEventsAttended - 30);
+
+            // Filter out members that are still a long way from the next rank
+            if (eventsToGo < 20) {
+                memberPromos.push({
+                    "UName": row.UName,
+                    "rankName": row.rankName,
+                    "numberOfEventsAttended": row.numberOfEventsAttended,
+                    "nextRank": "Private Second Class",
+                    "eventsToGo": Math.abs(row.numberOfEventsAttended - 30),
+                    "memberStatus": row.playerStatus
+                });
+            }
         }
 
-        if (row.rankName == "Private Second Class" && row.numberOfEventsAttended >= 60) {
+        // Check for Private Second Class ranks working towards Private First Class
+        if (row.rankName == "Private Second Class") {
             if (row.numberOfEventsAttended >= 60) {
                 // If the member is a Private Second Class and has attended at least 60 events, they are eligible for the next rank
                 eligible++;
+                console.log("Member " + row.UName + " is eligible for the next rank");
             }
 
             if ((Math.abs(row.numberOfEventsAttended - 60) < difference) || difference == -1) {
                 // If the member is closer to the next rank than the current difference, update the difference
                 difference = Math.abs(row.numberOfEventsAttended - 60);
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
+            }
+
+            var eventsToGo = Math.abs(row.numberOfEventsAttended - 60);
+
+            // Filter out members that are still a long way from the next rank
+            if (eventsToGo < 20) {
+                memberPromos.push({
+                    "UName": row.UName,
+                    "rankName": row.rankName,
+                    "numberOfEventsAttended": row.numberOfEventsAttended,
+                    "nextRank": "Private First Class",
+                    "eventsToGo": Math.abs(row.numberOfEventsAttended - 60),
+                    "memberStatus": row.playerStatus
+                });
             }
         }
     }
@@ -936,6 +1030,34 @@ async function getDashboardData() {
 
     var activeMembers = rows.filter(member => member.playerStatus == "Active").length;
     var leaveMembers = rows.filter(member => member.playerStatus == "LOA").length;
+
+    var loaResponse = await embeds.getMemberLOAsFromAPI();
+    var memberLOAs = [];
+    
+    // Populate the memberLOAs array with the LOA data and lookup the member's name from the database
+    for (var loa of loaResponse) {
+        // Get the member's name from the database
+        var [member] = await pool.query('SELECT UName, playerStatus, playerRank FROM Members, Attendance WHERE MemberDiscordID = ? AND Members.MemberID = Attendance.MemberID', [loa.memberId]);
+        
+        // console.log("Member LOA", member);
+        // console.log("Player Rank", member[0].playerRank);
+
+        var rankName = await getRankByID(member[0].playerRank);
+        var startDate = new Date(loa.startDate).toISOString().slice(0, 19).replace('T', ' ');
+        var endDate = new Date(loa.endDate).toISOString().slice(0, 19).replace('T', ' ');
+        if (member.length > 0) {
+            memberLOAs.push({
+                "UName": member[0].UName,
+                "playerStatus": member[0].playerStatus,
+                "rankName": rankName.rankName,
+                "startDate": startDate,
+                "endDate": endDate
+            });
+        }
+    }
+
+    // Sort the memberLOAs by end date
+    memberLOAs.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
 
     // console.log("Active Members: " + activeMembers);
     // console.log("Leave Members: " + leaveMembers);
@@ -946,25 +1068,37 @@ async function getDashboardData() {
     // console.log("Recruits: " + recruits);
 
     // Query 6 - Get the due date of the next server payment
-    // To be implemented at a later date - this will be caluclated from a new table that will be created
+    var nextPaymentDue = daysUntilNext15th();
+    
 
     // Query 7 - Get the number of members that are leaders
-    var leaders = rows.filter(member => (["Corporal","Sergeant","Second Lieutenant","First Lieutenant"].indexOf(member.rankName) > -1)).length;
+    var leaders = rows.filter(member => (["Corporal", "Sergeant", "Second Lieutenant", "First Lieutenant"].indexOf(member.rankName) > -1)).length;
 
     // console.log("Leaders: " + leaders);
 
     // Query 8 - Get the number of mission replays that are available
     // To be implemented at a later date - this will be caluclated from a new table that will be created
 
+
+    // FOR QUERIES 9 AND 10, They are temporarily commented out until their outputs can be cached in the database, this should reduce the load on the API and speed up the dashboard loading time
+
     // Query 9 - Get the next scheduled training
     // Using the API to get the next scheduled training
-    var nextTraining = await embeds.getNextTraining();
-
-    console.log("Next Training: " + nextTraining.name);
+    // var nextTraining = await embeds.getNextTraining();
+    var nextTraining = {
+        "name": "TBA",
+        "date": "2023-10-01T18:00:00Z",
+        "time": "18:00 UTC"
+    };
 
     // Query 10 - Get the next scheduled mission
     // Using the API to get the next scheduled mission
-    var nextMission = await embeds.getNextMission();
+    // var nextMission = await embeds.getNextMission();
+    var nextMission = {
+        "name": "TBA",
+        "date": "2023-10-01T18:00:00Z",
+        "time": "18:00 UTC"
+    };
 
     // console.log("Next Mission: " + nextMission.name);
 
@@ -976,15 +1110,20 @@ async function getDashboardData() {
         "recruits": recruits,
         "nextTraining": nextTraining,
         "nextMission": nextMission,
-        "leaders": leaders
+        "leaders": leaders,
+        "memberPromotions": memberPromos,
+        "memberLOAs": memberLOAs,
+        "nextPaymentDue": nextPaymentDue
     }
-    
+
     return dashboardData;
 }
 
 
-module.exports = { getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
+module.exports = {
+    getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
-    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID };
+    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, createSOP, editSOP
+};
