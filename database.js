@@ -918,8 +918,6 @@ function daysUntilNext15th() {
   return diffDays;
 }
 
-console.log(`Days until the next 15th: ${daysUntilNext15th()}`);
-
 async function getDashboardData() {
     // The dashboard data is a combination of the following:
     // 1. The number of members eligible for the next rank

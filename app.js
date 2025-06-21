@@ -25,7 +25,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET, // To viewers on GitHub, I have changed the previous secret for security reasons.
     resave: false,
     saveUninitialized: false,
-    store: sessionStore
+    store: sessionStore,
+    cookie: {
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    }
 }));
 
 app.use(bodyParser.urlencoded({
