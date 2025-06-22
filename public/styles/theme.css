@@ -664,11 +664,12 @@ footer {
 .card-img-top {
   scale: 0.8;
   filter: drop-shadow(2px 4px 6px black);
-  transition: transform 0.7s;
+  transition: transform 0.5s, filter 0.5s;
 }
 
 .card-img-top:hover {
   transform: scale(1.1);
+  filter: drop-shadow(6px 14px 16px black);
 }
 
 /* Dashboard */
