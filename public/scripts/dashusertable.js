@@ -1,3 +1,26 @@
+function createAlert(message, type, form, timeout = -1) {
+    var alert = document.createElement("div");
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.role = "alert";
+    alert.innerHTML = message +
+        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    alert.id = "imageAlertMessage";
+    if (form === "main") {
+        var formEl = document.querySelector("main");
+    } else {
+        var formEl = document.getElementById(form)
+    }
+    formEl.prepend(alert);
+
+    if (timeout > 0) {
+        setTimeout(function () {
+            if (document.getElementById("imageAlertMessage") !== null) {
+                $('#imageAlertMessage').alert('close');
+            }
+        }, timeout);
+    }
+}
+
 async function populateTable() {
     const response = await fetch('/data/getmembers?withParents=true');
     const data = await response.json();
@@ -90,18 +113,6 @@ async function tempModal(memberID, memberName, memberRank, action) {
             createAlert('Please select a valid member.', 'danger', 'confirmModal');
         }
     };
-}
-
-function createAlert(message, type, form) {
-    var alert = document.createElement("div");
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.role = "alert";
-    alert.innerHTML = message +
-        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-    alert.id = "imageAlertMessage";
-    var formEl = document.getElementById(form)
-    formEl.prepend(alert);
-    return alert;
 }
 
 async function changeMemberRankByOne(memberID, promoteOrDemote, newRank) {
@@ -384,7 +395,7 @@ async function onEditSubmit() {
     const country = document.getElementById('country').value;
     const reporting = document.getElementById('reporting').value;
     const status = document.getElementById('status').value;
-    
+
     const joined = document.getElementById('joined').value;
     const promoDate = document.getElementById('promoDate').value;
 
@@ -421,22 +432,56 @@ async function onEditSubmit() {
     }
 }
 
-function createAlert(message, type, form, timeout = -1) {
-    var alert = document.createElement("div");
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.role = "alert";
-    alert.innerHTML = message +
-        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-    alert.id = "imageAlertMessage";
-    var formEl = document.getElementById(form)
-    formEl.prepend(alert);
+// This function will force update the attendance of all members.
+async function updateMemberAttendance() {
 
-    if (timeout > 0) {
-        setTimeout(function () {
-            if (document.getElementById("imageAlertMessage") !== null) {
-                $('#imageAlertMessage').alert('close');
+    document.getElementById('updateAttendanceButton').disabled = true;
+    document.getElementById('updateAttendanceButton').innerText = "Updating...";
+
+    const response = await fetch('/data/updateMemberAttendance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "forceRefresh": true
+        })
+    });
+
+    if (response.ok) {
+        createAlert('Member attendance updated successfully', 'success', 'main', 3000);
+        setTimeout(() => {
+            document.getElementById('updateAttendanceButton').disabled = false;
+            document.getElementById('updateAttendanceButton').innerText = "Force Attendance Refresh";
+            populateTable();
+        }, 3000);
+    } else {
+        createAlert('Failed to update member attendance', 'danger', 'main', 3000);
+        setTimeout(() => {
+            document.getElementById('updateAttendanceButton').disabled = false;
+            document.getElementById('updateAttendanceButton').innerText = "Force Attendance Refresh";
+        }, 3000);
+    }
+}
+
+function searchMemberTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchMemberTableInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("membersTable");
+    tr = table.getElementsByTagName("tr");
+
+    // Loop through all table rows, except the first (header row)
+    for (i = 1; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[1]; // Assuming the second column contains the member name
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
             }
-        }, timeout);
+        }
     }
 }
 
@@ -449,20 +494,20 @@ function init() {
         const parentSelect = document.getElementById('reporting');
         if (selectedRank === 'Reserve') {
             var firstReservistOption = parentSelect.querySelector('optgroup[label="Reservist Leaders"] option');
-        if (firstReservistOption) {
-            parentSelect.value = firstReservistOption.value; // Set to the first reservist leader
-        } else {
-            parentSelect.value = "None"; // Fallback if no reservist leaders are available
-        }
+            if (firstReservistOption) {
+                parentSelect.value = firstReservistOption.value; // Set to the first reservist leader
+            } else {
+                parentSelect.value = "None"; // Fallback if no reservist leaders are available
+            }
         } else {
             var firstActiveOption = parentSelect.querySelector('optgroup[label="Active Leaders"] option');
-        if (firstActiveOption) {
-            parentSelect.value = firstActiveOption.value; // Set to the first active leader
-        } else {
-            parentSelect.value = "None"; // Fallback if no active leaders are available
+            if (firstActiveOption) {
+                parentSelect.value = firstActiveOption.value; // Set to the first active leader
+            } else {
+                parentSelect.value = "None"; // Fallback if no active leaders are available
+            }
         }
-        }
-        
+
     });
 
     const editModalSubmit = document.getElementById('editUserModalSubmit');

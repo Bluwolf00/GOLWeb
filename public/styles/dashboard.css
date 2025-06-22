@@ -153,6 +153,19 @@ span.bubble-text {
     padding: 10px 20px;
 }
 
+#membersTable {
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.6));
+}
+
+#searchMemberTableInput {
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.6));
+}
+
+#searchMemberTableInput:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
 /* Badges Dashboard */
 
 .badge-dash-image {

@@ -173,7 +173,15 @@
         <button type="button" class="btn btn-primary" onclick="openCreateModal()">
           New Member
         </button>
+        <button type="button" id="updateAttendanceButton" class="btn btn-primary" onclick="updateMemberAttendance()">Force Attendance Refresh</button>
         <button type="button" class="btn btn-secondary" onclick="location.reload();">Refresh</button>
+      </div>
+
+      <div class="row">
+        <div class="col-sm">
+          <input type="text" name="searchTable" id="searchMemberTableInput" class="form-control my-3"
+            placeholder="Search Members by Name..." onkeyup="searchMemberTable()">
+        </div>
       </div>
       <table id="membersTable" class="table table-dark table-striped table-hover">
         <thead>

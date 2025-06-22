@@ -225,7 +225,7 @@ async function getMemberLOAsFromAPI() {
                 // Set the dates to UNIX time
                 startDate = Date.parse(startDate);
                 endDate = Date.parse(endDate);
-                
+
                 if (isNaN(startDate) || isNaN(endDate)) {
                     // console.log("Error parsing dates for member: " + memberId);
                     continue; // Skip this entry if dates are invalid
@@ -267,6 +267,11 @@ async function getMemberLOAsFromAPI() {
 // 2022-01-01 - 1641063000
 
 async function getAttendanceReport() {
+
+    // Set the end time filter to 4 hours ahead of the current time
+    // This is to ensure that we get all events that have happened, but also to include same day events
+    var unixTimeEnd = Math.floor(Date.now() / 1000) + (4 * 60 * 60); // 4 hours in seconds
+
     var response = await fetch(`https://raid-helper.dev/api/v3/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
         method: 'GET',
         headers: {
@@ -275,7 +280,7 @@ async function getAttendanceReport() {
             'ChannelFilter': '862784206513766400',
             'IncludeSignUps': 'true',
             'StartTimeFilter': '',
-            'EndTimeFilter': ''
+            'EndTimeFilter': `${unixTimeEnd}`
         }
     });
     var data = await response.json();
@@ -298,22 +303,16 @@ async function getAttendanceReport() {
 
         // If the event is not cancelled and has started, check if the members attended
         if (!(eventArray[i].description).toLowerCase().includes("cancelled") && !(eventArray[i].title).toLowerCase().includes("cancel")) {
-            // If the event has already started or finished, check if the members attended
-            if (parseInt(eventArray[i].startTime) < parseInt(Date.now() / 1000)) {
-
-                for (var j = 0; j < eventArray[i].signUps.length; j++) {
-                    if (!(eventArray[i].signUps[j].specName == "Declined" || eventArray[i].signUps[j].specName == "Absence")) {
-                        attended = true;
-                        memberDiscordId = eventArray[i].signUps[j].userId;
-                        if (dayofWeek == 4) {
-                            thursdays.push(memberDiscordId);
-                        } else if (dayofWeek == 0) {
-                            sundays.push(memberDiscordId);
-                        }
+            for (var j = 0; j < eventArray[i].signUps.length; j++) {
+                if (!(eventArray[i].signUps[j].specName == "Declined" || eventArray[i].signUps[j].specName == "Absence")) {
+                    attended = true;
+                    memberDiscordId = eventArray[i].signUps[j].userId;
+                    if (dayofWeek == 4) {
+                        thursdays.push(memberDiscordId);
+                    } else if (dayofWeek == 0) {
+                        sundays.push(memberDiscordId);
                     }
                 }
-            } else {
-                // console.log("Event has not started yet, skipping...");
             }
         } else {
             // console.log("Event cancelled, skipping...");
@@ -436,7 +435,7 @@ async function getNextMission() {
                         missionName = "TBA";
                     }
                 }
-        
+
 
                 nextMission = {
                     name: missionName,
@@ -455,7 +454,7 @@ async function getNextMission() {
                 };
             }
         }
-        
+
     } catch (error) {
         return error;
     }
@@ -500,7 +499,7 @@ async function getNextTraining() {
                 if (trainingName == "undefined") {
                     trainingName = "TBA";
                 }
-    
+
             }
             nextTraining = {
                 name: trainingName,

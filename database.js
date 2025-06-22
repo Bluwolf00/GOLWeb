@@ -1041,9 +1041,9 @@ async function getDashboardData() {
             // console.log("Member LOA", member);
             // console.log("Player Rank", member[0].playerRank);
 
-            if (member[0].playerRank == null || member[0].playerRank == undefined) {
+            if (member.length == 0) {
                 // If the member's rank is null or undefined, skip this member
-                console.log("Member " + loa.memberName + " either has no rank assigned, or is a reservist, skipping...");
+                console.log("Member " + loa.memberId + " either has no rank assigned, or is a reservist, skipping...");
                 continue;
             }    
             var rankName = await getRankByID(member[0].playerRank);

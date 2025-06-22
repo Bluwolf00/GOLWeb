@@ -162,7 +162,6 @@ router.get('/updateAttendance', async (req, res) => {
     }
 });
 
-
 // This route will return a list of members who are considered "senior members"/"leadership" based on their rank.
 router.get('/seniorMembers', authPage, async (req, res) => {
     try {
@@ -302,6 +301,22 @@ router.post('/updateMember', authPage, async (req, res) => {
     } else {
         res.status(500);
         res.redirect(referer + "?editSuccess=0");
+    }
+});
+
+// Because this route is used to contact the database and the API, it is protected to prevent abuse
+// This route will update the attendance of all members.
+router.post('/updateMemberAttendance', authPage, async (req, res) => {
+
+    var force = req.body.forceRefresh;
+
+    var result = await db.updateMemberAttendance(force);
+    if (result == 203) {
+        res.status(203).send("No new attendance found - No changes made.");
+    } else if (result == 200) {
+        res.status(200).send("Attendance updated successfully.");
+    } else {
+        res.status(500).send("Internal Server Error - Unable to update attendance.");
     }
 });
 
