@@ -1034,23 +1034,32 @@ async function getDashboardData() {
     
     // Populate the memberLOAs array with the LOA data and lookup the member's name from the database
     for (var loa of loaResponse) {
-        // Get the member's name from the database
-        var [member] = await pool.query('SELECT UName, playerStatus, playerRank FROM Members, Attendance WHERE MemberDiscordID = ? AND Members.MemberID = Attendance.MemberID', [loa.memberId]);
-        
-        // console.log("Member LOA", member);
-        // console.log("Player Rank", member[0].playerRank);
+        try {
+            // Get the member's name from the database
+            var [member] = await pool.query('SELECT UName, playerStatus, playerRank FROM Members, Attendance WHERE MemberDiscordID = ? AND Members.MemberID = Attendance.MemberID', [loa.memberId]);
+            
+            // console.log("Member LOA", member);
+            // console.log("Player Rank", member[0].playerRank);
 
-        var rankName = await getRankByID(member[0].playerRank);
-        var startDate = new Date(loa.startDate).toISOString().slice(0, 19).replace('T', ' ');
-        var endDate = new Date(loa.endDate).toISOString().slice(0, 19).replace('T', ' ');
-        if (member.length > 0) {
-            memberLOAs.push({
-                "UName": member[0].UName,
-                "playerStatus": member[0].playerStatus,
-                "rankName": rankName.rankName,
-                "startDate": startDate,
-                "endDate": endDate
-            });
+            if (member[0].playerRank == null || member[0].playerRank == undefined) {
+                // If the member's rank is null or undefined, skip this member
+                console.log("Member " + loa.memberName + " either has no rank assigned, or is a reservist, skipping...");
+                continue;
+            }    
+            var rankName = await getRankByID(member[0].playerRank);
+            var startDate = new Date(loa.startDate).toISOString().slice(0, 19).replace('T', ' ');
+            var endDate = new Date(loa.endDate).toISOString().slice(0, 19).replace('T', ' ');
+            if (member.length > 0) {
+                memberLOAs.push({
+                    "UName": member[0].UName,
+                    "playerStatus": member[0].playerStatus,
+                    "rankName": rankName.rankName,
+                    "startDate": startDate,
+                    "endDate": endDate
+                });
+            }
+        } catch (error) {
+            console.log("Error getting member name for LOA: " + loa.memberName + " - " + error);
         }
     }
 
