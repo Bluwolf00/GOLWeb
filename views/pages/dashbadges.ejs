@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/styles/dashboard.css">
   <script src="/scripts/logoHover.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  </script>
+  <script defer src="/scripts/dashbadgeModal.js"></script>
 </head>
 
 <%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
@@ -265,7 +265,6 @@
       var isloggedIn = "<%= loggedin %>"
     </script>
     <script src="/scripts/checkLogged.js"></script>
-    <script src="/scripts/dashbadgeModal.js"></script>
   </main>
 
   <footer>
