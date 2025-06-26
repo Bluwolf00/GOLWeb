@@ -275,7 +275,7 @@ async function openEditModal(memberID) {
     var reservistOptions = [
         { value: "Knight", text: "Knight" },
         { value: "Camel", text: "Camel" },
-        { value: "Flay", text: "Flay" }
+        { value: "WHYZE", text: "WHYZE" }
     ];
 
     reservistOptions.forEach(optionData => {
