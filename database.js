@@ -897,22 +897,22 @@ async function editSOP(sopID, sopTitle, sopDescription, authors, sopType, sopDoc
     }
 }
 
-function daysUntilNext15th() {
+function daysUntilNext13th() {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
 
   // Set the 15th of this month
-  let fifteenth = new Date(year, month, 15);
+  let thirteenth = new Date(year, month, 13);
 
   // If today is past the 15th, move to next month
-  if (today > fifteenth) {
-    fifteenth = new Date(year, month + 1, 15);
+  if (today > thirteenth) {
+    thirteenth = new Date(year, month + 1, 13);
   }
 
   // Calculate the difference in milliseconds and convert to days
   const oneDay = 1000 * 60 * 60 * 24;
-  const diffDays = Math.ceil((fifteenth - today) / oneDay);
+  const diffDays = Math.ceil((thirteenth - today) / oneDay);
 
   return diffDays;
 }
@@ -1074,7 +1074,7 @@ async function getDashboardData() {
     // console.log("Recruits: " + recruits);
 
     // Query 6 - Get the due date of the next server payment
-    var nextPaymentDue = daysUntilNext15th();
+    var nextPaymentDue = daysUntilNext13th();
     
 
     // Query 7 - Get the number of members that are leaders
