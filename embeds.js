@@ -10,7 +10,10 @@ async function getInfoFromAPI() {
 
     // Channels to fetch videos from
     // No these are not sensitive, they are public channels
-    channels = ['UCuKMp2KWhQ69geXACQ0jf5A', 'UCTw6PJb5bCrsVPAVRUc-eTA'];
+    channels = ['UCuKMp2KWhQ69geXACQ0jf5A', // OksmanTV
+                'UCTw6PJb5bCrsVPAVRUc-eTA', // VersedPlays
+                'UCqm8CVJeqlmpx7ACU4HfXqg'  // PvtPARKER
+    ];
 
     // Loop through all channels
     for (var i = 0; i < channels.length; i++) {
@@ -35,7 +38,7 @@ async function getInfoFromAPI() {
             // console.log("Video Title: " + videos[j].snippet.title);
             // console.log("Is ArmA Video: " + (videos[j].snippet.title.search(/Arma/i) > -1));
 
-            if (videos[j].snippet.title.search(/Arma/i) > -1) {
+            if (videos[j].snippet.title.toLowerCase().search(/Arma/i) > -1) {
                 // If the video is an Arma video, add it to the array
                 videoObj = {
                     title: videos[j].snippet.title,

@@ -40,13 +40,7 @@ async function getAllVideos() {
             return;
         }
 
-        videoTitle = video.title;
-        videoDescription = video.description;
-        videoId = video.videoId;
-        videoDuration = video.duration;
-        videoAuthor = video.author;
-
-        updateVideo(videoTitle, videoDuration, videoDescription, videoAuthor, videoId, iterations);
+        updateVideo(video.title, video.duration, video.description, video.author, video.videoId, iterations);
         iterations++;
     });
 }
