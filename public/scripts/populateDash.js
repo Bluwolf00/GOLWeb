@@ -5,7 +5,12 @@ function createAlert(message, type, form, timeout = -1) {
     alert.innerHTML = message +
         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
     alert.id = "imageAlertMessage";
-    var formEl = document.getElementById(form)
+    var formEl;
+    if (form === "main") {
+        formEl = document.querySelector("main");
+    } else {
+        formEl = document.getElementById(form)
+    }
     formEl.prepend(alert);
 
     if (timeout > 0) {
@@ -185,6 +190,38 @@ async function closeModal(elementId) {
     const modal = bootstrap.Modal.getInstance(document.getElementById(elementId));
     if (modal) {
         modal.hide();
+    }
+}
+
+async function updateLandingVideos() {
+
+    var button = document.getElementById('updateVideosBtn');
+
+    button.disabled = true;
+    button.innerText = "Updating...";
+
+    const response = await fetch('/data/forceVideoUpdate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "forceUpdate": true
+        })
+    });
+
+    if (response.ok) {
+        createAlert('Videos successfully updated!', 'success', 'main', 3000);
+        setTimeout(() => {
+            button.disabled = false;
+            button.innerText = "Force Update Videos";
+        }, 3000);
+    } else {
+        createAlert('Failed to update videos', 'danger', 'main', 3000);
+        setTimeout(() => {
+            button.disabled = false;
+            button.innerText = "Force Update Videos";
+        }, 3000);
     }
 }
 

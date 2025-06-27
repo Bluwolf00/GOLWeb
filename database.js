@@ -350,9 +350,8 @@ async function removeBadgeFromMembers(memberIDs, badgeID) {
     }
 }
 
-async function getVideos() {
+async function getVideos(flag = false) {
     var rows = null;
-    var flag = false;
 
     try {
         [rows] = await pool.query('SELECT * FROM ytvideos');

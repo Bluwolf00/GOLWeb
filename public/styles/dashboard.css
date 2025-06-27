@@ -49,7 +49,6 @@ span.bubble-text {
     margin: 5px;
     margin-right: 10px;
     font-size: 24px;
-    font-weight: bold;
     align-self: center;
 }
 
@@ -87,11 +86,11 @@ span.bubble-text {
     align-self: center;
 }
 
-#changePasswordBtn {
+.dashboard-extra-buttons {
     padding: 5px 10px;
     border-radius: 10px;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 600;
     filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
 }
 

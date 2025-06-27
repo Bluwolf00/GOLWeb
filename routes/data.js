@@ -78,7 +78,7 @@ router.get('/getAllBadgePaths', authPage, async (req, res) => {
 router.get('/getVideos', async (req, res) => {
 
     try {
-        const videos = await db.getVideos();
+        const videos = await db.getVideos(false);
         res.send(videos);
     } catch (error) {
         res.send(error);
@@ -221,6 +221,33 @@ router.post('/fullmemberinfo', authPage, async (req, res) => {
     var memberID = req.body.memberID;
     var member = await db.getFullMemberInfo(memberID);
     res.send(member);
+});
+
+router.post('/forceVideoUpdate', authPage, async (req, res) => {
+    var result = {};
+    var forceUpdate = req.body.forceUpdate;
+    var statusCode = 500;
+    try {
+        result = await db.getVideos(forceUpdate);
+        if (result) {
+            statusCode = 200;
+        } else {
+            result = {
+                "status": 404,
+                "message": "No videos found or unable to fetch videos."
+            };
+            statusCode = 404;
+        }
+    } catch (error) {
+        result = {
+            "status": 500,
+            "message": "Internal Server Error - Unable to update videos.",
+            "error": error.message
+        };
+        statusCode = 500;
+    } finally {
+        res.status(statusCode).send(result);
+    }
 });
 
 router.post('/performLogin', async (req, res) => {
