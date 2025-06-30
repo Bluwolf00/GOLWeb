@@ -2,16 +2,7 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GOL Roster</title>
-    <link rel="icon" type="image/png" href="/img/logo.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="/styles/theme.css">
-    <script src="/scripts/logoHover.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-
+    <%- include('../partials/head', {pageTitle: "GOL ORBAT"}) %>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.0.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
@@ -40,26 +31,25 @@
             <h1>ORDER OF BATTLE</h1>
 
             <p class="lead">The ORBAT shows the structure of both the Hellfish, AAC and Reservists.</p>
-
-            <div class="row" id="orbatKey">
-                <h3>Legend:</h3>
-                <div class="col-sm-3">
-                    <p class="key-button" style="background-color: rgb(104, 30, 16);">Enlisted</p>
-                    <p class="key-button" style="background-color: rgb(0, 37, 117);">AAC</p>
-                    <p class="key-button key-border" style="background-color: rgba(0, 0, 0, 0); border-color: #c9b52a;">
-                        Promotion Available</p>
-                </div>
-                <div class="col-sm-3">
-                    <p class="key-button" style="background-color: rgb(96, 0, 141);">Leadership</p>
-                    <p class="key-button" style="background-color: rgb(204, 189, 102); color: black;">Reservist</p>
-                    <p class="key-button key-border" style="background-color: rgba(0, 0, 0, 0); border-color: #c51010;">
-                        On Leave (LOA)</p>
-                </div>
-                <!-- <p><span class="badge badge-pill" style="background-color: rgb(174, 0, 255);">Leadership</span><span class="badge badge-pill bg-danger">Enlisted</span></p>
-                <p><span class="badge badge-pill" style="background-color: rgb(255, 234, 116); color: black;">Reservist</span><span class="badge badge-pill" style="background-color: rgb(0, 81, 255);">AAC</span></p> -->
+            <p class="lead">Click on the members below to view their service record!</p>
+            <div style="margin-top: 1%;" class="focus-button">
+                <a href="#orgChart" class="link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" class="bi bi-arrow-down-short" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
+                    </svg><span class="lead">Focus</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" class="bi bi-arrow-down-short" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
+                    </svg></a>
             </div>
 
-            <div class="row" id="orbatStats">
+        </div>
+
+        <div class="chart-container" id="orgChart"></div>
+
+        <div class="container text-center my-5">
+            <div class="row my-2" id="orbatStats">
                 <div class="col-sm">
                     <p class="lead">Expected Votes: <span class="highlight" id="activePlayers">##</span></p>
                 </div>
@@ -74,27 +64,40 @@
                     <p class="lead">Total Number of Members: <span class="highlight" id="membersCount">##</span></p>
                 </div>
             </div>
-
-            <div style="margin-top: 1%;" class="focus-button">
-                <a href="#orgChart" class="link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-arrow-down-short" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
-                    </svg><span class="lead">Focus</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-arrow-down-short" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
-                    </svg></a>
+            <div class="row" id="orbatKey">
+                <div class="row my-2">
+                    <h3>Legend:</h3>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-sm-3">
+                        <p class="key-button" style="background-color: rgb(104, 30, 16);">Enlisted</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <p class="key-button" style="background-color: rgb(0, 37, 117);">AAC</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <p class="key-button key-border"
+                            style="background-color: rgba(0, 0, 0, 0); border-color: #c9b52a;">
+                            Promotion Available</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <p class="key-button" style="background-color: rgb(96, 0, 141);">Leadership</p>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-sm-3">
+                        <p class="key-button" style="background-color: rgb(204, 189, 102); color: black;">Reservist</p>
+                    </div>
+                    <div class="col-sm-3">
+                        <p class="key-button key-border"
+                            style="background-color: rgba(0, 0, 0, 0); border-color: #c51010;">
+                            On Leave (LOA)</p>
+                    </div>
+                </div>
             </div>
+        </div>
 
-        </div>
-        
-        <div class="container text-center">
-            <div class="row">
-                <p class="lead">Click on the members below to view their service record!</p>
-            </div>
-        </div>
-        <div class="chart-container" id="orgChart"></div>
+
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">

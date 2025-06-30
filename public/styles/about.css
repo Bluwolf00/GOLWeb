@@ -3,19 +3,36 @@ h3 {
     margin-top: 5%;
 }
 
-ul {
+#aboutContainer > ul {
     text-align: center;
     list-style-position: inside;
     list-style-type: none;
     padding: 0;
 }
 
-p {
+#aboutContainer > p {
     text-align: justify;
     color: var(--blu-body-color);
 }
 
-li {
+#aboutContainer > ul > li {
+    color: var(--blu-body-color);
+    padding: 0.3rem 0;
+}
+
+#aboutContainer > section > p {
+    text-align: justify;
+    color: var(--blu-body-color);
+}
+
+#aboutContainer > section > ul {
+    text-align: center;
+    list-style-position: inside;
+    list-style-type: none;
+    padding: 0;
+}
+
+#aboutContainer > section > ul > li {
     color: var(--blu-body-color);
     padding: 0.3rem 0;
 }
@@ -111,10 +128,6 @@ h4 {
 
     #front-logo {
         height: 10rem;
-    }
-
-    .mainHead {
-        font-size: 2rem;
     }
 
     .abtUs {

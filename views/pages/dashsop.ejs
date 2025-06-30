@@ -2,20 +2,8 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GOL Dashboard - SOPs</title>
-    <link rel="icon" type="image/png" href="/img/logo.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/styles/theme.css">
+    <%- include('../partials/head', {pageTitle: "GOL Dashboard - SOPs"}) %>
     <link rel="stylesheet" href="/styles/dashboard.css">
-    <script src="/scripts/logoHover.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    </script>
     <script defer src="/scripts/dashsop.js"></script>
 </head>
 
@@ -92,8 +80,10 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-check-label" for="restrictedDoc">Restricted Document?</label>
-                                <input type="checkbox" class="form-check-input" id="restrictedDoc" name="restrictedDoc"><br>
-                                <small class="text-body-secondary">The document will only be available to logged in <span style="font-weight: bold;">members</span>.</small>
+                                <input type="checkbox" class="form-check-input" id="restrictedDoc"
+                                    name="restrictedDoc"><br>
+                                <small class="text-body-secondary">The document will only be available to logged in
+                                    <span style="font-weight: bold;">members</span>.</small>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -124,7 +114,8 @@
                                 <label for="authors">Authors</label><span style="color: red;"> *</span><br>
                                 <input type="text" class="form-control" id="newauthors" name="newauthors"
                                     placeholder="Document Author(s)">
-                                <small class="text-body-secondary">If there are multiple authors, the field MUST be a comma seperated list of names.</small>
+                                <small class="text-body-secondary">If there are multiple authors, the field MUST be a
+                                    comma seperated list of names.</small>
                             </div>
                             <div class="form-group">
                                 <label for="description">Description</label><span style="color: red;"> *</span><br>
@@ -142,7 +133,8 @@
                             <div class="form-group">
                                 <label for="insignia">Document ID</label><span style="color: red;"> *</span><br>
                                 <input type="text" class="form-control" id="newdocumentID" name="newdocId">
-                                <small class="text-body-secondary">This can be found in the URL of the Google Doc. (Usually a long bunch of random characters)</small>
+                                <small class="text-body-secondary">This can be found in the URL of the Google Doc.
+                                    (Usually a long bunch of random characters)</small>
                             </div>
                             <div class="form-group">
                                 <label class="form-check-label" for="aacSOP">Is this an AAC SOP?</label>
@@ -150,8 +142,10 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-check-label" for="newrestrictedDoc">Restricted Document?</label>
-                                <input type="checkbox" class="form-check-input" id="newrestrictedDoc" name="newrestrictedDoc"><br>
-                                <small class="text-body-secondary">The document will only be available to logged in <span style="font-weight: bold;">members</span>.</small>
+                                <input type="checkbox" class="form-check-input" id="newrestrictedDoc"
+                                    name="newrestrictedDoc"><br>
+                                <small class="text-body-secondary">The document will only be available to logged in
+                                    <span style="font-weight: bold;">members</span>.</small>
                             </div>
                         </div>
                         <div class="modal-footer">

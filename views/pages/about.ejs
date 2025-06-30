@@ -2,19 +2,7 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GOL About Us</title>
-    <link rel="icon" type="image/png" href="/img/logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="/styles/theme.css">
-    <link rel="stylesheet" href="/styles/about.css">
-    <script src="/scripts/logoHover.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <%- include('../partials/head', {pageTitle: "About Us"}) %>
 </head>
 
 <%- include('../partials/headernav', {pageTitle: "About"}) %>
@@ -24,15 +12,15 @@
         <div class="container text-center">
             <div class="px-4" id="front-hero">
                 <img id="front-logo" class="d-block mx-auto mb-4" src="/img/logo_new.png" alt="">
-                <h1 class="fw-bold text-body-emphasis mainHead">Guerrillas of Liberation</h1>
-                <h1 class="fw-bold abtUs">About Us</h1>
+                <h1 class="text-body-emphasis ">Guerrillas of Liberation</h1>
+                <h2 class="abtUs">About Us</h2>
                 </br>
                 <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Got a
                         Question?</a></button>
             </div>
         </div>
 
-        <div class="container my-5">
+        <div class="container my-5" id="aboutContainer">
             <h3>Who are we?</h3>
             <p>
                 The Guerrillas of Liberation are an online military realism community that was founded in 2003 by a

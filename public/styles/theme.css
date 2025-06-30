@@ -10,6 +10,21 @@
 
 * {
   box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 300;
+  letter-spacing: 0.2rem;
+  color: white;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+p, li {
+  font-weight: 300;
 }
 
 .fs-24 {
@@ -55,6 +70,7 @@ header {
 
 .nav-pills .nav-link.active {
   background-color: var(--bs-btn-bg);
+  font-weight: 500;
 }
 
 #hamburger {
@@ -220,10 +236,6 @@ body {
 
 #front-logo:hover {
   transform: scale(1.1);
-}
-
-.mainHead {
-  font-size: 5vh;
 }
 
 .scaleText {
@@ -439,6 +451,7 @@ footer {
 
 #orbatStats>*>p.lead {
   margin: 0.5rem 0;
+  text-wrap: nowrap;
 }
 
 .focus-button>a {
@@ -478,7 +491,7 @@ footer {
 
 .chart-container {
   background-color: #212529;
-  background-image: linear-gradient(to bottom right, #1f2227, #131418);
+  background-image: linear-gradient(to bottom right, #1f2227, #131418);  
   padding: 0;
   filter: drop-shadow(2px 0px 4px black);
   margin: 1% 2%;
