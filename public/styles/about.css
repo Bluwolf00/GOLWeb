@@ -11,7 +11,7 @@ h3 {
 }
 
 #aboutContainer > p {
-    text-align: justify;
+    /* text-align: justify; */
     color: var(--blu-body-color);
 }
 

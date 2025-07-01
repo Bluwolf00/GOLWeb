@@ -8,6 +8,12 @@
     padding-left: 0.5rem;
 }
 
+.table-dark {
+    --bs-table-bg: var(--blu-bg);
+    --bs-table-striped-bg: #171e2b;
+    --bs-table-hover-bg: #253044;
+}
+
 /* DASH */
 
 .info-bubble {
@@ -111,7 +117,8 @@ span.bubble-text {
 
 #promotions-col, #loas-col {
     background-color: var(--bs-body-bg);
-    background-image: linear-gradient(0deg, var(--bs-body-bg), rgb(33, 37, 45));
+    /* background-image: linear-gradient(0deg, var(--bs-body-bg), rgb(33, 37, 45)); */
+    background-image: linear-gradient(0deg, var(--blu-bg), rgb(33, 37, 45));
     border-radius: 10px;
     padding: 10px;
     filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));

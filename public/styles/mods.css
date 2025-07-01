@@ -12,6 +12,10 @@ li {
     text-align: start;
 }
 
+#modList > .row {
+    margin-bottom: 20px;
+}
+
 h3 {
     color: var(--bs-emphasis-color);
     transition: color 0.3s;
@@ -40,12 +44,4 @@ main > .container {
 .highlight {
     color: var(--blu-secondary);
     font-weight: 500;
-}
-
-#stats > .row > .col-sm:first-of-type {
-    text-align: end;
-}
-
-#stats > .row > .col:last-of-type {
-    text-align: start;
 }
