@@ -78,7 +78,8 @@ svg.icon-secondary {
 
 header {
   height: 85px;
-  margin: auto 1em;
+  padding: 1rem;
+  background-color: var(--blu-bg-dark);
   justify-content: space-between;
 }
 
