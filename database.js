@@ -41,13 +41,12 @@ async function getMembers(includeParentName = false) {
         query = 'SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
     }
     try {
-        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
         [rows] = await pool.query(query);
     } catch (error) {
         console.log(error);
+    } finally {
+        return rows;
     }
-    pool.releaseConnection(pool);
-    return rows;
 }
 
 async function getFullMemberInfo(memberID) {

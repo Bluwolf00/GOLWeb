@@ -196,11 +196,10 @@ console.log(`\nServer is running on port ${process.env.PORT || 3000}\n`);
 async function handleClosure(event) {
     console.log(`\nINFO:  ${event} received. Closing server...`);
     try {
+        server.close(() => console.log('SUCCESS:  Server closed gracefully.'));
         await sessionStore.close(); // Close the session store
         await db.closePool(); // Close the database connection pool
-        server.close(() => { // Close the server/listener
-            console.log('INFO:  Server closed gracefully.');
-        });
+
         console.log('SUCCESS:  Session store and database connection pool closed.');
     } catch (error) {
         console.error('ERROR:  Error closing resources:', error);
