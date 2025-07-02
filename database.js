@@ -6,7 +6,7 @@ const fs = require('fs');
 const { start } = require('repl');
 dotenv.config()
 
-const pool = mysql.createPool({
+var pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USERNAME,
     password: process.env.MYSQL_PASSWORD,
@@ -17,6 +17,19 @@ const pool = mysql.createPool({
 function getPool() {
     return pool;
 }
+
+async function closePool() {
+    // Close the pool and end all connections
+    if (pool == null) {
+        console.log("WARN:  Pool is already closed");
+        return;
+    }
+    console.log("INFO:  Closing database connection pool...");
+    await pool.end()
+    console.log("SUCCESS:  Database connection pool closed.");
+    pool = null; // Set the pool to null to prevent further use
+}
+
 // const result = await pool.query('SELECT * FROM Members')
 
 async function getMembers(includeParentName = false) {
@@ -33,7 +46,8 @@ async function getMembers(includeParentName = false) {
     } catch (error) {
         console.log(error);
     }
-    return rows
+    pool.releaseConnection(pool);
+    return rows;
 }
 
 async function getFullMemberInfo(memberID) {
@@ -1130,6 +1144,6 @@ module.exports = {
     getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
-    getPool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
+    getPool, closePool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, createSOP, editSOP
 };

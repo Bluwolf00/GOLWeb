@@ -188,4 +188,32 @@ app.get('*', (req, res) => {
     });
 });
 
-app.listen(process.env.PORT || 3000);
+const server = app.listen(process.env.PORT || 3000);
+console.log(`\nServer is running on port ${process.env.PORT || 3000}\n`);
+
+// Graceful Shutdown - Handles server closure and resource cleanup
+// This function is called when the server receives a termination signal (SIGINT or SIGTERM)
+async function handleClosure(event) {
+    console.log(`\nINFO:  ${event} received. Closing server...`);
+    try {
+        await sessionStore.close(); // Close the session store
+        await db.closePool(); // Close the database connection pool
+        server.close(() => { // Close the server/listener
+            console.log('INFO:  Server closed gracefully.');
+        });
+        console.log('SUCCESS:  Session store and database connection pool closed.');
+    } catch (error) {
+        console.error('ERROR:  Error closing resources:', error);
+    }
+    console.log('SUCCESS:  All resources closed gracefully.');
+    process.exit(0); // Exit the process
+}
+
+// Process Handling - Handles graceful shutdown of the server
+process.on('SIGINT', async () => {
+    await handleClosure("SIGINT");
+});
+
+process.on('SIGTERM', async () => {
+    await handleClosure("SIGTERM");
+});
