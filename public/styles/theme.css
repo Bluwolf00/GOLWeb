@@ -685,7 +685,7 @@ footer {
 
 .badgeCap {
   font-size: 0.8rem;
-  font-weight: lighter;
+  font-weight: 300;
 }
 
 #badgeDiv {
