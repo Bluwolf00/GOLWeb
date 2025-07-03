@@ -244,7 +244,7 @@ function getBadges() {
             let counter = 0;
             let qualFlag = false;
             for (const badge of data) {
-                if (badge.isQualification === 1 && !qualFlag) {
+                if (badge.isQualification > 0 && !qualFlag) {
                     badgeDiv = document.getElementById('qualDiv');
                     qualFlag = true;
                     counter = 0;
