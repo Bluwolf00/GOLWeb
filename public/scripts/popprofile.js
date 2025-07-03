@@ -237,7 +237,7 @@ function getBadges() {
         .then(([data]) => {
             var dataLength = data.length;
 
-            var repeats = Math.ceil(dataLength / 4);
+            // var repeats = Math.ceil(dataLength / 4);
 
             var badgeDiv = document.getElementById('badgeDiv');
 
@@ -263,7 +263,6 @@ function getBadges() {
                 }
                 var badgeImg = document.createElement('img');
                 var badgeCap = document.createElement('span');
-                console.log(badge);
                 badgeImg.src = badge.badgePath;
                 badgeImg.alt = badge.badgeName;
                 badgeImg.title = badge.badgeName;
