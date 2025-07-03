@@ -239,7 +239,7 @@ function getBadges() {
 
             var repeats = Math.ceil(dataLength / 4);
 
-            var badgeDiv = document.getElementById('badgeDiv');;
+            var badgeDiv = document.getElementById('badgeDiv');
 
             let counter = 0;
             let qualFlag = false;
@@ -252,16 +252,18 @@ function getBadges() {
                 if (counter % 4 === 0) {
                     var badgeRow = document.createElement('div');
                     badgeRow.className = 'row';
-                    badgeDiv.appendChild(badgeRow);
                     var badgeCols = [];
                     for (let i = 0; i < 4; i++) {
                         badgeCols.push(document.createElement('div'));
                         badgeRow.appendChild(badgeCols[i]);
                         badgeCols[i].className = 'col';
                     }
+                    badgeDiv.appendChild(badgeRow);
+                    counter = 0;
                 }
                 var badgeImg = document.createElement('img');
                 var badgeCap = document.createElement('span');
+                console.log(badge);
                 badgeImg.src = badge.badgePath;
                 badgeImg.alt = badge.badgeName;
                 badgeImg.title = badge.badgeName;
