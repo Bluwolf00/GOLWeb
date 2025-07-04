@@ -100,9 +100,9 @@ async function populateDash() {
             // Else if the current member is the first member in the list, add a bottom border.
             if (count <= memberPromotions.length) {
                 if (memberPromotions[count + 1].eventsToGo != 0) {
-                    row.style.borderBottomWidth = "4px";
+                    row.style.borderBottom = "groove";
                 } else if (member === memberPromotions[0] && memberPromotions[count + 1].eventsToGo != 0) {
-                    row.style.borderBottomWidth = "4px";
+                    row.style.borderBottom = "groove";
                 }
             }
         }
