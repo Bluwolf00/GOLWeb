@@ -101,7 +101,7 @@ async function populateDash() {
             if (count <= memberPromotions.length) {
                 if (memberPromotions[count + 1].eventsToGo != 0) {
                     row.style.borderBottomWidth = "4px";
-                } else if (member === memberPromotions[0]) {
+                } else if (member === memberPromotions[0] && memberPromotions[count + 1].eventsToGo != 0) {
                     row.style.borderBottomWidth = "4px";
                 }
             }
@@ -112,8 +112,6 @@ async function populateDash() {
             row.classList.add("table-warning");
             row.style.color = "black";
         }
-
-
 
         row.innerHTML = `
             <th><a href="/profile?name=${member.UName}" class="nav-link">${member.UName}</a></th>
