@@ -31,7 +31,7 @@ async function populateDash() {
     // Not implemented yet
     // var nextPaymentDate = data.nextPaymentDate;
     // var numberOfReplays = data.numberOfReplays;
-    
+
     var promotions = data.promotions;
     var nextPromotion = data.nextPromotion;
     var activeMembers = data.activeMembers;
@@ -77,9 +77,10 @@ async function populateDash() {
 
     // Promotion Table
     // Populate the promotion table including the number of events each member has to go through before being promoted
-    
+
     var promoTableBody = document.getElementById("promotions-list");
     promoTableBody.innerHTML = ""; // Clear existing rows
+    var count = 0;
 
     // Sort the member promotions by the number of events to go in ascending order
     memberPromotions.sort((a, b) => a.eventsToGo - b.eventsToGo);
@@ -88,9 +89,22 @@ async function populateDash() {
         var row = document.createElement("tr");
         row.classList.add("member-row");
 
-        // If this is the first member, add a special class for styling
-        if (member === memberPromotions[0]) {
-            row.style.borderBottomWidth = "4px";
+        // Member is active and has achieved the required number of events for promotion
+        if (member.eventsToGo === 0) {
+            row.classList.add("table-success");
+            row.style.color = "black";
+
+            // If the member below the current member is up for promotion, skip the current member.
+            // Perform a check to see if count exceeds the length of the memberPromotions array
+            // to avoid accessing an undefined index.
+            // Else if the current member is the first member in the list, add a bottom border.
+            if (count <= memberPromotions.length) {
+                if (memberPromotions[count + 1].eventsToGo != 0) {
+                    row.style.borderBottomWidth = "4px";
+                } else if (member === memberPromotions[0]) {
+                    row.style.borderBottomWidth = "4px";
+                }
+            }
         }
 
         // Member is inactive or on leave of absence
@@ -99,11 +113,7 @@ async function populateDash() {
             row.style.color = "black";
         }
 
-        // Member is active and has achieved the required number of events for promotion
-        if (member.eventsToGo === 0) {
-            row.classList.add("table-success");
-            row.style.color = "black";
-        }
+
 
         row.innerHTML = `
             <th><a href="/profile?name=${member.UName}" class="nav-link">${member.UName}</a></th>
@@ -113,6 +123,7 @@ async function populateDash() {
             <th style="text-align: center;">${member.eventsToGo}</th>
         `;
         promoTableBody.appendChild(row);
+        count++;
     });
 
 
