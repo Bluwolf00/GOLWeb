@@ -1144,13 +1144,13 @@ async function getNextAvailableSlot(memberRole, missionID) {
 }
 
 function unwrapORBATJSON(data) {
-    let newData = [];
+    var newData = [];
     for (const item of data) {
-        let newItem = {
-            id: item.id,
-            roleName: item.roleName,
-            callsign: item.callsign,
-            parentNodeId: item.parentNode
+        var newItem = {
+            "id": item.id,
+            "roleName": item.roleName,
+            "callsign": item.callsign,
+            "parentNodeId": item.parentNode
         };
 
         // If the item has subordinates, map them recursively
@@ -1180,6 +1180,7 @@ async function getLiveOrbat() {
             WHERE missionorbats.templateID = missionorbattemplates.templateID AND 
             missionorbats.dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
 
+
         if (rows.length == 0) {
             console.log("No live ORBAT found for future missions");
             return null;
@@ -1187,7 +1188,13 @@ async function getLiveOrbat() {
 
         console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
-        var layout = unwrapORBATJSON(rows[0].layout);
+        var layout = await unwrapORBATJSON(rows[0].layout);
+
+        if (layout.length == 0) {
+            console.log("No layout found for the live ORBAT");
+            return null;
+        }
+
         // Now get the members that are in the ORBAT for the mission
         var [members] = await pool.query(`
             SELECT Members.MemberID, Members.UName, Ranks.prefix, missionorbatmembers.memberRole, missionorbatmembers.slotNodeID
