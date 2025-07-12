@@ -234,10 +234,12 @@ router.get('/getLoggedInUser', async (req, res) => {
 router.get('/getLiveOrbat', async (req, res) => {
     try {
         const orbatData = await db.getLiveOrbat();
-        res.send(orbatData);
+        res.status(200).send(orbatData);
     } catch (error) {
         console.error("Error fetching live ORBAT:", error);
         res.status(500).send("Internal Server Error - Unable to fetch live ORBAT.");
+    } finally {
+        return;
     }
 });
 
@@ -250,14 +252,17 @@ router.get('/getMemberLiveOrbatInfo', async (req, res) => {
                 res.status(401).send("Unauthorized - User not found in the database.");
                 return;
             }
+            var memberInfo = await db.getMemberSlotInfoFromOrbat(memberID);
+            if (memberInfo) {
+                res.status(200).send(memberInfo);
+            } else {
+                res.status(404).send("Not Found - Member role not found in live ORBAT.");
+            }
+        } else {
+            // If the user is not logged in, we will return a 401 Unauthorized status
+            res.status(401).send("Unauthorized - User not logged in.");
         }
 
-        var memberInfo = await db.getMemberSlotInfoFromOrbat(memberID);
-        if (memberInfo) {
-            res.status(200).send(memberInfo);
-        } else {
-            res.status(404).send("Not Found - Member role not found in live ORBAT.");
-        }
     } catch (error) {
         console.error("Error fetching live ORBAT member role:", error);
         res.status(500).send("Internal Server Error - Unable to fetch live ORBAT member role.");
