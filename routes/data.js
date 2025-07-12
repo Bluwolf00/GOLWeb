@@ -277,6 +277,12 @@ router.get('/getMission', async (req, res) => {
             // Return all missions
             missions = await db.getMissions();
         }
+
+        if (!missions || missions.length === 0) {
+            res.status(404).send("Not Found - No missions found.");
+            res.send({});
+        }
+
         res.send(missions);
     } catch (error) {
         console.error("Error fetching missions:", error);

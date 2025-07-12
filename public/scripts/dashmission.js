@@ -131,6 +131,13 @@ async function populateTable() {
             return;
         }
         var missions = await response.json();
+
+        // Check if there are any missions
+        if (missions.length === 0) {
+            createAlert('No missions found.', 'info', 'main', 5000);
+            return;
+        }
+
         var tableBody = document.getElementById("missionsTableBody");
         tableBody.innerHTML = ""; // Clear existing rows
 
