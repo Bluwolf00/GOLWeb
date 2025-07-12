@@ -233,7 +233,12 @@ router.get('/getLoggedInUser', async (req, res) => {
 
 router.get('/getLiveOrbat', async (req, res) => {
     try {
-        const orbatData = await db.getLiveOrbat();
+        var orbatData = await db.getLiveOrbat();
+
+        if (!orbatData || orbatData.length === 0) {
+            res.status(404).send("Not Found - Live ORBAT data not found.");
+            return;
+        }
         res.status(200).send(orbatData);
     } catch (error) {
         console.error("Error fetching live ORBAT:", error);
