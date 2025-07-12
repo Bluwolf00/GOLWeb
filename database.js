@@ -10,7 +10,8 @@ var pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USERNAME,
     password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
+    database: process.env.MYSQL_DATABASE,
+    timezone: 'Z', // Set timezone to UTC
 }).promise()
 
 
@@ -32,13 +33,26 @@ async function closePool() {
 
 // const result = await pool.query('SELECT * FROM Members')
 
-async function getMembers(includeParentName = false) {
+async function getMembers(includeParentName = false, order = "memberidasc") {
     var rows = [null];
     var query = '';
+    var orderBy;
+    switch (order.toLowerCase()) {
+        case "unameasc":
+            orderBy = 'ORDER BY Members.UName ASC';
+            break;
+
+        default:
+            orderBy = 'ORDER BY Members.memberID ASC';
+            if (includeParentName == true) {
+                orderBy = 'ORDER BY m.memberID ASC';
+            }
+            break;
+    }
     if (includeParentName == true) {
-        query = 'SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ORDER BY m.MemberID ASC'
+        query = `SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ${orderBy}`
     } else {
-        query = 'SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID';
+        query = `SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID ${orderBy}`;
     }
     try {
         [rows] = await pool.query(query);
@@ -503,20 +517,26 @@ async function performLogin(username, password, fallback) {
         var rows = [null];
         try {
             [rows] = await pool.query(`
-                SELECT username,password
+                SELECT username,password,role
                 FROM users
                 WHERE username = ?`, [username]);
         } catch (error) {
             console.log(error);
         } finally {
             if (rows.length == 0) {
-                return false;
+                return { "allowed": false, "role": null };
             } else if (typeof rows == "undefined" || typeof rows == "null" || rows == null) {
-                return false;
+                return { "allowed": false, "role": null };
             } else {
                 var hashedPassword = rows[0].password;
                 // Compare the password with the hashed password
-                return bcrypt.compareSync(password, hashedPassword);
+                if (bcrypt.compareSync(password, hashedPassword)) {
+                    // If the password matches, return true and the user's role
+                    console.log("User " + username + " logged in successfully");
+                    console.log("User role: " + rows[0].role);
+                    var role = rows[0].role;
+                    return { "allowed": true, "role": role };
+                }
             }
         }
     } else {
@@ -568,6 +588,24 @@ async function getUserRole(username) {
             return null;
         } else {
             return rows[0].role;
+        }
+    }
+}
+
+async function getUserMemberID(username) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT MemberID
+            FROM users
+            WHERE username = ?`, [username]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0].MemberID;
         }
     }
 }
@@ -910,24 +948,485 @@ async function editSOP(sopID, sopTitle, sopDescription, authors, sopType, sopDoc
     }
 }
 
+async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
+    var message = "";
+
+    try {
+
+        // First, get the latest ORBAT for the mission
+        var [rows] = await pool.query(`
+            SELECT missionID
+            FROM missionorbats
+            WHERE dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+
+        var missionID = null;
+        if (rows.length > 0) {
+            // If there are multiple missions, get the latest one
+            missionID = rows[0].missionID;
+        }
+
+        // Check if the member is already in the ORBAT
+        [rows] = await pool.query(`
+            SELECT MemberID
+            FROM missionorbatMembers
+            WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
+
+        if (rows.length > 0) {
+            // If the member is already in the ORBAT, update their role and slotNodeID
+
+            // If the member is to be unassigned, remove them from the ORBAT
+            if (memberRole == "NONE") {
+                try {
+                    console.log("Unassigning member: " + memberID + " from mission ID: " + missionID);
+                    rows = await pool.query(`
+                        DELETE FROM missionorbatMembers
+                        WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
+                    if (rows[0].affectedRows > 0) {
+                        console.log("Member unassigned from the ORBAT for mission ID: " + missionID);
+                    }
+                    message = "Member sucessfully unassigned from the ORBAT";
+                    slotNodeID = -1; // Set slotNodeID to -1 to indicate unassignment
+                } catch (error) {
+                    console.error("Error unassigning member from ORBAT: " + error);
+                    message = "Error unassigning member from ORBAT: " + error.message;
+                    slotNodeID = -2; // Set slotNodeID to -2 to indicate error
+                }
+            }
+
+            // If slotNodeID is null, find the next available slot with the specified role
+            if (slotNodeID == null) {
+                let slotInfo = await getNextAvailableSlot(memberRole, missionID);
+                slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
+                var callsign = slotInfo ? slotInfo.callsign : null;
+                if (slotNodeID == null) {
+                    console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
+                    message = "No available slot found for role: " + memberRole;
+                    return;
+                }
+
+                // Update the member's role and slotNodeID
+                rows = await pool.query(`
+                    UPDATE missionorbatMembers
+                    SET MemberRole = ?, slotNodeID = ?, memberCallsign = ?
+                    WHERE memberID = ? AND missionID = ?`, [memberRole, slotNodeID, callsign, memberID, missionID]);
+                if (rows[0].affectedRows > 0) {
+                    console.log("Updated member role and slotNodeID in the ORBAT for mission ID: " + missionID);
+                }
+            } else {
+                // If slotNodeID is provided, update the member's role and slotNodeID directly
+                rows = await pool.query(`
+                    UPDATE missionorbatMembers
+                    SET slotNodeID = ?, memberCallsign = ?
+                    WHERE memberID = ? AND missionID = ?`, [slotNodeID, callsign, memberID, missionID]);
+                if (rows[0].affectedRows > 0) {
+                    console.log("Updated member role in the ORBAT for mission ID: " + missionID);
+                }
+            }
+        } else {
+            console.log("Member " + memberID + " is not in the ORBAT for mission ID: " + missionID);
+            // Member is not in the ORBAT
+            if (slotNodeID == null) {
+                console.log("Finding next available slot for member: " + memberID + " with role: " + memberRole);
+                // If slotNodeID is null, find the next available slot with the specified role
+                let slotInfo = await getNextAvailableSlot(memberRole, missionID);
+                slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
+                var callsign = slotInfo ? slotInfo.callsign : null;
+                if (slotNodeID == null) {
+                    console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
+                    message = "No available slot found for role: " + memberRole;
+                    return;
+                }
+
+                // Insert the member into the ORBAT with the specified role and slotNodeID
+                rows = await pool.query(`
+                    INSERT INTO missionorbatMembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+                if (rows[0].affectedRows > 0) {
+                    console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
+                }
+            } else {
+                // If slotNodeID is provided, insert the member into the ORBAT with the specified role and slotNodeID
+                rows = await pool.query(`
+                    INSERT INTO missionorbatMembers (memberID, missionID, MemberRole, memberCallsign, slotNodeID, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+                if (rows[0].affectedRows > 0) {
+                    console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
+                }
+            }
+        }
+
+        // Finally, update the mission ORBAT record
+        console.log("Updating mission ORBAT record...");
+
+        rows = await pool.query(`
+                        UPDATE missionorbats
+                        SET filledSlots = (SELECT COUNT(*) FROM missionorbatMembers WHERE missionID = ?)
+                        WHERE missionID = ?`, [missionID, missionID]);
+
+        if (rows[0].affectedRows > 0) {
+            console.log("Mission ORBAT record updated successfully for mission ID: " + missionID);
+        }
+    } catch (error) {
+        console.error("Error updating mission ORBAT: " + error);
+    } finally {
+        // Return the missionID and slotNodeID for further processing if needed, and any message if applicable
+
+        // First check if an error occurred
+        if (slotNodeID == -2) {
+            return { "message": "Error unassigning member from ORBAT: " + message, "missionID": missionID, "slotNodeID": slotNodeID };
+        } else {
+            if (message.length > 0) {
+                return { "message": message, "missionID": missionID, "slotNodeID": slotNodeID };
+            } else {
+                return { "missionID": missionID, "slotNodeID": slotNodeID };
+            }
+        }
+    }
+}
+
+async function getNextAvailableSlot(memberRole, missionID) {
+
+    var slotNodeID = null;
+    var callsign = null;
+
+    // Get all currently filled slotNodeIDs for the mission
+    [rows] = await pool.query(`
+        SELECT slotNodeID
+        FROM missionorbatMembers
+        WHERE missionID = ?`, [missionID]);
+    var filledNodes = rows.map(row => row.slotNodeID);
+
+    // Now obtain all the possible slotNodeIDs for the mission
+    [rows] = await pool.query(`
+        SELECT layout
+        FROM missionorbattemplates, missionorbats
+        WHERE missionorbats.templateID = missionorbattemplates.templateID AND missionorbats.missionID = ?`, [missionID]);
+
+    if (rows.length > 0) {
+        console.log("Found mission ORBAT template, parsing layout...");
+        // console.log("Layout: " + rows[0].layout);
+        var rawJSON = rows[0].layout;
+
+        var layout = unwrapORBATJSON(rawJSON);
+        // console.log(layout);
+
+        // Loop through the layout and find all the available nodes for the specified role
+        // console.log("Filled Nodes: " + filledNodes);
+        for (var node in layout) {
+            if (filledNodes.length == 0) {
+                // If there are no filled nodes, we can return the first available node that matches the role
+                if (layout[node].roleName == memberRole) {
+                    console.log("No filled nodes found, returning first available node for role: " + memberRole);
+                    slotNodeID = layout[node].id;
+                    callsign = layout[node].callsign;
+                    break; // Found an available node, no need to continue
+                }
+            } else if (layout[node].roleName == memberRole && !filledNodes.includes(layout[node].id)) {
+                // If the node is available and matches the role, set it as the available node
+                console.log("Found available node for role: " + memberRole + " with ID: " + layout[node].id);
+                slotNodeID = layout[node].id;
+                callsign = layout[node].callsign;
+                break; // Found an available node, no need to continue
+            }
+        }
+
+        // If no available node was found, set slotNodeID to null
+        if (slotNodeID == null) {
+            console.log("No available slot found for role: " + memberRole);
+            return { "message": "No available slot found for role: " + memberRole, "slotNodeID": null, "callsign": null };
+        } else {
+            // Found an available node, return the slotNodeID
+            console.log("Found available slotNodeID: " + slotNodeID + " for role: " + memberRole);
+            return { "slotNodeID": slotNodeID, "callsign": callsign };
+        }
+    }
+}
+
+function unwrapORBATJSON(data) {
+    let newData = [];
+    for (const item of data) {
+        let newItem = {
+            id: item.id,
+            roleName: item.roleName,
+            callsign: item.callsign,
+            parentNodeId: item.parentNode
+        };
+
+        // If the item has subordinates, map them recursively
+        if (item.subordinates) {
+            if (item.subordinates.length > 0) {
+                let subs = unwrapORBATJSON(item.subordinates);
+                for (const sub of subs) {
+                    newData.push(sub);
+                }
+            }
+        }
+
+        newData.push(newItem);
+    }
+
+    return newData;
+}
+
+async function getLiveOrbat() {
+    // This function will return the live ORBAT for the latest mission
+    var rows = [null];
+    try {
+        // Get the latest mission ORBAT template that is scheduled for the future
+        [rows] = await pool.query(`
+            SELECT missionorbattemplates.layout, missionorbats.missionID, missionorbats.dateOfMission
+            FROM missionorbats, missionorbattemplates
+            WHERE missionorbats.templateID = missionorbattemplates.templateID AND 
+            missionorbats.dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+
+        if (rows.length == 0) {
+            console.log("No live ORBAT found for future missions");
+            return null;
+        }
+
+        console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
+        // Unwrap the ORBAT JSON layout
+        var layout = unwrapORBATJSON(rows[0].layout);
+        // Now get the members that are in the ORBAT for the mission
+        var [members] = await pool.query(`
+            SELECT Members.MemberID, Members.UName, Ranks.prefix, missionorbatMembers.memberRole, missionorbatMembers.slotNodeID
+            FROM Members, missionorbatMembers, Ranks
+            WHERE Members.MemberID = missionorbatMembers.memberID AND missionorbatMembers.missionID = ? AND
+            Members.playerRank = Ranks.rankID`, [rows[0].missionID]);
+
+        // Now combine the layout with the members
+        for (var i = 0; i < layout.length; i++) {
+            // Find the member that matches the slotNodeID
+            for (var j = 0; j < members.length; j++) {
+                if (layout[i].id == members[j].slotNodeID) {
+                    // If a match is found, add the member details to the layout
+                    layout[i].memberID = members[j].MemberID;
+                    layout[i].playerName = members[j].UName;
+                    layout[i].memberRole = members[j].memberRole;
+                    layout[i].rankPrefix = members[j].prefix;
+                    layout[i].filled = true; // Mark this node as filled
+                    break; // No need to continue searching for this node
+                }
+            }
+        }
+
+        // Return the live ORBAT layout with member details
+        return {
+            missionID: rows[0].missionID,
+            dateOfMission: rows[0].dateOfMission,
+            layout: layout
+        };
+    }
+    catch (error) {
+        console.log("Error getting live ORBAT: " + error);
+        return null;
+    }
+}
+
+async function getMemberSlotInfoFromOrbat(memberID) {
+    // This function will return the member's role in the next scheduled ORBAT
+    var rows = [null];
+    var memberRole;
+    var slotNodeID;
+    var memberCallsign;
+
+    try {
+        // Get the missionID of the next scheduled ORBAT
+        [rows] = await pool.query(`
+            SELECT missionID, missionorbattemplates.composition
+            FROM missionorbats, missionorbattemplates
+            WHERE dateOfMission > ? AND missionorbats.templateID = missionorbattemplates.templateID`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+        if (rows.length == 0) {
+            console.log("No upcoming missions found for ORBAT");
+            return null;
+        }
+
+        var composition = rows[0].composition;
+        if (composition == null || composition == "") {
+            console.log("No ORBAT composition found for mission ID: " + rows[0].missionID);
+            composition = "No composition available";
+        }
+        var missionID = rows[0].missionID;
+        // Now get the member's role in the ORBAT for the mission
+        [rows] = await pool.query(`
+            SELECT memberRole, slotNodeID, memberCallsign
+            FROM missionorbatMembers
+            WHERE memberID = ? AND missionID = ?`, [memberID,
+            missionID]);
+        if (rows.length == 0) {
+            console.log('Member: not found in ORBAT for mission ID: ' + missionID);
+            memberRole = "Not Selected";
+            memberCallsign = "Not Assigned";
+            slotNodeID = null;
+        } else {
+            memberRole = rows[0].memberRole;
+            slotNodeID = rows[0].slotNodeID;
+            memberCallsign = rows[0].memberCallsign;
+        }
+        // Return the member's role and slotNodeID
+        return {
+            "memberRole": memberRole,
+            "slotNodeID": slotNodeID,
+            "memberCallsign": memberCallsign,
+            "composition": composition
+        };
+
+    } catch (error) {
+        console.log("Error getting member role from ORBAT: " + error);
+        return null;
+    }
+}
+
+async function getMissions() {
+    // This function will return all the missions held in the database
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT missionID, dateOfMission, missionorbats.templateID, composition, filledSlots, size
+            FROM missionorbats
+            LEFT JOIN missionorbattemplates
+            ON missionorbats.templateID = missionorbattemplates.templateID
+            ORDER BY dateOfMission DESC`);
+    }
+    catch (error) {
+        console.log("Error getting missions: " + error);
+        return null;
+    }
+    if (rows.length == 0) {
+        console.log("No missions found in the database");
+        return null;
+    }
+
+    // Return the missions
+    return rows.map(row => ({
+        "missionID": row.missionID,
+        "missionName": row.missionName,
+        "dateOfMission": row.dateOfMission,
+        "templateID": row.templateID,
+        "composition": row.composition,
+        "size": row.size,
+        "filledSlots": row.filledSlots
+    }));
+}
+
+async function getMissionCompositions() {
+    // This function will return all the compositions held in the database
+    var rows = [null];
+    try {
+        var response = [];
+        [rows] = await pool.query(`
+            SELECT DISTINCT composition, templateID
+            FROM missionorbattemplates`);
+
+        if (rows.length == 0) {
+            console.log("No compositions found in the database");
+            return null;
+        }
+
+        return rows.map(row => {
+            return {
+                "composition": row.composition,
+                "templateID": row.templateID
+            };
+        });
+    }
+    catch (error) {
+        console.log("Error getting compositions: " + error);
+        return null;
+    }
+}
+
+async function patchMissions(missionID, templateID, dateOfMission) {
+    // This function will either update the mission with the given composition and dateOfMission if it exists,
+    // or create a new mission with the given composition and dateOfMission if it does not
+
+    var rows = [null];
+    try {
+        let doesNotExist = true;
+
+        var missionDate = new Date(dateOfMission);
+        var missionDateString = missionDate.toISOString().slice(0, 19).replace('T', ' ');
+        
+        // Check if the mission already exists
+        [rows] = await pool.query(`
+                SELECT missionID
+                FROM missionorbats
+                WHERE missionID = ?`, [missionID]);
+
+        if (rows.length > 0) {
+            // Mission exists, update it
+            doesNotExist = false;
+            console.log("Updating existing mission with ID: " + rows[0].missionID);
+            rows = await pool.query(`
+                        UPDATE missionorbats
+                        SET templateID = ?, dateOfMission = ?
+                        WHERE missionID = ?`, [templateID, missionDateString, missionID]);
+
+            if (rows[0].affectedRows > 0) {
+                console.log("Mission updated successfully with ID: " + missionID);
+            }
+        }
+        if (doesNotExist) {
+
+            // Mission does not exist, create a new one
+            console.log("Creating new mission with date: " + dateOfMission);
+
+            // Format dateOfMission to UTC format for MySQL
+            var dateOfMissionUTC = new Date(dateOfMission).toISOString().slice(0, 19).replace('T', ' ');
+
+            rows = await pool.query(`
+                            INSERT INTO missionorbats (templateID, filledSlots, dateOfMission)
+                            VALUES (?, 0, ?)`, [templateID, dateOfMissionUTC]);
+
+            if (rows[0].affectedRows > 0) {
+                console.log("New mission created with ID: " + rows[0].insertId);
+            }
+        }
+    } catch (error) {
+        console.log("Error patching missions: " + error);
+        return null;
+    } finally {
+        return rows;
+    }
+}
+
+async function deleteMission(missionID) {
+    // This function will delete a mission from the database
+    var rows = [null];
+
+    try {
+        rows = await pool.query(`
+            DELETE FROM missionorbats
+            WHERE missionID = ?`, [missionID]);
+
+        if (rows[0].affectedRows > 0) {
+            console.log("Mission with ID: " + missionID + " deleted successfully");
+            return rows[0].affectedRows;
+        }
+    } catch (error) {
+        console.error("Error deleting mission: " + error);
+        return null;
+    }
+}
+
 function daysUntilNext13th() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
 
-  // Set the 15th of this month
-  let thirteenth = new Date(year, month, 13);
+    // Set the 15th of this month
+    let thirteenth = new Date(year, month, 13);
 
-  // If today is past the 15th, move to next month
-  if (today > thirteenth) {
-    thirteenth = new Date(year, month + 1, 13);
-  }
+    // If today is past the 15th, move to next month
+    if (today > thirteenth) {
+        thirteenth = new Date(year, month + 1, 13);
+    }
 
-  // Calculate the difference in milliseconds and convert to days
-  const oneDay = 1000 * 60 * 60 * 24;
-  const diffDays = Math.ceil((thirteenth - today) / oneDay);
+    // Calculate the difference in milliseconds and convert to days
+    const oneDay = 1000 * 60 * 60 * 24;
+    const diffDays = Math.ceil((thirteenth - today) / oneDay);
 
-  return diffDays;
+    return diffDays;
 }
 
 async function getDashboardData() {
@@ -1043,13 +1542,13 @@ async function getDashboardData() {
 
     var loaResponse = await embeds.getMemberLOAsFromAPI();
     var memberLOAs = [];
-    
+
     // Populate the memberLOAs array with the LOA data and lookup the member's name from the database
     for (var loa of loaResponse) {
         try {
             // Get the member's name from the database
             var [member] = await pool.query('SELECT UName, playerStatus, playerRank FROM Members, Attendance WHERE MemberDiscordID = ? AND Members.MemberID = Attendance.MemberID', [loa.memberId]);
-            
+
             // console.log("Member LOA", member);
             // console.log("Player Rank", member[0].playerRank);
 
@@ -1057,7 +1556,7 @@ async function getDashboardData() {
                 // If the member's rank is null or undefined, skip this member
                 console.log("Member " + loa.memberId + " either has no rank assigned, or is a reservist, skipping...");
                 continue;
-            }    
+            }
             var rankName = await getRankByID(member[0].playerRank);
             var startDate = new Date(loa.startDate).toISOString().slice(0, 19).replace('T', ' ');
             var endDate = new Date(loa.endDate).toISOString().slice(0, 19).replace('T', ' ');
@@ -1088,7 +1587,7 @@ async function getDashboardData() {
 
     // Query 6 - Get the due date of the next server payment
     var nextPaymentDue = daysUntilNext13th();
-    
+
 
     // Query 7 - Get the number of members that are leaders
     var leaders = rows.filter(member => (["Corporal", "Sergeant", "Second Lieutenant", "First Lieutenant"].indexOf(member.rankName) > -1)).length;
@@ -1143,6 +1642,7 @@ module.exports = {
     getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
-    getPool, closePool, performRegister, getUserRole, createMember, getDashboardData, getMemberLOA,
-    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, createSOP, editSOP
+    getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA,
+    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID,
+    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission
 };

@@ -336,6 +336,49 @@ async function openCreateModal() {
     rankSelect.value = 'Recruit';
     rankSelect.setAttribute("readonly", "true");
 
+    // Get all available parents (Members with a higher rank, that are leaders)
+
+    const parentSelect = document.getElementById('new-reporting');
+    const parentResponse = await fetch('/data/seniorMembers');
+    const parentData = await parentResponse.json();
+    // Clear existing options
+    parentSelect.innerHTML = '';
+    // Populate the select element with new options
+    var option = document.createElement('option');
+    option.value = "None";
+    option.text = "None";
+    parentSelect.appendChild(option);
+    var activeGroup = document.createElement('optgroup');
+    activeGroup.label = "Active Leaders";
+    activeGroup.id = "activeLeaders";
+    for (var p of parentData) {
+        var option = document.createElement('option');
+        option.value = p.UName;
+        option.text = p.UName;
+        activeGroup.appendChild(option);
+    }
+    parentSelect.appendChild(activeGroup);
+
+    // Append reservist parent options
+    // These are hard coded for now, but could be fetched from the server if needed
+    var reservistGroup = document.createElement('optgroup');
+    reservistGroup.label = "Reservist Leaders";
+    reservistGroup.id = "reservistLeaders";
+    var reservistOptions = [
+        { value: "Knight", text: "Knight" },
+        { value: "Camel", text: "Camel" },
+        { value: "WHYZE", text: "WHYZE" }
+    ];
+
+    reservistOptions.forEach(optionData => {
+        var option = document.createElement('option');
+        option.value = optionData.value;
+        option.text = optionData.text;
+        option.disabled = true; // Disable reservist options
+        reservistGroup.appendChild(option);
+    });
+    parentSelect.appendChild(reservistGroup);
+
     const joinedElement = document.getElementById('new-joined');
 
     joinedElement.value = new Date().toISOString().split('T')[0];
@@ -343,10 +386,16 @@ async function openCreateModal() {
     modal.show();
 }
 
-function switchReporting() {
-    const parentSelect = document.getElementById('reporting');
-    const selectedRank = document.getElementById('rank').value;
-    const memberStatus = document.getElementById('status');
+function switchReporting(parentSelectId) {
+    const parentSelect = document.getElementById(parentSelectId);
+
+    if (parentSelectId === 'reporting') {
+        var selectedRank = document.getElementById('rank').value;
+        var memberStatus = document.getElementById('status');
+    } else {
+        var selectedRank = document.getElementById('new-rank').value;
+        var memberStatus = document.getElementById('new-status');
+    }
 
     // console.log("Selected Rank: " + selectedRank);
 
@@ -360,10 +409,12 @@ function switchReporting() {
                 option.disabled = false; // Enable reservist options
             }
         });
-        memberStatus.value = "Reserve"; // Set status to Reservist
-        memberStatus.setAttribute("readonly", "true");
-        memberStatus.disabled = true; // Disable status selection
-        memberStatus.classList.add("hover-blocked"); // Add a class to visually block the status option
+        if (parentSelectId === 'reporting') {
+            memberStatus.value = "Reserve"; // Set status to Reservist
+            memberStatus.setAttribute("readonly", "true");
+            memberStatus.disabled = true; // Disable status selection
+            memberStatus.classList.add("hover-blocked"); // Add a class to visually block the status option
+        }
     } else {
         // Enable all active leader options
         Array.from(parentSelect.options).forEach(option => {
@@ -374,10 +425,12 @@ function switchReporting() {
                 option.disabled = true; // Disable reservist options
             }
         });
-        memberStatus.value = "Active"; // Set status to Reservist
-        memberStatus.setAttribute("readonly", "false");
-        memberStatus.disabled = false; // Disable status selection
-        memberStatus.classList = "form-select"; // Add a class to visually block the status option
+        if (parentSelectId === 'reporting') {
+            memberStatus.value = "Active"; // Set status to Reservist
+            memberStatus.setAttribute("readonly", "false");
+            memberStatus.disabled = false; // Disable status selection
+            memberStatus.classList = "form-select"; // Add a class to visually block the status option
+        }
     }
 
     // If the selected rank is not 'Reservist', ensure the parent select is not readonly
@@ -487,27 +540,48 @@ function searchMemberTable() {
 
 // TODO
 function init() {
-    const rankSelect = document.getElementById('rank');
+    var rankSelect = document.getElementById('rank');
     rankSelect.addEventListener('change', async function () {
-        switchReporting();
-        const selectedRank = rankSelect.value;
-        const parentSelect = document.getElementById('reporting');
+        switchReporting('reporting');
+        let selectedRank = rankSelect.value;
+        let parentSelect = document.getElementById('reporting');
         if (selectedRank === 'Reserve') {
-            var firstReservistOption = parentSelect.querySelector('optgroup[label="Reservist Leaders"] option');
+            let firstReservistOption = parentSelect.querySelector('optgroup[label="Reservist Leaders"] option');
             if (firstReservistOption) {
                 parentSelect.value = firstReservistOption.value; // Set to the first reservist leader
             } else {
                 parentSelect.value = "None"; // Fallback if no reservist leaders are available
             }
         } else {
-            var firstActiveOption = parentSelect.querySelector('optgroup[label="Active Leaders"] option');
+            let firstActiveOption = parentSelect.querySelector('optgroup[label="Active Leaders"] option');
             if (firstActiveOption) {
                 parentSelect.value = firstActiveOption.value; // Set to the first active leader
             } else {
                 parentSelect.value = "None"; // Fallback if no active leaders are available
             }
         }
+    });
 
+    var rankSelect = document.getElementById('new-rank');
+    rankSelect.addEventListener('change', async function () {
+        switchReporting('new-reporting');
+        let selectedRank = rankSelect.value;
+        let parentSelect = document.getElementById('new-reporting');
+        if (selectedRank === 'Reserve') {
+            let firstReservistOption = parentSelect.querySelector('optgroup[label="Reservist Leaders"] option');
+            if (firstReservistOption) {
+                parentSelect.value = firstReservistOption.value; // Set to the first reservist leader
+            } else {
+                parentSelect.value = "None"; // Fallback if no reservist leaders are available
+            }
+        } else {
+            let firstActiveOption = parentSelect.querySelector('optgroup[label="Active Leaders"] option');
+            if (firstActiveOption) {
+                parentSelect.value = firstActiveOption.value; // Set to the first active leader
+            } else {
+                parentSelect.value = "None"; // Fallback if no active leaders are available
+            }
+        }
     });
 
     const editModalSubmit = document.getElementById('editUserModalSubmit');

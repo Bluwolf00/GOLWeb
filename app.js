@@ -58,20 +58,22 @@ app.use('/sop', require('./routes/sop.js'));
 // GET REQUESTS - PAGES
 
 app.get('/', (req, res) => {
-    console.log(req.session);
     // req.session.loggedin = false;
 
     res.render('pages/index', {
         userLogged: req.session.loggedin,
-        username: req.session.username
+        username: req.session.username,
+        userRole: req.session.role || 'public' // Default to 'public' if role is not set
     });
 });
 
 app.get('/home', (req, res) => {
-    console.log(req.session);
+    // console.log(req.session);
+
     res.render('pages/index', {
         userLogged: req.session.loggedin,
-        username: req.session.username
+        username: req.session.username,
+        userRole: req.session.role || 'public' // Default to 'public' if role is not set
     });
 });
 
@@ -136,6 +138,28 @@ app.get('/orbat', async (req, res) => {
     res.render('pages/roster_new', { data: data, loggedin: req.session.loggedin, username: req.session.username });
 });
 
+app.get('/mission-orbat', async (req, res) => {
+    res.sendStatus(200);
+});
+
+app.get('/mission-orbat/select', async (req, res) => {
+    res.render('pages/mission-orbat-option', { loggedin: req.session.loggedin, username: req.session.username, userRole: req.session.role || 'Member' });
+});
+
+app.get('/mission-orbat/live', async (req, res) => {
+    if (req.query.selectedOption === 'slots') {
+        // Check if the user is logged in, and is an admin or moderator
+        if (req.session.loggedin && (req.session.role === 'admin' || req.session.role === 'moderator')) {
+            res.render('pages/mission-orbat', { loggedin: req.session.loggedin, username: req.session.username, selectedOption: req.query.selectedOption || 'roles' });
+        } else {
+            res.redirect('/error?error=403'); // Forbidden
+        }
+
+    } else {
+        res.render('pages/mission-orbat', { loggedin: req.session.loggedin, username: req.session.username, selectedOption: req.query.selectedOption || 'roles' });
+    }
+});
+
 app.get('/error', (req, res) => {
     var errorCode = req.query.error;
     console.log(errorCode);
@@ -167,6 +191,7 @@ app.get('/login', (req, res) => {
         if (req.session.loggedin) {
             req.session.loggedin = false;
             req.session.username = null;
+            req.session.role = null; // Clear the role as well
             // req.session.destroy();
             req.session.save(function () {
                 res.redirect('/');

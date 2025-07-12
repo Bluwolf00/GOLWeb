@@ -32,11 +32,23 @@
             <p class="lead mb-5 scaleText">
               An international Arma community with over 20 years of experience!
             </p>
-
+            <% if (username !== 'undefined' && username) { %>
+            <div class="welcome">
+              <h2>Welcome, <span class="sec-highlight"><%= username %></span></h2>
+            </div>
+            <% } %>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center" id="frontButtons">
+              <% if (userRole === "member" || userRole === "moderator" || userRole === "admin") { %>
+              <button type="button" class="btn btn-primary btn-lg px-6 py-3"><a href="/mission-orbat/select">Next Operation
+                  ORBAT</a></button>
+                <% if (userRole === "admin" || userRole === "moderator") { %>
+              <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a href="/dashboard">Dashboard</a></button>
+              <% } %>
+              <% } else { %>
               <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Join Us!</a></button>
               <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a href="/about">About
                   Us</a></button>
+              <% } %>
             </div>
           </div>
         </div>
@@ -91,7 +103,8 @@
           <p>
             We pride ourselves on providing our members with a diverse range of factions and compositions to play as,
             with our gameplay variety being one of our highest priorities.
-            This ensures that our members can experience different roles, gear and tactics, keeping the gameplay fresh and unique.
+            This ensures that our members can experience different roles, gear and tactics, keeping the gameplay fresh
+            and unique.
           </p>
         </div>
         <div class="feature col hidden">

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <%- include('../partials/head', {pageTitle: "GOL Slot Selector"}) %>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
+
+    <style>
+        #slotSelectionContainer {
+            background-color: var(--blu-bg-dark);
+            background-image: linear-gradient(to bottom right, var(--blu-bg), #0b0c0e);
+            border: 2px solid whitesmoke;
+            border-radius: 10px;
+            padding: 10rem 2rem;
+
+        }
+
+        #slotSelectionContainer >.row:nth-child(1) {
+            margin-bottom: 2rem;
+        }
+
+        .selection-option > a{
+            color: white;
+            text-decoration: none;
+        }
+
+        .selection-option > a > i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .selection-option {
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .selection-option:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+    </style>
+</head>
+
+<%- include('../partials/headernav', {pageTitle: "Orbat"}) %>
+
+<body>
+    <main>
+        <div class="container my-5 text-center">
+            <div class="row">
+                <h1>SLOT SELECTION</h1>
+                <p class="lead">Choose either Role Selection or Slot Selection.</p>
+            </div>
+
+            <div class="row">
+                <div class="container" id="slotSelectionContainer">
+                    <div class="row">
+                        <div class="col-sm">
+                            <h3>NEXT OPERATION IN:</h3>
+                            <p class="lead" id="timeUntilMission"></p>
+                        </div>
+                        <div class="col-sm">
+                            <h3>YOUR ROLE:</h3>
+                            <p class="lead" id="pickedRole">Not Selected : Not Selected</p>
+                        </div>
+                        <div class="col-sm">
+                            <h3>COMPOSITION:</h3>
+                            <p class="lead" id="pickedComp">Unconfirmed</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col selection-option">
+                            <a href="/mission-orbat/live?selectedOption=roles">
+                                <i class="bi bi-heart-pulse-fill"></i>
+                                <h3>Select Role</h3>
+                            </a>
+                        </div>
+                        <div class="col selection-option">
+                            <a href="/mission-orbat/live?selectedOption=view">
+                                <i class="bi bi-file-easel-fill"></i>
+                                <h3>View ORBAT</h3>
+                            </a>
+                        </div>
+                        <div class="col selection-option">
+                            <a href="/mission-orbat/live?selectedOption=slots">
+                                <i class="bi bi-people-fill"></i>
+                                <h3>Select Slot<br><span style="color: var(--blu-secondary); font-size: 18px;">(Staff Only!)</span></h3>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <p>Choose a preferred role for the operation (Rifleman, Medic, etc.) but not a specific slot.</p>
+                        </div>
+                        <div class="col">
+                            <p>View the current ORBAT for the operation, including all roles and slots.</p>
+                        </div>
+                        <div class="col">
+                            <p>Select a specific slot. This option is reserved for admins and moderators for moving members.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+        </script>
+    </main>
+
+    <script defer>
+        var isloggedIn = "<%= loggedin %>"
+    </script>
+    <script src="/scripts/checkLogged.js"></script>
+    <script src="/scripts/orbatselection.js"></script>
+    <script>
+        // Function to update the time until the next mission
+        function updateTimeUntilMission() {
+            const timeUntilMission = document.getElementById('timeUntilMission');
+            const now = new Date();
+            // const nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0); // Example: 6 PM today
+
+            // Calculate the time until the next mission
+            // This is either Sunday at 5 PM or Thursday at 7 PM
+            let nextMissionTime;
+            const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // If today is either Monday through Wednesday, set the next mission to Thursday at 7 PM
+            if (dayOfWeek > 0 && dayOfWeek < 4) {
+                nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - dayOfWeek), 19, 0, 0); // Thursday at 7 PM
+            } else if (dayOfWeek === 0 || dayOfWeek > 4) {
+
+                // If it's past 5 PM on Sunday, set the next mission to the next Thursday at 7 PM
+                if (dayOfWeek === 0 && now.getHours() >= 17) {
+                    nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - dayOfWeek + 7), 19, 0, 0); // Next Thursday at 7 PM
+                } else {
+                    // If today is Sunday or Friday/Saturday, set the next mission to Sunday at 5 PM
+                    nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek), 17, 0, 0); // Sunday at 5 PM
+                }
+            } else {
+                // If today is Thursday and is past 7 PM, set the next mission to the next Sunday at 5 PM
+                if (now.getHours() >= 19) {
+                    nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek), 17, 0, 0); // Next Sunday at 5 PM
+                } else {
+                    nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 0, 0); // Today at 7 PM
+                }
+            }
+
+            // 
+
+            const timeDiff = nextMissionTime - now;
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            if (days < 0) {
+                timeUntilMission.textContent = `${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                timeUntilMission.textContent = `${days}d ${hours % 24}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        // Update the time every second
+        setInterval(updateTimeUntilMission, 1000);
+        updateTimeUntilMission(); // Initial call to set the time immediately
+    </script>
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+</body>
+
+</html>

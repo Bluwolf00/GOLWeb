@@ -32,16 +32,17 @@ router.get('/memberbadges', async (req, res) => {
 
 router.get('/getmembers', async (req, res) => {
     var withParents = req.query.withParents;
+    var order = req.query.order;
     var members;
 
     if (typeof withParents !== "undefined") {
         if (withParents.toString() == "true") {
-            members = await db.getMembers(true);
+            members = await db.getMembers(true, order);
         } else {
-            members = await db.getMembers(false);
+            members = await db.getMembers(false, order);
         }
     } else {
-        members = await db.getMembers(false);
+        members = await db.getMembers(false, order);
     }
     res.send(members);
 });
@@ -214,6 +215,85 @@ router.get('/assignedToBadge', authPage, async (req, res) => {
     res.send(members);
 });
 
+router.get('/getLoggedInUser', async (req, res) => {
+    if (req.session.loggedin) {
+
+        var memberID = await db.getUserMemberID(req.session.username);
+        res.status(200).send({
+            "username": req.session.username,
+            "role": req.session.role,
+            "memberID": memberID || null
+        });
+    } else {
+        res.status(401).send({
+            "message": "Unauthorized - User not logged in."
+        });
+    }
+});
+
+router.get('/getLiveOrbat', async (req, res) => {
+    try {
+        const orbatData = await db.getLiveOrbat();
+        res.send(orbatData);
+    } catch (error) {
+        console.error("Error fetching live ORBAT:", error);
+        res.status(500).send("Internal Server Error - Unable to fetch live ORBAT.");
+    }
+});
+
+router.get('/getMemberLiveOrbatInfo', async (req, res) => {
+    try {
+        if (req.session.loggedin === true) {
+            // If the user is logged in, we will use their memberID to get their role in the live ORBAT
+            var memberID = await db.getUserMemberID(req.session.username);
+            if (!memberID) {
+                res.status(401).send("Unauthorized - User not found in the database.");
+                return;
+            }
+        }
+
+        var memberInfo = await db.getMemberSlotInfoFromOrbat(memberID);
+        if (memberInfo) {
+            res.status(200).send(memberInfo);
+        } else {
+            res.status(404).send("Not Found - Member role not found in live ORBAT.");
+        }
+    } catch (error) {
+        console.error("Error fetching live ORBAT member role:", error);
+        res.status(500).send("Internal Server Error - Unable to fetch live ORBAT member role.");
+    } finally {
+        // Ensure that the function closes, this avoids hanging processes
+        return;
+    }
+});
+
+router.get('/getMission', async (req, res) => {
+    try {
+        var missions;
+        if (req.query.missionID) {
+            // Return single mission by ID
+            missions = await db.getMissions(req.query.missionID);
+        } else {
+            // Return all missions
+            missions = await db.getMissions();
+        }
+        res.send(missions);
+    } catch (error) {
+        console.error("Error fetching missions:", error);
+        res.status(500).send("Internal Server Error - Unable to fetch missions.");
+    }
+});
+
+router.get('/getMissionCompositions', async (req, res) => {
+    try {
+        const compositions = await db.getMissionCompositions();
+        res.send(compositions);
+    } catch (error) {
+        console.error("Error fetching missions:", error);
+        res.status(500).send("Internal Server Error - Unable to fetch missions.");
+    }
+});
+
 // -- POST REQUESTS - DATA --
 
 // Despite being a request that recieves data, this is a POST request to ensure authentication is used
@@ -254,9 +334,10 @@ router.post('/performLogin', async (req, res) => {
     const { username, password } = req.body;
     var result = await db.performLogin(username, password, false);
 
-    if (result) {
+    if (result.allowed) {
         req.session.loggedin = true;
         req.session.username = username;
+        req.session.role = result.role.toLowerCase();
         req.session.save();
         res.status(200).send({ "result": result, "status": 200, "message": "Successfully logged in." });
         return;
@@ -272,14 +353,14 @@ router.post('/performRegister', async (req, res) => {
     // Check if the username already exists
     let result = await db.performLogin(username, password, false);
     console.log("Perform Login Result: ", result);
-    
+
     // Validate the passwords
     const passwordValidation = validatePasswords(password, confirmPassword);
     if (passwordValidation.status === 400) {
         res.status(400).send(passwordValidation);
         return;
     }
-    
+
     if (result) {
         res.status(409).send({ "fullStatus": "Bad Request - Username already taken.", "statusMessage": "Error: Username already taken" }); // Conflict
         return;
@@ -288,7 +369,7 @@ router.post('/performRegister', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         result = await db.performRegister(username, hashedPassword);
         if (result) {
-            res.status(201).send({ "fullStatus": "Success - Registration Sucessful.", "statusMessage": "Success: Registration Sucessful. Redirecting..."});
+            res.status(201).send({ "fullStatus": "Success - Registration Sucessful.", "statusMessage": "Success: Registration Sucessful. Redirecting..." });
         } else {
             res.status(500).send({ "fullStatus": "Internal Server Error", "statusMessage": "Server Error: Please try again later." });
         }
@@ -396,7 +477,7 @@ router.post('/updateRank', authPage, async (req, res) => {
     // Search the description string for script tags and remove them
     rankDescription = rankDescription.replace(/<script.*?>.*?<\/script>/g, '');
 
-    res.status(307).send({message : "This endpoint is not yet implemented. Please try again later."});
+    res.status(307).send({ message: "This endpoint is not yet implemented. Please try again later." });
 });
 
 router.post('/updateBadge', [authPage, upload.single('image')], async (req, res) => {
@@ -557,7 +638,7 @@ router.post('/editSOP', authPage, async (req, res) => {
                 res.status(400).send({ "result": `Bad Request - Author "${author}" does not exist.` });
                 return;
             }
-        }        
+        }
     }
 
     try {
@@ -610,6 +691,106 @@ router.post('/resetPassword', authPage, async (req, res) => {
 
 // -- PATCH REQUESTS - DATA --
 
+router.patch('/orbatSubmission', async (req, res) => {
+
+    // console.log(req.body);
+
+    var memberID = req.body.selectedMember;
+    var memberRole = req.body.chosen_role;
+    var memberSlotID = req.body.memberSlotID;
+    var unassign = req.body.unassign;
+
+    if (unassign === "on") {
+        memberRole = "NONE";
+    }
+
+    if (memberRole === "FAC") {
+        // Expand the role to Forward Air Controller
+        // This is to ensure that the role is correctly set in the database
+        memberRole = "Forward Air Controller";
+    }
+
+    // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
+    if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() !== "admin" && req.session.role.toLowerCase() !== "moderator") {
+        if (memberID !== req.session.memberID) {
+            res.status(403).send("Forbidden - You are not allowed to update this member's ORBAT.");
+            return;
+        }
+    } else if (!req.session.loggedin) {
+        res.status(401).send("Unauthorized - You must be logged in to update the ORBAT.");
+        return;
+    }
+
+    if (!memberID || !memberRole) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    if (!memberSlotID) {
+        // Role Selection
+        var result = await db.updateMissionORBAT(memberID, memberRole);
+    } else {
+        // Slot Selection
+        var result = await db.updateMissionORBAT(memberID, memberRole, memberSlotID);
+    }
+
+    if (result) {
+        console.log("Result Message: " + result.message);
+        if (result.message) {
+            res.status(200).send({ "message": result.message, "slotNodeID": result.slotNodeID });
+            return;
+        } else {
+            res.status(200).send({ "message": "Member added to ORBAT successfully", "slotNodeID": result.slotNodeID });
+        }
+    } else {
+        res.status(500).send({ "message": "Failed to add member to ORBAT - Check if the member name is correct.", "slotNodeID": result.slotNodeID });
+    }
+    return;
+});
+
+router.patch('/missionorbatSubmission', authPage, async (req, res) => {
+    // This route is used to either create or update a mission on the database.
+
+    var missionID;
+    var missionDate;
+    var templateID;
+
+    if (req.body.new_composition) {
+        // Must be the Create Modal
+        templateID = req.body.new_composition;
+        missionDate = req.body.missionDatetimeNew;
+        missionID = null; // No mission ID for new missions
+    } else {
+        templateID = req.body.composition;
+        missionDate = req.body.missionDatetime;
+        missionID = req.body.missionID; // This is the ID of the mission to update
+    }
+
+    if (!templateID || !missionDate) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    try {
+        // If the mission already exists, it will update it, otherwise it will create a new mission
+        var result = await db.patchMissions(missionID, templateID, missionDate);
+
+        // console.log("Patch Missions Result: ", result);
+        if (result) {
+            if (result[0].affectedRows > 0) {
+                res.status(200).send({ "message": "Mission updated successfully", "missionID": result.insertId || templateID });
+            } else {
+                res.status(500).send({ "message": "Failed to update mission - Check if the mission exists." });
+            }
+        }
+    } catch (error) {
+        console.error("Error processing mission ORBAT submission:", error);
+        res.status(500).send("Internal Server Error - Unable to process mission ORBAT submission.");
+    } finally {
+        return;
+    }
+});
+
 router.patch('/changeRank', authPage, async (req, res) => {
     // var member = req.body.member;
     // var newRank = req.body.newRank;
@@ -651,6 +832,27 @@ router.delete('/deleteMember', authPage, async (req, res) => {
         res.status(200).send({ "result": "Member deleted successfully" });
     } else {
         res.status(500).send({ "result": "Failed to delete member - Check if the member ID exists." });
+    }
+});
+
+router.delete('/deleteMission', authPage, async (req, res) => {
+    var missionID = req.query.missionId;
+
+    if (!missionID) {
+        res.status(400).send("Bad Request - Missing Parameters");
+        return;
+    }
+
+    try {
+        var result = await db.deleteMission(missionID);
+        if (result > 0) {
+            res.status(200).send({ "result": "Mission deleted successfully" });
+        } else {
+            res.status(404).send({ "result": "Mission not found or already deleted" });
+        }
+    } catch (error) {
+        console.error("Error deleting mission:", error);
+        res.status(500).send({ "result": "Internal Server Error - Unable to delete mission." });
     }
 });
 

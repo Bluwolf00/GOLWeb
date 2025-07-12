@@ -15,13 +15,26 @@
             <h1 class="mb-5  ">Aw Crap!</h1>
             <% if (typeof error !== 'undefined') { %>
             <% if (error == 403) { %>
-            <h2>Access Unauthorised</h2>
-            <h3 class="lead">Woah there! Seems as though you've tried to tune into the command net. <br>Can't have that
-                soldier!</h3>
+            <h2>Access Forbidden</h2>
+            <p class="lead">Woah there! Seems as though you've tried to tune into the command net. <br>Can't have that
+                soldier!</p>
+                <p class="text-muted">Error Code: 403 Forbidden</p>
             <% } else if (error == 404) { %>
-            <h3>Woah there! That grid reference doesn't exist in this AO!</h3>
-            <% } else { %>
-            <h3 class="lead">Looks like you've got the wrong frequency!</h3>
+                <h2>Not Found</h2>
+            <p class="lead">Woah there! That grid reference doesn't exist in this AO!</p>
+            <p class="text-muted">Error Code: 404 Not Found</p>
+            <% } else if (error == 401) { %>
+                <h2>Access Unauthorised</h2>
+                <% if (loggedin) { %>
+                    <h3 class="lead">Woah there! You sure that's your stripes soldier?
+                    If it is your stripes, you should not be at this tent!
+                    <% } else { %>
+                    <h3 class="lead">Woah there! You've forgotten your uniform there soldier!
+                    <br>Head over to the barracks and <a href="/login">get yourself kitted</a>.</h3>
+                    <% } %>
+                <p class="text-muted">Error Code: 401 Unauthorised</p>
+            <% } else { %>        
+            <p class="lead">Looks like you've got the wrong frequency!</p>
             <% } %>
             <% } %>
             <p class="lead">No worries, try heading back to base for a debrief</p>

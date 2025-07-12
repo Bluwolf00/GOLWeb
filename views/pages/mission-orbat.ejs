@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <%- include('../partials/head', {pageTitle: "GOL Slot Selector"}) %>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
+
+    <style>
+        .node-bubble {
+            transition: all 0.3s ease;
+        }
+
+        .selected-bubble {
+            border: 3px solid var(--bs-primary) !important;
+            box-shadow: 0 0 10px rgba(0, 132, 255, 0.5);
+        }
+    </style>
+</head>
+
+<%- include('../partials/headernav', {pageTitle: "Orbat"}) %>
+
+<body>
+    <main>
+        <div class="container my-5">
+            <div class="row text-center">
+                <h1>SLOT SELECTION</h1>
+                <% if (selectedOption != "view") { %>
+                <p class="lead">Select your slot for the next operation.</p>
+                <p class="text-muted">Please select your
+                    <% if (selectedOption === "slots") { %>
+                    <strong>slot</strong>
+                    <% } else { %>
+                    <strong>role</strong>
+                    <% } %>
+                    before the operation starts.</p>
+                <p class="text-muted">If you have any issues, please contact a moderator.</p>
+                <% } else { %>
+                <p class="lead">View the current ORBAT for the next operation.</p>
+                <% } %>
+                <p class="text-muted">Disclaimer: These slots only indicate a preference and leaders hold the right to
+                    move players into other slots.</p>
+            </div>
+
+            <div class="chart-container" id="orgChart"></div>
+
+            <div class="container text-center">
+                <form id="orbatSelectForm" method="POST" action="/data/orbatSubmission">
+                    <% if (selectedOption === "roles") { %>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionFTL" value="Fire Team Leader">
+                                <label for="optionFTL">- Fire Team Leader</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionR" value="Rifleman">
+                                <label for="optionR">- Rifleman</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionG" value="Grenadier">
+                                <label for="optionG">- Grenadier</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionAG" value="Assistant Gunner">
+                                <label for="optionAG">- Asst. Gunner</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionAR" value="Automatic Rifleman">
+                                <label for="optionAR">- Automatic Rifleman</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionCD" value="Crew Driver">
+                                <label for="optionCD">- Crew Driver</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionCG" value="Crew Gunner">
+                                <label for="optionCG">- Crew Gunner</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionCC" value="Crew Commander">
+                                <label for="optionCC">- Crew Commander</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionP" value="Pilot">
+                                <label for="optionP">- Pilot</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionFAC" value="FAC">
+                                <label for="optionFAC">- FAC</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionANY" value="any">
+                                <label for="optionANY">- Any Role</label>
+                            </div>
+                            <div class="form-check" style="margin-top: 1rem;">
+                                <input type="radio" name="chosen_role" id="optionNONE" value="NONE">
+                                <label for="optionNONE" style="font-weight: 500; color: var(--blu-secondary);">-
+                                    Unassign Role</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionSL" value="Squad Leader">
+                                <label for="optionSL">- Squad Leader</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionSM" value="Squad Medic">
+                                <label for="optionSM">- Squad Medic</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionPL" value="Platoon Leader">
+                                <label for="optionPL">- Platoon Leader</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionPM" value="Platoon Medic">
+                                <label for="optionPM">- Platoon Medic</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="chosen_role" id="optionCSW" value="CSW Operator">
+                                <label for="optionCSW">- CSW Operator</label>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+                    <% if (selectedOption != "view") { %>
+                    <div class="row justify-content-center my-5 text-center">
+                        <p class="text-muted">Click on a slot to select it</p>
+                        <div class="col-sm-3">
+                            <h3>Selected Member</h3>
+                            <p class="text-muted">Only leaders, moderators and admins can assign other members.
+                            </p>
+                            <select id="memberSelect" class="form-select" name="selectedMember">
+                            </select>
+                            <% if (selectedOption === "slots") { %>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="unassign" class="form-text" style="color: var(--blu-secondary);">Unassign Member?</label>
+                                <input type="checkbox" name="unassign" id="unassign" value="off" class="form-check-input">
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% } %>
+                    <div class="row justify-content-center">
+                        <div class="col-sm-2">
+                            <% if (selectedOption != "view") { %>
+                            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                            <% } %>
+                            <a href="/mission-orbat/select"><button type="button"
+                                    class="btn btn-secondary mt-3">Back</button></a>
+                        </div>
+                    </div>
+                    <% if (selectedOption === "slots") { %>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="text" name="chosen_slot" id="chosenSlotNodeID" value=""
+                                    style="display: none;">
+                            </div>
+                            <div class="form-check">
+                                <input type="text" name="chosen_role" id="chosenSlotRoleName" value=""
+                                    style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+                </form>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+                crossorigin="anonymous">
+            </script>
+    </main>
+
+    <script defer>
+        var isloggedIn = "<%= loggedin %>"
+    </script>
+    <script src="/scripts/checkLogged.js"></script>
+
+    <script src="/scripts/orbatchart.js"></script>
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+</body>
+
+</html>

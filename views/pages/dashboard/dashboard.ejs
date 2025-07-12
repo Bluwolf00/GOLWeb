@@ -2,16 +2,16 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-  <%- include('../partials/head', {pageTitle: "GOL Dashboard"}) %>
+  <%- include('../../partials/head', {pageTitle: "GOL Dashboard"}) %>
   <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
+<%- include('../../partials/headernav', {pageTitle: "Dashboard"}) %>
 
 
 <body>
   <main>
-    <%- include('../partials/dashnav', {pageName: "Dashboard"}) %>
+    <%- include('../../partials/dashnav', {pageName: "Dashboard"}) %>
 
     <div class="modal modal-lg fade" id="resetPasswordModal" tabindex="-1">
       <div class="modal-dialog">
@@ -222,7 +222,7 @@
   </main>
 
   <footer>
-    <%- include('../partials/footer') %>
+    <%- include('../../partials/footer') %>
   </footer>
 </body>
 

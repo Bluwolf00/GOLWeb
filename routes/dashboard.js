@@ -5,7 +5,7 @@ const middle = require('../middle.js');
 const authPage = middle.authPage;
 
 router.get('/', authPage, async (req,res) => {
-    res.render('pages/dashboard', {
+    res.render('pages/dashboard/dashboard', {
         username: req.session.username
     });
 });
@@ -20,7 +20,7 @@ router.get('/users', authPage, async (req,res) => {
     if (!createSuccess) {
         createSuccess = -1;
     }
-    res.render('pages/users', {
+    res.render('pages/dashboard/users', {
         username: req.session.username,
         editSuccess: editSuccess,
         createSuccess: createSuccess
@@ -40,7 +40,7 @@ router.get('/badges', authPage, async (req,res) => {
     if (!createSuccess) {
         createSuccess = -1;
     }
-    res.render('pages/dashbadges', {
+    res.render('pages/dashboard/dashbadges', {
         username: req.session.username,
         editSuccess: editSuccess,
         createSuccess: createSuccess
@@ -48,7 +48,7 @@ router.get('/badges', authPage, async (req,res) => {
 });
 
 router.get('/sop', authPage, async (req,res) => {
-    res.render('pages/dashsop', {
+    res.render('pages/dashboard/dashsop', {
         username: req.session.username
     });
 });
@@ -58,7 +58,7 @@ router.get('/videos', authPage, async (req,res) => {
 });
 
 router.get('/ranks', authPage, async (req,res) => {
-    res.render('pages/dashranks', {
+    res.render('pages/dashboard/dashranks', {
         username: req.session.username
     });
 });
@@ -73,6 +73,12 @@ router.get('/events', authPage, async (req,res) => {
 
 router.get('/trainings', authPage, async (req,res) => {
     res.redirect('error?error=404');
+});
+
+router.get('/missions', authPage, async (req,res) => {
+    res.render('pages/dashboard/dashmissions', {
+        username: req.session.username
+    });
 });
 
 module.exports = router;

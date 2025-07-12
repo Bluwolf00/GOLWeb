@@ -2,12 +2,12 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-  <%- include('../partials/head', {pageTitle: "GOL Dashboard - Badges"}) %>
+  <%- include('../../partials/head', {pageTitle: "GOL Dashboard - Badges"}) %>
   <link rel="stylesheet" href="/styles/dashboard.css">
   <script defer src="/scripts/dashbadgeModal.js"></script>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
+<%- include('../../partials/headernav', {pageTitle: "Dashboard"}) %>
 
 <body>
   <main>
@@ -35,7 +35,7 @@
     </div>
     <% } %>
 
-    <%- include('../partials/dashnav', {pageName: "Badges"}) %>
+    <%- include('../../partials/dashnav', {pageName: "Badges"}) %>
 
     <div class="modal modal-lg fade" id="assignBadgeModal" tabindex="-1">
       <div class="modal-dialog">
@@ -259,7 +259,7 @@
   </main>
 
   <footer>
-    <%- include('../partials/footer') %>
+    <%- include('../../partials/footer') %>
   </footer>
 </body>
 

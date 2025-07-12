@@ -2,12 +2,12 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-    <%- include('../partials/head', {pageTitle: "GOL Dashboard - SOPs"}) %>
+    <%- include('../../partials/head', {pageTitle: "GOL Dashboard - SOPs"}) %>
     <link rel="stylesheet" href="/styles/dashboard.css">
     <script defer src="/scripts/dashsop.js"></script>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
+<%- include('../../partials/headernav', {pageTitle: "Dashboard"}) %>
 
 <body>
     <main>
@@ -35,7 +35,7 @@
         </div>
         <% } %>
 
-        <%- include('../partials/dashnav', {pageName: "SOPs"}) %>
+        <%- include('../../partials/dashnav', {pageName: "SOPs"}) %>
 
         <div class="modal fade" id="editSopModal" tabindex="-1">
             <div class="modal-dialog">
@@ -223,7 +223,7 @@
     </main>
 
     <footer>
-        <%- include('../partials/footer') %>
+        <%- include('../../partials/footer') %>
     </footer>
 </body>
 

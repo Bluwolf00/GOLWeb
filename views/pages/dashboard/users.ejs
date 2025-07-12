@@ -2,12 +2,12 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-  <%- include('../partials/head', {pageTitle: "GOL Dashboard - Members"}) %>
+  <%- include('../../partials/head', {pageTitle: "GOL Dashboard - Members"}) %>
   <link rel="stylesheet" href="/styles/dashboard.css">
   <script defer src="/scripts/dashusertable.js"></script>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Dashboard"}) %>
+<%- include('../../partials/headernav', {pageTitle: "Dashboard"}) %>
 
 <body>
   <main>
@@ -35,7 +35,7 @@
     </div>
     <% } %>
 
-    <%- include('../partials/dashnav', {pageName: "Members"}) %>
+    <%- include('../../partials/dashnav', {pageName: "Members"}) %>
 
     <div class="modal fade" id="editUserModal" tabindex="-1">
       <div class="modal-dialog">
@@ -142,10 +142,19 @@
                 <input required type="text" class="form-control" id="new-country" name="newcountry"
                   placeholder="Country">
               </div>
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label for="new-reporting">Reports To</label>
                 <input required type="text" class="form-control" id="new-reporting" name="newreporting"
                   placeholder="Reports To">
+              </div> -->
+              <div class="form-group">
+                <label for="new-reporting">Reports To</label>
+                <select name="reporting" id="new-reporting" class="form-select">
+                  <option value="None" selected>None</option>
+                  <!-- Options will be populated by JavaScript -->
+                </select>
+                <small class="text-body-secondary">If the member is a reserve, they must report to another
+                  reservist.</small>
               </div>
               <div class="form-group">
                 <label for="new-joined">Joined Date</label>
@@ -236,7 +245,7 @@
   </main>
 
   <footer>
-    <%- include('../partials/footer') %>
+    <%- include('../../partials/footer') %>
   </footer>
 </body>
 
