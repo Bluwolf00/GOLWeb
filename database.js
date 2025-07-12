@@ -1166,6 +1166,8 @@ function unwrapORBATJSON(data) {
         newData.push(newItem);
     }
 
+    newData.push({"old_length": data.length, "new_length": newData.length});
+
     return newData;
 }
 
@@ -1226,7 +1228,7 @@ async function getLiveOrbat() {
         };
     }
     catch (error) {
-        console.log("Error getting live ORBAT: " + error);
+        console.error("Error getting live ORBAT: " + error);
         return null;
     }
 }
