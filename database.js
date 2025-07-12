@@ -969,7 +969,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
         // Check if the member is already in the ORBAT
         [rows] = await pool.query(`
             SELECT MemberID
-            FROM missionorbatMembers
+            FROM missionorbatmembers
             WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
 
         if (rows.length > 0) {
@@ -980,7 +980,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                 try {
                     console.log("Unassigning member: " + memberID + " from mission ID: " + missionID);
                     rows = await pool.query(`
-                        DELETE FROM missionorbatMembers
+                        DELETE FROM missionorbatmembers
                         WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
                     if (rows[0].affectedRows > 0) {
                         console.log("Member unassigned from the ORBAT for mission ID: " + missionID);
@@ -1007,7 +1007,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
 
                 // Update the member's role and slotNodeID
                 rows = await pool.query(`
-                    UPDATE missionorbatMembers
+                    UPDATE missionorbatmembers
                     SET MemberRole = ?, slotNodeID = ?, memberCallsign = ?
                     WHERE memberID = ? AND missionID = ?`, [memberRole, slotNodeID, callsign, memberID, missionID]);
                 if (rows[0].affectedRows > 0) {
@@ -1016,7 +1016,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
             } else {
                 // If slotNodeID is provided, update the member's role and slotNodeID directly
                 rows = await pool.query(`
-                    UPDATE missionorbatMembers
+                    UPDATE missionorbatmembers
                     SET slotNodeID = ?, memberCallsign = ?
                     WHERE memberID = ? AND missionID = ?`, [slotNodeID, callsign, memberID, missionID]);
                 if (rows[0].affectedRows > 0) {
@@ -1040,7 +1040,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
 
                 // Insert the member into the ORBAT with the specified role and slotNodeID
                 rows = await pool.query(`
-                    INSERT INTO missionorbatMembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
+                    INSERT INTO missionorbatmembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
                     VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
                 if (rows[0].affectedRows > 0) {
                     console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
@@ -1048,7 +1048,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
             } else {
                 // If slotNodeID is provided, insert the member into the ORBAT with the specified role and slotNodeID
                 rows = await pool.query(`
-                    INSERT INTO missionorbatMembers (memberID, missionID, MemberRole, memberCallsign, slotNodeID, updatedAt)
+                    INSERT INTO missionorbatmembers (memberID, missionID, MemberRole, memberCallsign, slotNodeID, updatedAt)
                     VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
                 if (rows[0].affectedRows > 0) {
                     console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
@@ -1061,7 +1061,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
 
         rows = await pool.query(`
                         UPDATE missionorbats
-                        SET filledSlots = (SELECT COUNT(*) FROM missionorbatMembers WHERE missionID = ?)
+                        SET filledSlots = (SELECT COUNT(*) FROM missionorbatmembers WHERE missionID = ?)
                         WHERE missionID = ?`, [missionID, missionID]);
 
         if (rows[0].affectedRows > 0) {
@@ -1093,7 +1093,7 @@ async function getNextAvailableSlot(memberRole, missionID) {
     // Get all currently filled slotNodeIDs for the mission
     [rows] = await pool.query(`
         SELECT slotNodeID
-        FROM missionorbatMembers
+        FROM missionorbatmembers
         WHERE missionID = ?`, [missionID]);
     var filledNodes = rows.map(row => row.slotNodeID);
 
@@ -1190,9 +1190,9 @@ async function getLiveOrbat() {
         var layout = unwrapORBATJSON(rows[0].layout);
         // Now get the members that are in the ORBAT for the mission
         var [members] = await pool.query(`
-            SELECT Members.MemberID, Members.UName, Ranks.prefix, missionorbatMembers.memberRole, missionorbatMembers.slotNodeID
-            FROM Members, missionorbatMembers, Ranks
-            WHERE Members.MemberID = missionorbatMembers.memberID AND missionorbatMembers.missionID = ? AND
+            SELECT Members.MemberID, Members.UName, Ranks.prefix, missionorbatmembers.memberRole, missionorbatmembers.slotNodeID
+            FROM Members, missionorbatmembers, Ranks
+            WHERE Members.MemberID = missionorbatmembers.memberID AND missionorbatmembers.missionID = ? AND
             Members.playerRank = Ranks.rankID`, [rows[0].missionID]);
 
         // Now combine the layout with the members
@@ -1251,7 +1251,7 @@ async function getMemberSlotInfoFromOrbat(memberID) {
         // Now get the member's role in the ORBAT for the mission
         [rows] = await pool.query(`
             SELECT memberRole, slotNodeID, memberCallsign
-            FROM missionorbatMembers
+            FROM missionorbatmembers
             WHERE memberID = ? AND missionID = ?`, [memberID,
             missionID]);
         if (rows.length == 0) {
