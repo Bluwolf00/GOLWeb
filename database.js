@@ -606,7 +606,7 @@ async function getUserMemberID(username) {
             return null;
         } else {
             console.log("getUserMemberID | MemberID: " + rows[0].MemberID);
-            return rows.MemberID;
+            return rows[0].MemberID;
         }
     }
 }
