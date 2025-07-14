@@ -511,6 +511,25 @@ async function getSeniorMembers() {
     }
 }
 
+
+async function checkIfUserExists(username) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT username
+            FROM users
+            WHERE username = ?`, [username]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return false; // User does not exist
+        } else {
+            return true; // User exists
+        }
+    }
+}
+
 async function performLogin(username, password, fallback) {
 
     if (!fallback) {
@@ -523,6 +542,7 @@ async function performLogin(username, password, fallback) {
         } catch (error) {
             console.log(error);
         } finally {
+            console.log(rows);
             if (rows.length == 0) {
                 return { "allowed": false, "role": null };
             } else if (typeof rows == "undefined" || typeof rows == "null" || rows == null) {
@@ -1682,5 +1702,5 @@ module.exports = {
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID,
-    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission
+    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists
 };

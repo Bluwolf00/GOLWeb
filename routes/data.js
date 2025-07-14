@@ -374,7 +374,7 @@ router.post('/performRegister', async (req, res) => {
     const { username, password, confirmPassword } = req.body;
 
     // Check if the username already exists
-    let result = await db.performLogin(username, password, false);
+    let result = await db.checkIfUserExists(username);
     console.log("Perform Login Result: ", result);
 
     // Validate the passwords
@@ -384,7 +384,7 @@ router.post('/performRegister', async (req, res) => {
         return;
     }
 
-    if (result) {
+    if (result === true) {
         res.status(409).send({ "fullStatus": "Bad Request - Username already taken.", "statusMessage": "Error: Username already taken" }); // Conflict
         return;
     } else {

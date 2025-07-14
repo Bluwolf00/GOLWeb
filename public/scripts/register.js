@@ -18,8 +18,8 @@ async function performRegister() {
                 if (response.status === 201) {
                     createAlert("Registration successful! Redirecting...", "success", "alertHolder", 3000);
                     setTimeout(() => {
-                        // Redirect to the dashboard after a successful login
-                        window.location.href = '/home';
+                        // Redirect to the login page after a successful register
+                        window.location.href = '/login';
                     }, 3000);
                 } else {
                     createAlert(data.statusMessage, "danger", "alertHolder", 5000);

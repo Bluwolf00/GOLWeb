@@ -39,6 +39,10 @@ $(document).ready(function () {
             document.getElementById("dashEntry").classList.add("active");
             break;
 
+        case "Register":
+            document.getElementById("registerEntry").classList.add("active");
+            break;
+
         default:
             break;
             // By default the active element won't be on any of the buttons, this includes for any pages that do not appear in the above conditions (error page etc.)
