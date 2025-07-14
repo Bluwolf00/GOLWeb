@@ -3,7 +3,7 @@ async function init() {
     try {
         var res = await fetch('/data/getMemberLiveOrbatInfo');
         if (res.status !== 200) {
-            console.error("Failed to fetch live ORBAT data");
+            console.error("Failed to fetch live ORBAT data", res.body, res.statusText);
             return;
         }
         var data = await res.json();

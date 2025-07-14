@@ -258,7 +258,11 @@ async function init() {
     // console.log("Initializing org chart...");
     await handleChartUpdate();
     
-    populateMemberDropD();
+    if (document.getElementById("memberSelect") != null || document.getElementById("memberSelect") != undefined) {
+        populateMemberDropD();
+    } else {
+        console.log("Member select dropdown not found, skipping population.");
+    }
 
     if (window.location.search.includes("selectedOption")) {
         // Get the selected option from the URL
