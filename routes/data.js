@@ -178,9 +178,13 @@ router.get('/getSOPs', async (req, res) => {
     try {
         var sops = await db.getSOPs();
 
+        console.log("SOPs fetched:", sops.length);
+
         // Check if the logged user has access to restricted SOPs
-        if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() === 'public') {
-            // If the user is public, mark restricted SOPs as null
+        if (req.session.loggedin && req.session.role && (req.session.role.toLowerCase() === 'member' || req.session.role.toLowerCase() === 'admin' || req.session.role.toLowerCase() === 'moderator')) {
+            console.log("User is a member or has access to restricted SOPs, not modifying SOP URLs.");
+        } else {
+            console.log("User is not a member or does not have access to restricted SOPs, setting SOP URLs to null.");
             sops.forEach(sop => {
                 if (sop.isRestricted === 1) {
                     sop.sopUrl = null; // Set SOP URL to null if restricted

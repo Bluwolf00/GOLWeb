@@ -956,11 +956,6 @@ async function getSOPs() {
             // For each SOP, get the SOP URL from the embeds module
             rows[i].sopUrl = embeds.getSOPUrl(rows[i].sopDocID);
 
-            if (rows[i].isRestricted == 1) {
-                // If the SOP is restricted, set the sopUrl to null
-                rows[i].sopUrl = null;
-            }
-
             // For each SOP, get the authors' names from the Members table with their MemberID
             if (rows[i].authors) {
                 rows[i].authorNames = await getMemberNames(rows[i].authors, true);
