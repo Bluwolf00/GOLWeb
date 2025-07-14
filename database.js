@@ -1146,12 +1146,14 @@ async function getNextAvailableSlot(memberRole, missionID) {
 function unwrapORBATJSON(data) {
     var newData = [];
     var message = "";
+    message += "\n\nData IN: " + JSON.stringify(data) + "\n";
+    let newItem;
     for (const item of data) {
-        var newItem = {
-            "id": item.id,
-            "roleName": item.roleName,
-            "callsign": item.callsign,
-            "parentNodeId": item.parentNode
+        newItem = {
+            id: item.id,
+            roleName: item.roleName,
+            callsign: item.callsign,
+            parentNodeId: item.parentNode
         };
 
         message += "Unwrapped ORBAT item: " + JSON.stringify(newItem) + "\n";
@@ -1161,7 +1163,7 @@ function unwrapORBATJSON(data) {
             if (item.subordinates.length > 0) {
                 message += "Item has subordinates, unwrapping them...\n";
                 let subs = unwrapORBATJSON(item.subordinates);
-                for (const sub of subs) {
+                for (const sub of subs.data) {
                     newData.push(sub);
                 }
             }
@@ -1173,7 +1175,7 @@ function unwrapORBATJSON(data) {
     console.warn("Unwrapped ORBAT JSON: " + JSON.stringify(newData));
 
 
-    return {newData, message};
+    return {"data": newData, "message": message};
 }
 
 async function getLiveOrbat() {
