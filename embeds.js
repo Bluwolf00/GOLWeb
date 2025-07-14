@@ -526,7 +526,8 @@ async function getNextTraining() {
 }
 
 function getSOPUrl(id) {
-    return `https://docs.google.com/document/d/${id}/preview`
+    let url = `https://docs.google.com/document/d/${id}/preview`;
+    return url;
 }
 
 module.exports = { getInfoFromAPI, addVideosDuration, getMemberAttendanceFromAPI: getAttendanceFromAPI, getNextMission, getNextTraining, getMemberLOAsFromAPI, getAttendanceReport, getSOPUrl };

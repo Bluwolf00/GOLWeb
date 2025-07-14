@@ -104,8 +104,7 @@ async function createOrg(data) {
         .container('.chart-container')
         .data(data)
         .render()
-        .setCentered("O-0001")
-        .render();
+        .fit();
 }
 
 // Call the endpoint to update the LOAs on the database

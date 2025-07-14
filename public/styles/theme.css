@@ -239,6 +239,14 @@ body {
   transition-delay: 400ms;
 }
 
+.sop-card:nth-child(2) {
+  transition-delay: 200ms;
+}
+
+.sop-card:nth-child(3) {
+  transition-delay: 400ms;
+}
+
 .video-col:nth-child(2) {
   transition-delay: 200ms;
 }
@@ -546,7 +554,7 @@ footer {
   background-image: linear-gradient(to bottom right, var(--blu-bg), #131418);
   padding: 0;
   filter: drop-shadow(2px 0px 4px black);
-  margin: 3% 3%;
+  margin: 1% 3%;
   border: 2px solid white;
 }
 

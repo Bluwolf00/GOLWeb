@@ -5,7 +5,7 @@ var badgePath = "";
 function createCard(name, description, path, isQuali) {
     var parentDiv = document.getElementById('badgeDiv');
     var col = document.createElement('div');
-    col.className = 'col';
+    col.className = 'col hidden';
     parentDiv.appendChild(col);
     var card = document.createElement('div');
     if (isQuali) {
@@ -53,3 +53,9 @@ async function getAllBadges() {
 }
 
 getAllBadges();
+
+// Load the observer script
+var observerScript = document.createElement('script');
+observerScript.src = '/scripts/observer.js';
+observerScript.defer = true;
+document.body.appendChild(observerScript);

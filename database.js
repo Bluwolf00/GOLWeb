@@ -88,6 +88,36 @@ async function getMember(name) {
     }
 }
 
+async function getMemberNames(memberIDs, includeRank = false) {
+    var rows = [null];
+    var result = [];
+    try {
+                
+        if (includeRank === true) {
+            [rows] = await pool.query(`
+                SELECT UName, prefix
+                FROM Members, Ranks
+                WHERE Members.playerRank = Ranks.rankID AND MemberID IN (?)`, memberIDs);
+
+            for (let row of rows) {
+                result.push(`${row.prefix}. ${row.UName}`);
+            }
+
+        } else {
+            [rows] = await pool.query(`
+                SELECT UName
+                FROM Members
+                WHERE MemberID IN (?)`, memberIDs);
+
+            result = rows.map(row => row.UName);
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return result;
+    }
+}
+
 async function deleteMember(memberID) {
     var rows = [null];
     try {
@@ -536,7 +566,7 @@ async function performLogin(username, password, fallback) {
         var rows = [null];
         try {
             [rows] = await pool.query(`
-                SELECT username,password,role
+                SELECT username,password,role,memberID
                 FROM users
                 WHERE username = ?`, [username]);
         } catch (error) {
@@ -555,7 +585,7 @@ async function performLogin(username, password, fallback) {
                     console.log("User " + username + " logged in successfully");
                     console.log("User role: " + rows[0].role);
                     var role = rows[0].role;
-                    return { "allowed": true, "role": role };
+                    return { "allowed": true, "role": role, "memberID": rows[0].memberID };
                 }
             }
         }
@@ -918,9 +948,24 @@ async function getSOPs() {
     var rows = [null];
     try {
         [rows] = await pool.query(`
-            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC
+            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
             FROM Sop
             ORDER BY sopID ASC`);
+
+        for (let i = 0; i < rows.length; i++) {
+            // For each SOP, get the SOP URL from the embeds module
+            rows[i].sopUrl = embeds.getSOPUrl(rows[i].sopDocID);
+
+            if (rows[i].isRestricted == 1) {
+                // If the SOP is restricted, set the sopUrl to null
+                rows[i].sopUrl = null;
+            }
+
+            // For each SOP, get the authors' names from the Members table with their MemberID
+            if (rows[i].authors) {
+                rows[i].authorNames = await getMemberNames(rows[i].authors, true);
+            }
+        }
     } catch (error) {
         console.log(error);
     } finally {
@@ -932,7 +977,7 @@ async function getSOPbyID(id) {
     var rows = [null];
     try {
         [rows] = await pool.query(`
-            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC
+            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
             FROM Sop
             WHERE sopID = ?`, [id]);
     } catch (error) {
@@ -1170,7 +1215,7 @@ async function getNextAvailableSlot(memberRole, missionID) {
 
 function unwrapORBATJSON(data) {
     var newData = [];
-    
+
     // This function will recursively unwrap the ORBAT JSON structure
     // It will flatten the structure and return a new array with the required fields
     function processItem(item) {
@@ -1185,7 +1230,6 @@ function unwrapORBATJSON(data) {
         if (item.subordinates) {
             if (item.subordinates.length > 0) {
 
-                console.warn("\n\nUnwrapping subordinates for item: " + item.id);
                 for (const sub of item.subordinates) {
                     processItem(sub);
                 }
@@ -1198,9 +1242,6 @@ function unwrapORBATJSON(data) {
     for (const item of data) {
         processItem(item);
     }
-
-    console.warn("Unwrapped ORBAT JSON: " + JSON.stringify(newData));
-
 
     return newData;
 }
@@ -1226,7 +1267,7 @@ async function getLiveOrbat() {
             layout = unwrapORBATJSON(rows[0].layout);
         }
 
-        console.log(layout);
+        // console.log(layout);
 
         if (layout.length == 0) {
             console.log("No layout found for the live ORBAT");

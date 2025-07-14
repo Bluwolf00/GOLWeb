@@ -176,7 +176,18 @@ router.get('/seniorMembers', authPage, async (req, res) => {
 
 router.get('/getSOPs', async (req, res) => {
     try {
-        const sops = await db.getSOPs();
+        var sops = await db.getSOPs();
+
+        // Check if the logged user has access to restricted SOPs
+        if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() === 'member') {
+            // If the user is a member, mark restricted SOPs as null
+            sops.forEach(sop => {
+                if (sop.isRestricted === 1) {
+                    sop.sopUrl = null; // Set SOP URL to null if restricted
+                }
+            });
+        }
+
         res.send(sops);
     } catch (error) {
         console.error("Error fetching SOPs:", error);
@@ -360,6 +371,7 @@ router.post('/performLogin', async (req, res) => {
     if (result.allowed) {
         req.session.loggedin = true;
         req.session.username = username;
+        req.session.memberID = result.memberID || null; // Store memberID if available
         req.session.role = result.role.toLowerCase();
         req.session.save();
         res.status(200).send({ "result": result, "status": 200, "message": "Successfully logged in." });
@@ -735,7 +747,9 @@ router.patch('/orbatSubmission', async (req, res) => {
 
     // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
     if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() !== "admin" && req.session.role.toLowerCase() !== "moderator") {
-        if (memberID !== req.session.memberID) {
+        if (parseInt(memberID) !== parseInt(req.session.memberID)) {
+            console.log("Member ID: %d | Session Member ID: %s", memberID, req.session.memberID);
+            console.log(memberID !== req.session.memberID);
             res.status(403).send("Forbidden - You are not allowed to update this member's ORBAT.");
             return;
         }
@@ -758,7 +772,7 @@ router.patch('/orbatSubmission', async (req, res) => {
     }
 
     if (result) {
-        console.log("Result Message: " + result.message);
+        // console.log("Result Message: " + result.message);
         if (result.message) {
             res.status(200).send({ "message": result.message, "slotNodeID": result.slotNodeID });
             return;

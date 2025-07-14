@@ -35,7 +35,8 @@ const authMemberPage = async (req,res,next) => {
         var role;
         try {
             role = await db.getUserRole(req.session.username);
-            if (role == "Admin" || role == "Moderator" || role == "Member") {
+            role = role.toLowerCase();
+            if (role == "admin" || role == "moderator" || role == "member") {
                 next();
             } else {
                 // Forbidden - Client lacks permission
@@ -45,6 +46,7 @@ const authMemberPage = async (req,res,next) => {
         } catch (error) {
             // Error - Database error
             // res.status(500).send("500 Internal Server Error");
+            console.error("Database error:", error);
             res.redirect('/login');
         }
 

@@ -94,8 +94,7 @@ async function createOrg(data, selectedOption = "roles") {
         .data(data)
         .expandAll()
         .render()
-        .setCentered("R-0001")
-        .render();
+        .fit();
 }
 
 async function populateMemberDropD() {
@@ -231,6 +230,15 @@ async function handleFormSubmit(event, selectedOption) {
     } catch (error) {
         console.error("Error:", error);
         createAlert("An unexpected error occurred.", "danger", "main", 5000);
+    } finally {
+        // Center the chart after submission
+        // Also scroll to the top of the chart container
+        var chartContainer = document.querySelector('.chart-container');
+        chartContainer.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        var orgChart = d3.select('.chart-container').datum();
+        if (orgChart) {
+            orgChart.fit();
+        }
     }
 }
 
