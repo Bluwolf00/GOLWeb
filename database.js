@@ -1145,6 +1145,7 @@ async function getNextAvailableSlot(memberRole, missionID) {
 
 function unwrapORBATJSON(data) {
     var newData = [];
+    var message = "";
     for (const item of data) {
         var newItem = {
             "id": item.id,
@@ -1153,9 +1154,12 @@ function unwrapORBATJSON(data) {
             "parentNodeId": item.parentNode
         };
 
+        message += "Unwrapped ORBAT item: " + JSON.stringify(newItem) + "\n";
+
         // If the item has subordinates, map them recursively
         if (item.subordinates) {
             if (item.subordinates.length > 0) {
+                message += "Item has subordinates, unwrapping them...\n";
                 let subs = unwrapORBATJSON(item.subordinates);
                 for (const sub of subs) {
                     newData.push(sub);
@@ -1166,13 +1170,17 @@ function unwrapORBATJSON(data) {
         newData.push(newItem);
     }
 
-    return newData;
+    console.warn("Unwrapped ORBAT JSON: " + JSON.stringify(newData));
+
+
+    return {newData, message};
 }
 
 async function getLiveOrbat() {
     // This function will return the live ORBAT for the latest mission
     var rows = [null];
     var message = "";
+    var layout = [];
     try {
         // Get the latest mission ORBAT template that is scheduled for the future
         [rows] = await pool.query(`
@@ -1183,12 +1191,14 @@ async function getLiveOrbat() {
 
         console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
-        var layout = await unwrapORBATJSON(rows[0].layout);
+        let output = await unwrapORBATJSON(rows[0].layout);
+        layout = output.data;
 
         message = "ORBAT OUT--.";
         message += "\nParsed Layout: " + layout;
         message += "\nRaw Layout: " + JSON.stringify(rows[0].layout);
         message += "\nRaw Rows: " + JSON.stringify(rows);
+        message += "\nUnwrap Message: " + output.message;
         console.warn(message);
 
         if (layout.length == 0) {
