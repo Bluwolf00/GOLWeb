@@ -235,7 +235,7 @@ router.get('/getLiveOrbat', async (req, res) => {
     try {
         var orbatData = await db.getLiveOrbat();
 
-        if (!orbatData || orbatData.length === 0) {
+        if (!orbatData || orbatData.layout.length === 0) {
             res.status(404).send("Not Found - Live ORBAT data not found.");
             return;
         }
