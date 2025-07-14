@@ -301,7 +301,7 @@ async function openEditModal(memberID) {
         parentSelect.removeAttribute("readonly");
     }
 
-    switchReporting();
+    switchReporting('reporting');
 
     modal.show();
 }
