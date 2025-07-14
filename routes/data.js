@@ -239,7 +239,14 @@ router.get('/getLiveOrbat', async (req, res) => {
             res.status(404).send("Not Found - Live ORBAT data not found.");
             return;
         }
-        res.status(200).send(orbatData);
+
+        if (orbatData.message) {
+            // If the ORBAT data contains a message, it means there was an issue fetching the data
+            res.send(orbatData.message);
+            return;
+        } else {
+            res.status(200).send(orbatData);
+        }
     } catch (error) {
         console.error("Error fetching live ORBAT:", error);
         res.status(500).send("Internal Server Error - Unable to fetch live ORBAT.");

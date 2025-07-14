@@ -709,7 +709,7 @@ async function updateMemberAttendance(bypassCheck = false) {
                     var formatName = temp[i].UName.replace(" ", "");
 
                     // If the member is found
-                    if (attendanceRecords[j].memberName == formatName) {
+                    if (attendanceRecords[j].memberName.toLowerCase() == formatName.toLowerCase()) {
                         var thursdays = attendanceRecords[j].thursdays;
                         var sundays = attendanceRecords[j].sundays;
                         var memberDiscordId = attendanceRecords[j].memberDiscordId;
@@ -1166,14 +1166,13 @@ function unwrapORBATJSON(data) {
         newData.push(newItem);
     }
 
-    newData.push({"old_length": data.length, "new_length": newData.length});
-
     return newData;
 }
 
 async function getLiveOrbat() {
     // This function will return the live ORBAT for the latest mission
     var rows = [null];
+    var message = "";
     try {
         // Get the latest mission ORBAT template that is scheduled for the future
         [rows] = await pool.query(`
@@ -1182,19 +1181,25 @@ async function getLiveOrbat() {
             WHERE missionorbats.templateID = missionorbattemplates.templateID AND 
             missionorbats.dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
 
-
-        if (rows.length == 0) {
-            console.log("No live ORBAT found for future missions");
-            return null;
-        }
-
         console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
         var layout = await unwrapORBATJSON(rows[0].layout);
 
+        if (layout.length > 50) {
+            message = "Warning: The ORBAT layout contains more than 50 nodes.";
+            message += "\nRaw Layout: " + JSON.stringify(rows[0].layout);
+            message += "\nRaw Rows: " + JSON.stringify(rows);
+            console.warn(message);
+        }
+
         if (layout.length == 0) {
             console.log("No layout found for the live ORBAT");
-            return null;
+            return {
+                missionID: -1,
+                dateOfMission: -1,
+                layout: [],
+                message: "No layout found for the live ORBAT"
+            };
         }
 
         // Now get the members that are in the ORBAT for the mission
@@ -1221,6 +1226,14 @@ async function getLiveOrbat() {
         }
 
         // Return the live ORBAT layout with member details
+        if (message.length > 0) {
+            return {
+                missionID: rows[0].missionID,
+                dateOfMission: rows[0].dateOfMission,
+                layout: layout,
+                message: message
+            };
+        }
         return {
             missionID: rows[0].missionID,
             dateOfMission: rows[0].dateOfMission,
