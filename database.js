@@ -1148,7 +1148,17 @@ function unwrapORBATJSON(data) {
     var message = "";
     message += "\n\nData IN: " + JSON.stringify(data) + "\n";
     let newItem;
-    for (const item of data) {
+    console.warn("Type of data: " + typeof data);
+    var input = {};
+    if (typeof data == "string") {
+        console.warn("Data is a string, parsing JSON...");
+        input = JSON.parse(data);
+    } else {
+        console.warn("Data is already an object, using it directly...");
+        input = data;
+    }
+    
+    for (const item of input) {
         newItem = {
             id: item.id,
             roleName: item.roleName,
