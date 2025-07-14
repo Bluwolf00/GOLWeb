@@ -180,7 +180,7 @@ router.get('/getSOPs', async (req, res) => {
 
         // Check if the logged user has access to restricted SOPs
         console.log("User is logged in with role:", req.session.role);
-        if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() !== 'public') {
+        if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() === 'public') {
             // If the user is public, mark restricted SOPs as null
             sops.forEach(sop => {
                 if (sop.isRestricted === 1) {
