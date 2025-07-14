@@ -949,7 +949,7 @@ async function getSOPs() {
     try {
         [rows] = await pool.query(`
             SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
-            FROM Sop
+            FROM sop
             ORDER BY sopID ASC`);
 
         for (let i = 0; i < rows.length; i++) {
@@ -978,7 +978,7 @@ async function getSOPbyID(id) {
     try {
         [rows] = await pool.query(`
             SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
-            FROM Sop
+            FROM sop
             WHERE sopID = ?`, [id]);
     } catch (error) {
         console.log(error);
