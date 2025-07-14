@@ -1108,6 +1108,11 @@ async function getNextAvailableSlot(memberRole, missionID) {
         // console.log("Layout: " + rows[0].layout);
         var rawJSON = rows[0].layout;
 
+        if (typeof rawJSON === "string") {
+            // If the layout is a string, parse it as JSON
+            rawJSON = JSON.parse(rawJSON);
+        }
+
         var layout = unwrapORBATJSON(rawJSON);
         // console.log(layout);
 
