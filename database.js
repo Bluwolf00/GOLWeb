@@ -1185,12 +1185,11 @@ async function getLiveOrbat() {
         // Unwrap the ORBAT JSON layout
         var layout = await unwrapORBATJSON(rows[0].layout);
 
-        if (layout.length > 50) {
-            message = "Warning: The ORBAT layout contains more than 50 nodes.";
-            message += "\nRaw Layout: " + JSON.stringify(rows[0].layout);
-            message += "\nRaw Rows: " + JSON.stringify(rows);
-            console.warn(message);
-        }
+        message = "ORBAT OUT--.";
+        message += "\nParsed Layout: " + layout;
+        message += "\nRaw Layout: " + JSON.stringify(rows[0].layout);
+        message += "\nRaw Rows: " + JSON.stringify(rows);
+        console.warn(message);
 
         if (layout.length == 0) {
             console.log("No layout found for the live ORBAT");
@@ -1369,7 +1368,7 @@ async function patchMissions(missionID, templateID, dateOfMission) {
 
         var missionDate = new Date(dateOfMission);
         var missionDateString = missionDate.toISOString().slice(0, 19).replace('T', ' ');
-        
+
         // Check if the mission already exists
         [rows] = await pool.query(`
                 SELECT missionID
