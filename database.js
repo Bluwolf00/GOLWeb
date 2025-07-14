@@ -1143,22 +1143,11 @@ async function getNextAvailableSlot(memberRole, missionID) {
     }
 }
 
-function unwrapORBATJSON(data) {
+async function unwrapORBATJSON(data) {
     var newData = [];
-    var message = "";
-    message += "\n\nData IN: " + JSON.stringify(data) + "\n";
     let newItem;
-    console.warn("Type of data: " + typeof data);
-    var input = {};
-    if (typeof data == "string") {
-        console.warn("Data is a string, parsing JSON...");
-        input = JSON.parse(data);
-    } else {
-        console.warn("Data is already an object, using it directly...");
-        input = data;
-    }
     
-    for (const item of input) {
+    for (const item of data) {
         newItem = {
             id: item.id,
             roleName: item.roleName,
@@ -1172,7 +1161,7 @@ function unwrapORBATJSON(data) {
         if (item.subordinates) {
             if (item.subordinates.length > 0) {
                 message += "Item has subordinates, unwrapping them...\n";
-                let subs = unwrapORBATJSON(item.subordinates);
+                let subs = await unwrapORBATJSON(item.subordinates);
                 for (const sub of subs.data) {
                     newData.push(sub);
                 }
@@ -1203,15 +1192,8 @@ async function getLiveOrbat() {
 
         console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
-        let output = await unwrapORBATJSON(rows[0].layout);
+        let output = await unwrapORBATJSON(JSON.parse(rows[0].layout));
         layout = output.data;
-
-        message = "ORBAT OUT--.";
-        message += "\nParsed Layout: " + layout;
-        message += "\nRaw Layout: " + JSON.stringify(rows[0].layout);
-        message += "\nRaw Rows: " + JSON.stringify(rows);
-        message += "\nUnwrap Message: " + output.message;
-        console.warn(message);
 
         if (layout.length == 0) {
             console.log("No layout found for the live ORBAT");
