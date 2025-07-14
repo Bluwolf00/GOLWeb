@@ -1143,27 +1143,26 @@ async function getNextAvailableSlot(memberRole, missionID) {
     }
 }
 
-async function unwrapORBATJSON(data) {
+function unwrapORBATJSON(data) {
     var newData = [];
-    let newItem;
     
-    for (const item of data) {
-        newItem = {
+    // This function will recursively unwrap the ORBAT JSON structure
+    // It will flatten the structure and return a new array with the required fields
+    function processItem(item) {
+        let newItem = {
             id: item.id,
             roleName: item.roleName,
             callsign: item.callsign,
             parentNodeId: item.parentNode
         };
 
-        message += "Unwrapped ORBAT item: " + JSON.stringify(newItem) + "\n";
-
         // If the item has subordinates, map them recursively
         if (item.subordinates) {
             if (item.subordinates.length > 0) {
-                message += "Item has subordinates, unwrapping them...\n";
-                let subs = await unwrapORBATJSON(item.subordinates);
-                for (const sub of subs.data) {
-                    newData.push(sub);
+
+                console.warn("\n\nUnwrapping subordinates for item: " + item.id);
+                for (const sub of item.subordinates) {
+                    processItem(sub);
                 }
             }
         }
@@ -1171,10 +1170,14 @@ async function unwrapORBATJSON(data) {
         newData.push(newItem);
     }
 
+    for (const item of data) {
+        processItem(item);
+    }
+
     console.warn("Unwrapped ORBAT JSON: " + JSON.stringify(newData));
 
 
-    return {"data": newData, "message": message};
+    return newData;
 }
 
 async function getLiveOrbat() {
@@ -1192,16 +1195,20 @@ async function getLiveOrbat() {
 
         console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
-        let output = await unwrapORBATJSON(JSON.parse(rows[0].layout));
-        layout = output.data;
+        if (typeof rows[0].layout === "string") {
+            layout = unwrapORBATJSON(JSON.parse(rows[0].layout));
+        } else {
+            layout = unwrapORBATJSON(rows[0].layout);
+        }
+
+        console.log(layout);
 
         if (layout.length == 0) {
             console.log("No layout found for the live ORBAT");
             return {
                 missionID: -1,
                 dateOfMission: -1,
-                layout: [],
-                message: "No layout found for the live ORBAT"
+                layout: []
             };
         }
 
@@ -1234,7 +1241,7 @@ async function getLiveOrbat() {
                 missionID: rows[0].missionID,
                 dateOfMission: rows[0].dateOfMission,
                 layout: layout,
-                message: message
+                "message": message
             };
         }
         return {
