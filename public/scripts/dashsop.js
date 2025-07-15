@@ -21,6 +21,12 @@ async function populate() {
         } else if (sop.isAAC === 0 || sop.isAAC === '0') {
             sop.isAAC = 'No';
         }
+
+        if (sop.isRestricted === 1 || sop.isRestricted === '1') {
+            sop.isRestricted = 'Yes';
+        } else if (sop.isRestricted === 0 || sop.isRestricted === '0') {
+            sop.isRestricted = 'No';
+        }
         
         row.innerHTML = `
             <th><span>${sop.sopID}</span></th>
@@ -30,6 +36,7 @@ async function populate() {
             <td><span>${sop.sopType}</span></td>
             <td><span>${sop.sopDocID}</span></td>
             <td><span>${sop.isAAC}</span></td>
+            <td><span>${sop.isRestricted}</span></td>
             <td>
               <button class="btn btn-primary" onclick="openEditModal(${sop.sopID})">Edit</button>
               <button class="btn btn-danger" onclick="deleteSOP(${sop.sopID})">Delete</button>
@@ -122,7 +129,7 @@ async function openEditModal(sopID) {
     var sopTitle = document.getElementById('sopTitle');
     sopTitle.value = sop.sopTitle;
     var authors = document.getElementById('authors');
-    authors.value = sop.prefix;
+    authors.value = sop.authors;
 
     var description = document.getElementById('description');
     description.value = sop.sopDescription;
@@ -132,6 +139,20 @@ async function openEditModal(sopID) {
 
     var docid = document.getElementById('documentID');
     docid.value = sop.sopDocID;
+
+    var isAAC = document.getElementById('aacSOP');
+    if (sop.isAAC === 'Yes' || sop.isAAC === 1)
+        isAAC.checked = true;
+    else
+        isAAC.checked = false;
+
+    var isRestricted = document.getElementById('restrictedDoc');
+    if (sop.isRestricted === 'Yes' || sop.isRestricted === 1)
+        isRestricted.checked = true;
+    else
+        isRestricted.checked = false;
+
+
     
     modal.show();
 }

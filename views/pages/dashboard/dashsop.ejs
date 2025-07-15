@@ -55,6 +55,8 @@
                                 <label for="authors">Author(s)</label><br>
                                 <input type="text" class="form-control" id="authors" name="Authors"
                                     placeholder="Document Title">
+                                    <small class="text-muted">If more than one author, the field <strong>MUST</strong> be a
+                                    comma separated list of member's IDs.</small>
                             </div>
                             <div class="form-group">
                                 <label for="description">Description</label><br>
@@ -67,12 +69,15 @@
                                 <select name="docType" id="documentType" class="form-select">
                                     <option value="SOP">SOP</option>
                                     <option value="Guide">Guide</option>
+                                    <option value="Concept">Concept</option>
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="insignia">Document ID</label><br>
                                 <input type="text" class="form-control" id="documentID" name="docId">
+                                <small class="text-muted">This can be found in the URL of the Google Doc.
+                                    (Usually a long bunch of random characters)</small>
                             </div>
                             <div class="form-group">
                                 <label class="form-check-label" for="aacSOP">Is this an AAC SOP?</label>
@@ -100,7 +105,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Edit SOP</h5>
+                        <h5 class="modal-title">Create SOP</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form action="/data/createSOP" method="POST" id="createSopForm">
@@ -114,8 +119,8 @@
                                 <label for="authors">Authors</label><span style="color: red;"> *</span><br>
                                 <input type="text" class="form-control" id="newauthors" name="newauthors"
                                     placeholder="Document Author(s)">
-                                <small class="text-body-secondary">If there are multiple authors, the field MUST be a
-                                    comma seperated list of names.</small>
+                                <small class="text-body-secondary">If more than one author, the field <strong>MUST</strong> be a
+                                    comma separated list of member's IDs.</small>
                             </div>
                             <div class="form-group">
                                 <label for="description">Description</label><span style="color: red;"> *</span><br>
@@ -127,6 +132,7 @@
                                 <select class="form-select" name="newdocType" id="newdocumentType">
                                     <option value="SOP">SOP</option>
                                     <option value="Guide">Guide</option>
+                                    <option value="Concept">Concept</option>
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
@@ -173,6 +179,7 @@
                         <th scope="col">Type</th>
                         <th scope="col">Document ID</th>
                         <th scope="col">AAC SOP</th>
+                        <th scope="col">Restricted</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
