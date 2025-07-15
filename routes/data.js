@@ -391,7 +391,7 @@ router.post('/performRegister', async (req, res) => {
 
     // Check if the username already exists
     let result = await db.checkIfUserExists(username);
-    console.log("Perform Login Result: ", result);
+    // console.log("Perform Login Result: ", result);
 
     // Validate the passwords
     const passwordValidation = validatePasswords(password, confirmPassword);

@@ -54,6 +54,7 @@ const dbData = require('./routes/data.js');
 app.use('/dashboard', dashboard);
 app.use('/data', dbData);
 app.use('/sop', require('./routes/sop.js'));
+app.use('/auth', require('./routes/auth.js'));
 
 // GET REQUESTS - PAGES
 

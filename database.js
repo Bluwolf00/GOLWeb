@@ -92,7 +92,7 @@ async function getMemberNames(memberIDs, includeRank = false) {
     var rows = [null];
     var result = [];
     try {
-                
+
         if (includeRank === true) {
             [rows] = await pool.query(`
                 SELECT UName, prefix
@@ -542,13 +542,20 @@ async function getSeniorMembers() {
 }
 
 
-async function checkIfUserExists(username) {
+async function checkIfUserExists(username, discordId = null) {
     var rows = [null];
     try {
         [rows] = await pool.query(`
             SELECT username
             FROM users
             WHERE username = ?`, [username]);
+
+        if (rows.length == 0 && discordId != null) {
+            [rows] = await pool.query(`
+                SELECT username
+                FROM users
+                WHERE discordId = ?`, [discordId]);
+        }
     } catch (error) {
         console.log(error);
     } finally {
@@ -655,9 +662,78 @@ async function getUserMemberID(username) {
         if (rows.length == 0) {
             return null;
         } else {
-            console.log("getUserMemberID | MemberID: " + rows[0].MemberID);
+            // console.log("getUserMemberID | MemberID: " + rows[0].MemberID);
             return rows[0].MemberID;
         }
+    }
+}
+
+async function getUserByDiscordId(discordId) {
+    var rows = [null];
+    try {
+        [rows] = await pool.query(`
+            SELECT username, users.memberID
+            FROM users, members, attendance
+            WHERE attendance.MemberDiscordID = ? AND attendance.MemberID = members.MemberID AND users.memberID = members.MemberID;`, [discordId]);
+    }
+    catch (error) {
+        console.error("Error in getUserByDiscordId:", error);
+    }
+    finally {
+        if (rows.length == 0) {
+            return null; // No user found with the given Discord ID
+        } else {
+            return rows[0]; // Return the user object
+        }
+    }
+}
+
+async function createUser(username, password, role, memberID, memberDiscordId = null) {
+    try {
+
+        // Check if the user already exists
+        var userExists = await checkIfUserExists(username, memberDiscordId);
+        if (userExists) {
+            console.log("User already exists: " + username);
+            return false; // User already exists
+        }
+
+        // If the user is signing with a Discord account, lookup the discord ID from the attendance table
+        if (memberDiscordId != null) {
+            memberID = await getUserByDiscordId(memberDiscordId);
+
+            // If the memberID is null, it means the user does not in the discord guild
+            if (memberID == null) {
+                console.log("No member found with Discord ID: " + memberDiscordId);
+                role = "public";
+                memberID = null;
+            } else {
+                memberID = memberID.MemberID;
+                role = "member"; // Set role to member if a valid memberID is found
+            }
+
+            // Create the user with the Discord ID, since no password is needed for Discord login
+            var result = await pool.query(`
+                INSERT INTO users (username, password, role, memberID)
+                VALUES (?, ?, ?, ?)`, [username, null, role, memberID]);
+            return result.affectedRows > 0;
+        } else {
+            // Is a normal user registration
+            // The password is already hashed in the route
+            // Insert the new user into the database
+
+            var result = await pool.query(`
+                INSERT INTO users (username, password, role, memberID)
+                VALUES (?, ?, ?, ?)`, [username, password, role, memberID]);
+
+            if (result[0].affectedRows > 0) {
+                console.log("User created successfully: " + username);
+                return true; // User created successfully
+            }
+        }
+    } catch (error) {
+        console.error("Error in createUser:", error);
+        return false;
     }
 }
 
@@ -1736,7 +1812,7 @@ module.exports = {
     getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
-    getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA,
+    getPool, closePool, performRegister, getUserRole, getUserMemberID, getUserByDiscordId, createMember, getDashboardData, getMemberLOA,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID,
     createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists
 };
