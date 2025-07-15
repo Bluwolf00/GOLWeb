@@ -52,10 +52,13 @@ async function getAllBadges() {
     });
 }
 
-getAllBadges();
+function observerFunc() {
+    // Load the observer script
+    var observerScript = document.createElement('script');
+    observerScript.defer = true;
+    observerScript.src = '/scripts/observer.js';
+    document.body.appendChild(observerScript);
+}
 
-// Load the observer script
-var observerScript = document.createElement('script');
-observerScript.src = '/scripts/observer.js';
-observerScript.defer = true;
-document.body.appendChild(observerScript);
+getAllBadges();
+observerFunc();
