@@ -53,11 +53,13 @@ async function getAllBadges() {
 }
 
 function observerFunc() {
-    // Load the observer script
-    var observerScript = document.createElement('script');
-    observerScript.defer = true;
-    observerScript.src = '/scripts/observer.js';
-    document.body.appendChild(observerScript);
+    setTimeout(() => {
+        // Load the observer script
+        var observerScript = document.createElement('script');
+        observerScript.defer = true;
+        observerScript.src = '/scripts/observer.js';
+        document.body.appendChild(observerScript);
+    }, 500); // Wait for 3 seconds before loading the observer script
 }
 
 getAllBadges();
