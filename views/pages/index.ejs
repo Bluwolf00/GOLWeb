@@ -2,10 +2,31 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
+  <meta name="description" content="Official website of the Guerrillas of Liberation Arma 3 Realism MilSim Unit.">
+  <meta property="og:title" content="Guerrillas of Liberation - Home">
+  <meta property="og:description"
+    content="Official home page of the Guerrillas of Liberation Arma 3 Realism MilSim Unit.">
   <%- include('../partials/head', {pageTitle: "GOL Home"}) %>
+
+  <style>
+    #stream-1-link>img {
+      height: 15rem;
+      width: auto;
+    }
+
+    #stream-2-link>img {
+      height: 15rem;
+      width: auto;
+    }
+
+    #stream-3-link>img {
+      height: 15rem;
+      width: auto;
+    }
+  </style>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Home", loggedIn: userLogged, username: username}) %>
+<%- include('../partials/headernav', {pageTitle: "Home", loggedin: userLogged, username: username}) %>
 
 <body>
 
@@ -22,7 +43,7 @@
 
         <div class="px-4" id="front-hero">
           <!-- <img id="front-logo" class="d-block mx-auto mb-4" src="/img/logo_new.png" alt=""> -->
-          <h1 id="mainTitle" style="padding-top: 10vh; font-weight: 600; letter-spacing: normal; font-size: 64px;">
+          <h1 id="mainTitle">
             Guerrillas of Liberation</h1>
 
           <div class="col-lg-6 mx-auto">
@@ -39,10 +60,12 @@
             <% } %>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center" id="frontButtons">
               <% if (userRole === "member" || userRole === "moderator" || userRole === "admin") { %>
-              <button type="button" class="btn btn-primary btn-lg px-6 py-3"><a href="/mission-orbat/select">Next Operation
+              <button type="button" class="btn btn-primary btn-lg px-6 py-3"><a href="/mission-orbat/select">Next
+                  Operation
                   ORBAT</a></button>
-                <% if (userRole === "admin" || userRole === "moderator") { %>
-              <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a href="/dashboard">Dashboard</a></button>
+              <% if (userRole === "admin" || userRole === "moderator") { %>
+              <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a
+                  href="/dashboard">Dashboard</a></button>
               <% } %>
               <% } else { %>
               <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Join Us!</a></button>
@@ -329,11 +352,96 @@
         </div>
       </div>
     </div>
+
+    <div class="album mt-2">
+      <div class="container">
+        <div class="row">
+          <div class="col text-center">
+            <div class="video-header">
+              <h1>Streams</h1>
+              <p class="scaleText">Check out some of our member's Twitch streams!</p>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+              <div class="col stream-col hidden">
+                <div class="card stream-card shadow-sm">
+                  <a href="#" id="stream-1-link">
+                    <img
+                      src="https://static-cdn.jtvnw.net/jtv_user_pictures/77db3741-1d96-4e33-a985-aeba22f53e20-channel_offline_image-1920x1080.jpeg"
+                      class="card-img-top" id="stream-1-thumb" alt="Stream Thumbnail">
+                  </a>
+                  <div class="card-body">
+                    <h3 class="card-title"><a href="https://www.twitch.tv/theclandad" id="stream-1-title">TheClanDad</a>
+                    </h3>
+                    <p class="card-text" id="stream-1-desc">Our resident father figure, keeping us stocked with a
+                      plethora of dad jokes!</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a target="_blank" rel="noopener noreferrer" id="stream-1-button"
+                          href="https://www.twitch.tv/theclandad"><button type="button"
+                            class="btn btn-sm btn-outline-secondary">Watch</button></a>
+                      </div>
+                      <small class="text-body-secondary" id="stream-1-viewers"></small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col stream-col hidden">
+                <div class="card stream-card shadow-sm">
+                  <a href="#" id="stream-2-link">
+                    <img
+                      src="https://static-cdn.jtvnw.net/jtv_user_pictures/3fa95c9a-99d6-4797-b66d-278830fe6865-channel_offline_image-1920x1080.png"
+                      class="card-img-top" id="stream-1-thumb" alt="Stream Thumbnail">
+                  </a>
+                  <div class="card-body">
+                    <h3 class="card-title"><a href="https://www.twitch.tv/appletinidl"
+                        id="stream-2-title">Appletinidl</a></h3>
+                    <p class="card-text" id="stream-2-desc">A demon with the guitar, and a devil behind the wheel!</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a target="_blank" rel="noopener noreferrer" id="stream-2-button"
+                          href="https://www.twitch.tv/appletinidl"><button type="button"
+                            class="btn btn-sm btn-outline-secondary">Watch</button></a>
+                      </div>
+                      <small class="text-body-secondary" id="stream-2-viewers"></small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col stream-col hidden">
+                <div class="card stream-card shadow-sm">
+                  <a href="#" id="stream-3-link">
+                    <img src="/img/flyinghellfish.webp" class="card-img-top" id="stream-1-thumb" alt="Stream Thumbnail">
+                  </a>
+                  <div class="card-body">
+                    <h3 class="card-title"><a href="https://www.twitch.tv/OksmanTV" id="stream-3-title">OksmanTV</a>
+                    </h3>
+                    <p class="card-text" id="stream-3-desc">Our glorious swedish chef, always cooking up some spicy
+                      mission or addon!</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="btn-group">
+                        <a target="_blank" rel="noopener noreferrer" id="stream-3-button"
+                          href="https://www.twitch.tv/OksmanTV"><button type="button"
+                            class="btn btn-sm btn-outline-secondary">Watch</button></a>
+                      </div>
+                      <small class="text-body-secondary" id="stream-3-viewers"></small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-    </script>
+    <div class="col text-center my-5">
+      <h2>Ready to jump in to the action?</h2>
+      <p class="lead">Hop into our Discord and say Hi!<br>If there's any questions, feel free to ask!</p>
+      <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Join Us!</a></button>
+    </div>
+    </div>
 
     <script defer>
       var isloggedIn = "<%= loggedin %>"

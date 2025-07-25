@@ -50,66 +50,126 @@ app.use(cors({
 
 const dashboard = require('./routes/dashboard.js');
 const dbData = require('./routes/data.js');
+const { authMemberPage } = require('./middle.js');
 
+
+// Additional Routes
 app.use('/dashboard', dashboard);
 app.use('/data', dbData);
 app.use('/sop', require('./routes/sop.js'));
+app.use('/auth', require('./routes/auth.js'));
+
+function getUserData(req) {
+    // Prepare user data
+    let role = '';
+    let username = '';
+    let loggedIn = false;
+    let type = '';
+    if (req.session.passport) {
+        loggedIn = true;
+        role = req.session.passport.user.role;
+        username = req.session.passport.user.username;
+        type = 'discord'; // If passport is defined, then we know the user is authenticated via Discord
+    } else {
+        loggedIn = req.session.loggedin || false;
+        role = req.session.role || 'public'; // Default to 'public' if role is not set
+        username = req.session.username || '';
+        type = '';
+    }
+
+    return {
+        loggedIn: loggedIn,
+        role: role.toLowerCase(),
+        username: username,
+        type: type
+    };
+}
 
 // GET REQUESTS - PAGES
 
 app.get('/', (req, res) => {
-    // req.session.loggedin = false;
+
+    // Prepare user data
+    let userData = getUserData(req);
 
     res.render('pages/index', {
-        userLogged: req.session.loggedin,
-        username: req.session.username,
-        userRole: req.session.role || 'public' // Default to 'public' if role is not set
+        userLogged: userData.loggedIn,
+        username: userData.username,
+        userRole: userData.role
     });
 });
 
 app.get('/home', (req, res) => {
-    // console.log(req.session);
+
+    // Prepare user data
+    let userData = getUserData(req);
 
     res.render('pages/index', {
-        userLogged: req.session.loggedin,
-        username: req.session.username,
-        userRole: req.session.role || 'public' // Default to 'public' if role is not set
+        userLogged: userData.loggedIn,
+        username: userData.username,
+        userRole: userData.role
     });
 });
 
 app.get('/about', (req, res) => {
+
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/about', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
 app.get('/roster', (req, res) => {
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/roster', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
 app.get('/SOP', (req, res) => {
+
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/sop', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
 app.get('/ranks', (req, res) => {
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/ranks', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
 app.get('/oldranks', (req, res) => {
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/ranks-old', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
 app.get('/badges', (req, res) => {
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/badges', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
@@ -119,23 +179,32 @@ app.get('/discord', (req, res) => {
 
 app.get('/profile', (req, res) => {
     var playerN = req.query.name;
-    // console.log(req.query.name);
+
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/profile', {
-        loggedin: req.session.loggedin,
-        username: req.session.username
+        userLogged: userData.loggedIn,
+        username: userData.username
     });
 });
 
 app.get('/mods', async (req, res) => {
+    // Prepare user data
+    let userData = getUserData(req);
+
     res.render('pages/mods', {
-        loggedin: req.session.loggedin,
-        username: req.session.username
+        userLogged: userData.loggedIn,
+        username: userData.username
     });
 });
 
 app.get('/orbat', async (req, res) => {
     const data = await db.getMembers();
-    res.render('pages/roster_new', { data: data, loggedin: req.session.loggedin, username: req.session.username });
+    // Prepare user data
+    var userData = getUserData(req);
+
+    res.render('pages/roster_new', { data: data, userLogged: userData.loggedIn, username: userData.username });
 });
 
 app.get('/mission-orbat', async (req, res) => {
@@ -143,37 +212,53 @@ app.get('/mission-orbat', async (req, res) => {
 });
 
 app.get('/mission-orbat/select', async (req, res) => {
-    res.render('pages/mission-orbat-option', { loggedin: req.session.loggedin, username: req.session.username, userRole: req.session.role || 'Member' });
+    // Prepare user data
+    let userData = getUserData(req);
+
+    res.render('pages/mission-orbat-option', { userLogged: userData.loggedIn, username: userData.username, userRole: userData.role || 'member' });
 });
 
 app.get('/mission-orbat/live', async (req, res) => {
+
+    // Prepare user data
+    let userData = getUserData(req);
+
     if (req.query.selectedOption === 'slots') {
         // Check if the user is logged in, and is an admin or moderator
-        if (req.session.loggedin && (req.session.role === 'admin' || req.session.role === 'moderator')) {
-            res.render('pages/mission-orbat', { loggedin: req.session.loggedin, username: req.session.username, selectedOption: req.query.selectedOption || 'roles' });
+
+        if (userData.loggedIn && (userData.role === 'admin' || userData.role === 'moderator')) {
+            res.render('pages/mission-orbat', { userLogged: userData.loggedIn, username: userData.username, selectedOption: req.query.selectedOption || 'roles' });
         } else {
             res.redirect('/error?error=403'); // Forbidden
         }
 
     } else {
-        res.render('pages/mission-orbat', { loggedin: req.session.loggedin, username: req.session.username, selectedOption: req.query.selectedOption || 'roles' });
+        res.render('pages/mission-orbat', { userLogged: userData.loggedIn, username: userData.username, selectedOption: req.query.selectedOption || 'roles' });
     }
 });
 
 app.get('/error', (req, res) => {
     var errorCode = req.query.error;
+
+    // Prepare user data
+    let userData = getUserData(req);
+
     console.log(errorCode);
     res.render('pages/error', {
         error: errorCode,
-        username: req.session.username
+        userLogged: userData.loggedIn,
+        username: userData.username
     });
 });
 
 app.get('/register', (req, res) => {
 
-    if (typeof req.session.loggedin === 'undefined' || req.session.loggedin === false) {
+    // Prepare user data
+    let userData = getUserData(req);
+
+    if (typeof userData.loggedIn === 'undefined' || userData.loggedIn === false) {
         res.render('pages/register', {
-            username: req.session.username
+            username: userData.username
         });
     } else {
         res.redirect('/home');
@@ -183,33 +268,80 @@ app.get('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
 
+    // Prepare user data
+    let userData = getUserData(req);
+
     if (req.query.success) {
         res.render('pages/login', {
             success: true
         });
     } else {
-        if (req.session.loggedin) {
-            req.session.loggedin = false;
-            req.session.username = null;
-            req.session.role = null; // Clear the role as well
-            // req.session.destroy();
-            req.session.save(function () {
-                res.redirect('/');
-            })
+        if (userData.loggedIn) {
+            // If the user is already logged in, redirect to home
+            console.log('User is already logged in, redirecting to home');
+            res.redirect('/home');
         } else {
             res.render('pages/login', {
-                username: req.session.username
+                username: userData.username
             });
         }
     }
 });
 
+app.get('/passwordchange', authMemberPage, async (req, res) => {
+
+    // Prepare user data
+    let userData = getUserData(req);
+
+    if (userData.type === 'discord') {
+        // User is authenticated via Discord
+        res.redirect('/home');
+    } else {
+        if (userData.loggedIn) {
+            res.render('pages/passwordchange', {
+                username: userData.username,
+                userLogged: userData.loggedIn
+            });
+        } else {
+            res.redirect('/login');
+        }
+    }
+});
+
+app.get('/logout', (req, res) => {
+
+    // Prepare user data
+    let userData = getUserData(req);
+    // Clear user session
+    if (userData.loggedIn) {
+
+        if (typeof passport !== 'undefined' && passport.deserializeUser) {
+            passport.deserializeUser();
+        }
+
+
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('ERROR:  Failed to destroy session:', err);
+                return res.sendStatus(500);
+            }
+            res.redirect('/');
+        });
+    } else {
+        console.log('User is not logged in, redirecting to home');
+        res.redirect('/home');
+    };
+});
+
 // Error Catcher
 
 app.get('*', (req, res) => {
+
+    let userData = getUserData(req);
     res.render('pages/error', {
         error: 404,
-        username: req.session.username
+        userLogged: userData.loggedIn,
+        username: userData.username
     });
 });
 

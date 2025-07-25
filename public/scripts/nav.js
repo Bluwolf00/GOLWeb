@@ -13,6 +13,7 @@ $(document).ready(function () {
 
         case "SOP":
             document.getElementById("sopEntry").classList.add("active");
+            document.getElementById("resourcesDropdown").classList.add("active");
             break;
 
         case "About":
@@ -21,6 +22,7 @@ $(document).ready(function () {
 
         case "Ranks":
             document.getElementById("ranksEntry").classList.add("active");
+            document.getElementById("resourcesDropdown").classList.add("active");
             break;
 
         case "Orbat":
@@ -29,18 +31,27 @@ $(document).ready(function () {
 
         case "Badges":
             document.getElementById("badgeEntry").classList.add("active");
+            document.getElementById("resourcesDropdown").classList.add("active");
             break;
 
         case "Log In":
             document.getElementById("loginEntry").classList.add("active");
+            document.getElementById("userDropdown").classList.add("active");
             break;
 
         case "Dashboard":
             document.getElementById("dashEntry").classList.add("active");
+            document.getElementById("userDropdown").classList.add("active");
             break;
 
         case "Register":
             document.getElementById("registerEntry").classList.add("active");
+            document.getElementById("userDropdown").classList.add("active");
+            break;
+
+        case "Password Reset":
+            document.getElementById("passEntry").classList.add("active");
+            document.getElementById("userDropdown").classList.add("active");
             break;
 
         default:

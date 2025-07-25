@@ -20,6 +20,8 @@
     "mongodb": "^6.10.0",
     "multer": "^2.0.1",
     "mysql2": "^3.11.5",
-    "nodefs": "^0.0.2"
+    "nodefs": "^0.0.2",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4"
   }
 }

@@ -1,47 +1,65 @@
-<header class="d-flex flex-wrap py-3 border-bottom">
-    <a href="/" id="headerLogo">
-      <span class="fs-4"><img id="navIcon" src="/img/logo_new.png" alt="logo"></span>
-      <h2 class="fs-4" id="headerTitle">Guerrillas of Liberation</h2>
-    </a>
+<header class="navbar navbar-expand-lg navbar-dark" role="navigation">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/home"><img src="/img/logo_new_thumb.png" alt="logo" id="headerlogo" height="60"></a>
+    <div class="vl"></div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/home" id="homeEntry">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about" id="aboutEntry">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orbat" id="orbatEntry">ORBAT</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+            id="resourcesDropdown">
+            Resources
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/ranks" id="ranksEntry">Ranks</a></li>
+            <li><a class="dropdown-item" href="/badges" id="badgeEntry">Badges</a></li>
+            <li><a class="dropdown-item" href="/sop" id="sopEntry">SOPs</a></li>
+          </ul>
+        </li>
 
-    <% if (username !== 'undefined' && username) { %>
-    <div class="welcome"> <h2>Welcome, <span class="sec-highlight"><%= username %></span></h2></div>
-  <% } %>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+            id="userDropdown">
+            User
+          </a>
+          <ul class="dropdown-menu">
+            <% if (typeof loggedin !== 'undefined' && loggedin) { %>
+            <li><a href="/dashboard" class="dropdown-item" id="dashEntry">Dashboard</a></li>
+            <li><a href="/passwordchange" class="dropdown-item" id="passEntry">Change Password</a></li>
+            <li><a href="/Logout" class="dropdown-item" id="loginEntry">Log Out</a></li>
+            <% } else { %>
+            <li class="nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log In</a></li>
+            <li class="nav-item"><a href="/Register" class="nav-link" id="registerEntry">Register</a></li>
+            <% } %>
+          </ul>
+        </li>
+        <% if (typeof loggedin === 'undefined' || !loggedin) { %>
+        <li class="nav-item"><a href="/discord" class="nav-link">Join <i class="bi bi-box-arrow-up-right"></i></a></li>
+        <% } %>
+      </ul>
 
-    <nav>
-      <ul class="nav nav-pills">
-        <li class="nav-item"><a href="/home" class="nav-link" id="homeEntry">Home</a></li>
-        <li class="nav-item"><a href="/orbat" class="nav-link" id="orbatEntry">ORBAT</a></li>
-        <li class="nav-item"><a href="/about" class="nav-link" id="aboutEntry">About</a></li>
-        <li class="nav-item"><a href="/ranks" class="nav-link" id="ranksEntry">Ranks</a></li>
-        <li class="nav-item"><a href="/Badges" class="nav-link" id="badgeEntry">Badges</a></li>
-        <li class="nav-item"><a href="/SOP" class="nav-link" id="sopEntry">SOPs</a></li>
-        <% if (typeof loggedin !== 'undefined' && loggedin) { %>
-          <li class="nav-item"><a href="/dashboard" class="nav-link" id="dashEntry">Dashboard</a></li>
-          <li class="nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log Out</a></li>
-        <% } else { %>
-          <li class="nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log In</a></li>
-          <li class="nav-item"><a href="/Register" class="nav-link" id="registerEntry">Register</a></li>
-          <li class="nav-item"><a href="/discord" class="nav-link">Join</a></li>
-          <% } %>
-      </ul>
-    </nav>
-    <div id="hamburger" onclick="toggleMobileNav(this)">
-      <div class="bar1"></div>
-      <div class="bar2"></div>
-      <div class="bar3"></div>
-      <ul class="mobile-nav">
-        <li class="nav-item mobile-nav-item"><a href="/home" class="nav-link" id="homeEntry">Home</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/orbat" class="nav-link" id="orbatEntry">ORBAT</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/about" class="nav-link" id="aboutEntry">About</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/ranks" class="nav-link" id="ranksEntry">Ranks</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/Badges" class="nav-link" id="badgeEntry">Badges</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/SOP" class="nav-link" id="sopEntry">SOPs</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/Login" class="nav-link" id="loginEntry">Log In</a></li>
-        <li class="nav-item mobile-nav-item"><a href="/discord" class="nav-link">Join</a></li>
-      </ul>
+      <% if (username !== 'undefined' && username) { %>
+      <div class="navbar-text">
+        <h2>Welcome Back, <span class="sec-highlight"><%= username %></span></h2>
+      </div>
+      <% } %>
     </div>
+  </div>
 </header>
 
-<script>var pageTitle = "<%= pageTitle %>" </script>
+<script>
+  var pageTitle = "<%= pageTitle %>"
+</script>
 <script src="/scripts/nav.js"></script>
