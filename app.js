@@ -65,24 +65,31 @@ function getUserData(req) {
     let username = '';
     let loggedIn = false;
     let type = '';
-    if (req.session.passport) {
-        loggedIn = true;
-        role = req.session.passport.user.role;
-        username = req.session.passport.user.username;
-        type = 'discord'; // If passport is defined, then we know the user is authenticated via Discord
-    } else {
-        loggedIn = req.session.loggedin || false;
-        role = req.session.role || 'public'; // Default to 'public' if role is not set
-        username = req.session.username || '';
-        type = '';
+    try {
+        if (req.session.passport) {
+            loggedIn = true;
+            role = req.session.passport.user.role;
+            username = req.session.passport.user.username;
+            type = 'discord'; // If passport is defined, then we know the user is authenticated via Discord
+        } else {
+            loggedIn = req.session.loggedin || false;
+            role = req.session.role || 'public'; // Default to 'public' if role is not set
+            username = req.session.username || '';
+            type = '';
+        }
+    } catch (error) {
+        console.error("Error getting user data:", error);
+    } finally {
+        if (typeof role != 'undefined') {
+            role = role.toLowerCase();
+        }
+        return {
+            loggedIn: loggedIn,
+            role: role,
+            username: username,
+            type: type
+        };
     }
-
-    return {
-        loggedIn: loggedIn,
-        role: role.toLowerCase(),
-        username: username,
-        type: type
-    };
 }
 
 // GET REQUESTS - PAGES

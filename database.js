@@ -840,6 +840,7 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
             result = await queryDatabase(`
                 INSERT INTO users (username, password, role, memberID)
                 VALUES (?, ?, ?, ?)`, [null, null, role, memberID]);
+
             if (result[0].affectedRows > 0) {
                 created = true;
             }
@@ -859,23 +860,38 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
             }
         }
     } catch (error) {
-        console.error("Error in createUser:", error);
+        console.error("Error in createUser:", error, result);
         return null;
     } finally {
         if (created) {
+            if (memberDiscordId) {
+                result = await queryDatabase(`
+                SELECT userID, UName, role, users.memberID
+                FROM users, Members
+                WHERE users.memberID = Members.MemberID AND users.memberID = ?`, [memberID]);
+                // Return the user object with userID, username, and role
 
-            result = await queryDatabase(`
-                SELECT userID, username, role, memberID
-                FROM users
-                WHERE username = ?`, [username]);
-            // Return the user object with userID, username, and role
-
-            return {
-                "userID": result[0].userID, // Return the user ID of the newly created user
-                "username": result[0].username,
-                "role": result[0].role,
-                "memberID": result[0].memberID // Return the member ID if available
+                return {
+                    "userID": result[0][0].userID, // Return the user ID of the newly created user
+                    "username": result[0][0].UName,
+                    "role": result[0][0].role,
+                    "memberID": result[0][0].memberID // Return the member ID if available
+                }
+            } else {
+                result = await queryDatabase(`
+                    SELECT userID, username, role, memberID
+                    FROM users
+                    WHERE username = ?`, [username]);
+                // Return the user object with userID, username, and role
+    
+                return {
+                    "userID": result[0][0].userID, // Return the user ID of the newly created user
+                    "username": result[0][0].username,
+                    "role": result[0][0].role,
+                    "memberID": result[0][0].memberID // Return the member ID if available
+                }
             }
+
         } else {
             console.log("User creation failed for: " + username);
             return null; // User creation failed

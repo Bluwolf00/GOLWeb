@@ -958,6 +958,7 @@ footer {
 
   .dropdown-item {
     min-height: 2.5rem;
+  }
 
   .lead {
     font-size: 1rem;
@@ -1068,7 +1069,7 @@ footer {
   #sopContainer>div.row {
     margin: 0 0;
   }
-    
+
   .squadBtn {
     margin-top: 2rem;
   }
@@ -1076,3 +1077,4 @@ footer {
   .toned-down {
     display: none;
   }
+}
