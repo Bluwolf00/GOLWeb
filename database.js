@@ -44,6 +44,10 @@ async function queryDatabase(query, params = []) {
     try {
         var conn = await pool.getConnection();
         rows = await conn.query(query, params);
+
+        if (rows.length < 1) {
+            console.warn("No rows returned for query:", query, "with params:", params);
+        }
     } catch (error) {
         console.log("ERROR: " + error);
     } finally {
