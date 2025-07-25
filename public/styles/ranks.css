@@ -91,6 +91,10 @@ p {
     align-items: center;
 }
 
+#squadButtonsRow > div.col-sm-2{
+  margin: 1rem 0;
+}
+
 #hellfishBtn {
   border: #942424 1px solid;
   --active-bg: #7e1e1e;
@@ -113,4 +117,19 @@ p {
 
 .squadActive {
   background-color: var(--active-bg) !important;
+}
+
+@media (max-width: 768px) {
+  .rankContainer>div.row>div.col-sm-2 {
+    text-align: center;
+  }
+
+  .rankThumb {
+    width: 80%;
+    height: auto;
+  }
+
+  .toned-down {
+    display: none;
+  }
 }

@@ -174,7 +174,7 @@ header {
   left: 0;
   width: 100%;
   height: auto;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.85);
   list-style: none;
   z-index: 9999;
   padding: 0;
@@ -958,6 +958,25 @@ footer {
 
   .dropdown-item {
     min-height: 2.5rem;
+
+  .lead {
+    font-size: 1rem;
+  }
+
+  #footerRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #headerTitle {
+    display: none;
+  }
+
+  .hidden {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translateX(-75%);
+    transition: all 0.5s ease-in-out;
   }
 
   #hamburger {
@@ -972,16 +991,21 @@ footer {
   .nav-item {
     padding: 0.3rem 0;
     color: rgb(147, 167, 187);
+    width: 40%;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+
+  .mobile-nav-item {
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+    color: rgb(176, 197, 218);
+    letter-spacing: 0.1rem;
   }
 
   .nav {
     justify-content: center;
-  }
-
-  .nav-item {
-    width: 40%;
-    text-align: center;
-    font-size: 1.2rem;
   }
 
   .roster-col-sm {
@@ -1044,7 +1068,7 @@ footer {
   #sopContainer>div.row {
     margin: 0 0;
   }
-
+    
   .squadBtn {
     margin-top: 2rem;
   }
@@ -1052,4 +1076,3 @@ footer {
   .toned-down {
     display: none;
   }
-}
