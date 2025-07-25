@@ -6,14 +6,20 @@ const fs = require('fs');
 const { start } = require('repl');
 dotenv.config()
 
-var pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USERNAME,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    timezone: 'Z', // Set timezone to UTC
-}).promise()
+var pool;
 
+function establishPool() {
+    pool = mysql.createPool({
+        host: process.env.MYSQL_HOST,
+        user: process.env.MYSQL_USERNAME,
+        password: process.env.MYSQL_PASSWORD,
+        database: process.env.MYSQL_DATABASE,
+        timezone: 'Z', // Set timezone to UTC
+        connectionLimit: 10 // Set the maximum number of connections in the pool
+    }).promise(); // Use promise-based API for async/await
+}
+
+establishPool();
 
 function getPool() {
     return pool;
@@ -31,7 +37,25 @@ async function closePool() {
     pool = null; // Set the pool to null to prevent further use
 }
 
-// const result = await pool.query('SELECT * FROM Members')
+async function queryDatabase(query, params = []) {
+    // This function is used to query the database with a prepared statement
+    // It returns the rows returned by the query
+    var rows = [null];
+    try {
+        var conn = await pool.getConnection();
+        rows = await conn.query(query, params);
+    } catch (error) {
+        console.log("ERROR: " + error);
+    } finally {
+        if (typeof conn !== 'undefined' || conn !== null) {
+            pool.releaseConnection(conn); // Ensure the connection is released back to the pool
+            conn = null; // Set conn to null to prevent further use
+        }
+        return rows;
+    }
+}
+
+// const result = await queryDatabase('SELECT * FROM Members')
 
 async function getMembers(includeParentName = false, order = "memberidasc") {
     var rows = [null];
@@ -52,10 +76,10 @@ async function getMembers(includeParentName = false, order = "memberidasc") {
     if (includeParentName == true) {
         query = `SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ${orderBy}`
     } else {
-        query = `SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays,numberOfEventsAttended FROM Ranks,Members LEFT JOIN Attendance ON Members.MemberID = Attendance.MemberID WHERE Members.playerRank = Ranks.rankID ${orderBy}`;
+        query = `SELECT Members.MemberID,UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays FROM Ranks,Members WHERE Members.playerRank = Ranks.rankID ${orderBy}`;
     }
     try {
-        [rows] = await pool.query(query);
+        [rows] = await queryDatabase(query);
     } catch (error) {
         console.log(error);
     } finally {
@@ -66,8 +90,8 @@ async function getMembers(includeParentName = false, order = "memberidasc") {
 async function getFullMemberInfo(memberID) {
     var rows = [null];
     try {
-        // [rows] = await pool.query('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
-        [rows] = await pool.query('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank AND m.MemberID = ? ORDER BY m.MemberID ASC', [memberID]);
+        // [rows] = await queryDatabase('SELECT UName,rankName,rankPath,Country,nodeId,parentNodeId,Nick FROM Members,Ranks WHERE Members.Rank = Ranks.rankID');
+        [rows] = await queryDatabase('SELECT m.MemberID,m.UName,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank AND m.MemberID = ? ORDER BY m.MemberID ASC', [memberID]);
     } catch (error) {
         console.log(error);
     }
@@ -77,7 +101,7 @@ async function getFullMemberInfo(memberID) {
 async function getMember(name) {
     var rows = [null];
     try {
-        rows = await pool.query(`
+        rows = await queryDatabase(`
             SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,playerStatus
             FROM Members,Ranks
             WHERE Members.playerRank = Ranks.rankID AND UName = ?`, [name])
@@ -94,7 +118,7 @@ async function getMemberNames(memberIDs, includeRank = false) {
     try {
 
         if (includeRank === true) {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 SELECT UName, prefix
                 FROM Members, Ranks
                 WHERE Members.playerRank = Ranks.rankID AND MemberID IN (?)`, memberIDs);
@@ -104,7 +128,7 @@ async function getMemberNames(memberIDs, includeRank = false) {
             }
 
         } else {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 SELECT UName
                 FROM Members
                 WHERE MemberID IN (?)`, memberIDs);
@@ -121,7 +145,7 @@ async function getMemberNames(memberIDs, includeRank = false) {
 async function deleteMember(memberID) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             DELETE FROM Members
             WHERE MemberID = ?`, [memberID])
     } catch (error) {
@@ -134,7 +158,7 @@ async function deleteMember(memberID) {
 // async function getMemberParent(memberName) {
 //     var rows = [null];
 //     try {
-//         [rows] = await pool.query(`
+//         [rows] = await queryDatabase(`
 //             SELECT parentNodeId
 //             FROM Members
 //             WHERE UName = ?`, [memberName])
@@ -151,7 +175,7 @@ async function deleteMember(memberID) {
 async function getMemberNodeId(memberName) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT nodeId
             FROM Members
             WHERE UName = ?`, [memberName])
@@ -168,7 +192,7 @@ async function getMemberNodeId(memberName) {
 async function getRankFromName(rankName) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT rankID
             FROM Ranks
             WHERE rankName = ?`, [rankName])
@@ -182,7 +206,7 @@ async function getRankFromName(rankName) {
 async function getRankByID(rankID) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT rankID,rankName,prefix,rankPath,rankDescription
             FROM Ranks
             WHERE rankID = ?`, [rankID])
@@ -218,7 +242,7 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
             dateOfPromo = null;
         }
 
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             UPDATE Members
             SET playerRank = ?,
                 UName = ?,
@@ -235,11 +259,11 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
     }
 }
 
-async function createMember(memberName, rank, country, parentName, dateOfJoin) {
+async function createMember(memberName, memberdiscordId, rank, country, parentName, dateOfJoin) {
     var rows = [null];
     try {
         // Get the highest nodeId in the database
-        var [maxNodeId] = await pool.query('SELECT MAX(nodeId) AS maxNodeId FROM Members WHERE nodeId LIKE "E-%"');
+        var [maxNodeId] = await queryDatabase('SELECT MAX(nodeId) AS maxNodeId FROM Members WHERE nodeId LIKE "E-%"');
         var newNodeId = "E-" + ((parseInt(maxNodeId[0].maxNodeId.split("-")[1]) + 1) + "").padStart(4, '0');
         // Get the parent node ID from the name
         var parentNodeId = "root";
@@ -257,12 +281,12 @@ async function createMember(memberName, rank, country, parentName, dateOfJoin) {
             playerStatus = "Reserve";
         }
 
-        var response = await pool.query(`
-            INSERT INTO Members (UName,playerRank,Country,nodeId,parentNodeId,DateOfJoin,nick,playerStatus) VALUES (?,?,?,?,?,?,?,?)`, [memberName, rankID, country, newNodeId, parentNodeId, dateOfJoin, nick, playerStatus]);
+        var response = await queryDatabase(`
+            INSERT INTO Members (UName,playerRank,Country,nodeId,parentNodeId,DateOfJoin,nick,playerStatus,discordId) VALUES (?,?,?,?,?,?,?,?,?)`, [memberName, rankID, country, newNodeId, parentNodeId, dateOfJoin, nick, playerStatus, memberdiscordId]);
 
         if (response[0].affectedRows > 0) {
             console.log("Member created successfully");
-            [rows] = await pool.query('SELECT MemberID FROM Members WHERE nodeId = ?', [newNodeId]);
+            [rows] = await queryDatabase('SELECT MemberID FROM Members WHERE nodeId = ?', [newNodeId]);
             var memberID = rows[0].MemberID;
             console.log("Member ID: " + memberID);
             return memberID;
@@ -274,14 +298,14 @@ async function createMember(memberName, rank, country, parentName, dateOfJoin) {
 }
 
 async function getBadges() {
-    const [rows] = await pool.query('SELECT badgeID,badgeName,badgePath,isQualification,badgeDescription FROM Badges ORDER BY isQualification,badgeName ASC')
+    const [rows] = await queryDatabase('SELECT badgeID,badgeName,badgePath,isQualification,badgeDescription FROM Badges ORDER BY isQualification,badgeName ASC')
     return rows
 }
 
 async function getBadge(badgeID) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT badgeID,badgeName,badgePath,isQualification,badgeDescription
             FROM Badges
             WHERE badgeID = ?`, [badgeID])
@@ -319,14 +343,14 @@ async function updateBadge(badgeID, badgeName, isQualification, badgeDescription
     try {
         // console.log("Updating badge path: " + badgePath);
         if (badgePath == null || badgePath == "") {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 UPDATE Badges
                 SET badgeName = ?,
                     isQualification = ?,
                     badgeDescription = ?
                 WHERE badgeID = ?`, [badgeName, isQualification, badgeDescription, badgeID]);
         } else {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 UPDATE Badges
                 SET badgeName = ?,
                     badgePath = ?,
@@ -344,7 +368,7 @@ async function updateBadge(badgeID, badgeName, isQualification, badgeDescription
 async function getMemberBadges(name) {
     var rows = [null];
     try {
-        rows = await pool.query(`
+        rows = await queryDatabase(`
             SELECT badgeName,badgePath,isQualification,DateAcquired
             FROM Badges,MemberBadges,Members
             WHERE Members.UName = ? AND Members.MemberID = MemberBadges.MemberID AND MemberBadges.badgeID = Badges.badgeID
@@ -359,7 +383,7 @@ async function getMemberBadges(name) {
 async function getMembersAssignedToBadge(badgeID) {
     var rows = [null];
     try {
-        rows = await pool.query(`
+        rows = await queryDatabase(`
             SELECT MemberBadges.MemberID,UName,DateAcquired
             FROM Members,MemberBadges
             WHERE MemberBadges.badgeID = ? AND Members.MemberID = MemberBadges.MemberID
@@ -377,7 +401,7 @@ async function assignBadgeToMembers(memberIDs, badgeID, dateAcquired) {
     try {
         // Loop through the member IDs and insert the badge for each member
         for (var i = 0; i < memberIDs.length; i++) {
-            result = await pool.query(`
+            result = await queryDatabase(`
                 INSERT INTO MemberBadges (badgeID,MemberID,DateAcquired)
                 VALUES (?,?,?)`, [badgeID, memberIDs[i], dateAcquired]);
             rows.push(result[0]);
@@ -395,7 +419,7 @@ async function removeBadgeFromMembers(memberIDs, badgeID) {
     try {
         // Loop through the member IDs and insert the badge for each member
         for (var i = 0; i < memberIDs.length; i++) {
-            result = await pool.query(`
+            result = await queryDatabase(`
                 DELETE FROM MemberBadges
                 WHERE badgeID = ? AND MemberID = ?`, [badgeID, memberIDs[i]]);
             rows.push(result[0]);
@@ -411,7 +435,7 @@ async function getVideos(flag = false) {
     var rows = null;
 
     try {
-        [rows] = await pool.query('SELECT * FROM ytvideos');
+        [rows] = await queryDatabase('SELECT * FROM ytvideos');
     } catch (error) {
         console.log("DATABASE: " + error);
         return rows;
@@ -440,12 +464,12 @@ async function getVideos(flag = false) {
             }
         } catch (error) {
             // If the API call fails, return the current videos
-            [rows] = await pool.query('SELECT * FROM ytvideos');
+            [rows] = await queryDatabase('SELECT * FROM ytvideos');
             return rows;
         }
 
         // Clear the table
-        await pool.query('DELETE FROM ytvideos');
+        await queryDatabase('DELETE FROM ytvideos');
 
         var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
         var sql = 'INSERT INTO ytvideos (title, thumbUrl, videoId, videoUrl, duration, author, last_update) VALUES ?';
@@ -454,12 +478,12 @@ async function getVideos(flag = false) {
             [videos.video2.title, videos.video2.thumbnail, videos.video2.videoId, videos.video2.url, videos.video2.duration, videos.video2.author, currentTime],
             [videos.video3.title, videos.video3.thumbnail, videos.video3.videoId, videos.video3.url, videos.video3.duration, videos.video3.author, currentTime]
         ];
-        await pool.query(sql, [vals]);
+        await queryDatabase(sql, [vals]);
 
         console.log("DATABASE: Videos updated");
 
         // Get the updated videos
-        [rows] = await pool.query('SELECT * FROM ytvideos');
+        [rows] = await queryDatabase('SELECT * FROM ytvideos');
     } else {
         console.log("DATABASE: Videos are up to date");
     }
@@ -470,19 +494,19 @@ async function getVideos(flag = false) {
 async function getRanks(all, aboveOrBelow, currentRank) {
     var rows = null;
     if (all == true) {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT rankID, rankName, prefix
             FROM Ranks
             ORDER BY rankID ASC`);
     } else {
         if (aboveOrBelow == "above") {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 SELECT rankName, prefix
                 FROM Ranks
                 WHERE rankID < (SELECT rankID FROM Ranks WHERE rankName = ?)
                 ORDER BY rankID DESC`, [currentRank]);
         } else {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 SELECT rankName, prefix
                 FROM Ranks
                 WHERE rankID > (SELECT rankID FROM Ranks WHERE rankName = ?)
@@ -497,7 +521,7 @@ async function getComprehensiveRanks() {
     // This is used to populate the rank tree in the dashboard
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT rankID, rankName, prefix, rankPath, rankDescription
             FROM Ranks
             ORDER BY rankID ASC`);
@@ -514,7 +538,7 @@ async function changeRank(member, newRank) {
     try {
         console.log("MEMBER: " + member);
         console.log("NEW RANK: " + newRank);
-        rows = await pool.query(`
+        rows = await queryDatabase(`
             UPDATE Members
             SET Members.playerRank = (SELECT rankID FROM Ranks WHERE rankName = ?)
             WHERE MemberID = ?`, [newRank, member]);
@@ -529,7 +553,7 @@ async function getSeniorMembers() {
     // This function will return the members that are Corporal and above
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT MemberID,UName,rankName,nodeId,parentNodeId
             FROM Ranks,Members
             WHERE Members.playerRank = Ranks.rankID AND Ranks.rankID < 5
@@ -542,27 +566,85 @@ async function getSeniorMembers() {
 }
 
 
-async function checkIfUserExists(username, discordId = null) {
+async function checkIfUserExists(username, discordId = null, requirePassword = false) {
     var rows = [null];
+    var user = null;
     try {
-        [rows] = await pool.query(`
-            SELECT username
-            FROM users
-            WHERE username = ?`, [username]);
+        var exists = false;
 
-        if (rows.length == 0 && discordId != null) {
-            [rows] = await pool.query(`
-                SELECT username
+        // First check the discord ID
+
+        if (discordId != null) {
+            [rows] = await queryDatabase(`
+                SELECT MemberID
+                FROM Members
+                WHERE MemberDiscordID = ?`, [discordId]);
+
+            if (rows.length > 0) {
+                // The user has signed in with Discord, check if the member exists in the users table
+
+                var memberID = rows[0].MemberID;
+
+                [rows] = await queryDatabase(`
+                    SELECT role, Members.UName, users.userID
+                    FROM users, Members
+                    WHERE users.MemberID = ? AND Members.MemberID = users.MemberID`, [memberID]);
+
+                if (rows.length > 0) {
+                    // The member exists in the users table
+                    let role = rows[0].role;
+                    let username = rows[0].UName;
+                    let userID = rows[0].userID;
+                    exists = true;
+                    user = {
+                        "userID": userID,
+                        "memberID": memberID,
+                        "username": username,
+                        "role": role,
+                        "password": null // No password for Discord users
+                    };
+                }
+            }
+        } else {
+            // If the user is not signing in with Discord, check the username
+            [rows] = await queryDatabase(`
+                SELECT username, MemberID, userID, role, password
                 FROM users
-                WHERE discordId = ?`, [discordId]);
+                WHERE username = ?`, [username]);
+
+            if (rows.length > 0) {
+                // The user exists in the users table
+                exists = true;
+                user = {
+                    "userID": rows[0].userID,
+                    "memberID": rows[0].memberID,
+                    "username": username,
+                    "role": rows[0].role,
+                    "password": rows[0].password
+                };
+            }
         }
     } catch (error) {
         console.log(error);
     } finally {
-        if (rows.length == 0) {
-            return false; // User does not exist
+        return user; // Return the user object if it exists, null otherwise
+    }
+}
+
+async function getUserById(userId) {
+    var rows = [null];
+    try {
+        [rows] = await queryDatabase(`
+            SELECT username, role, MemberID
+            FROM users
+            WHERE userID = ?`, [userId]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length > 0) {
+            return rows[0]; // Return the user object
         } else {
-            return true; // User exists
+            return null; // No user found with the given ID
         }
     }
 }
@@ -572,14 +654,14 @@ async function performLogin(username, password, fallback) {
     if (!fallback) {
         var rows = [null];
         try {
-            [rows] = await pool.query(`
+            [rows] = await queryDatabase(`
                 SELECT username,password,role,memberID
                 FROM users
                 WHERE username = ?`, [username]);
+
         } catch (error) {
             console.log(error);
         } finally {
-            console.log(rows);
             if (rows.length == 0) {
                 return { "allowed": false, "role": null };
             } else if (typeof rows == "undefined" || typeof rows == "null" || rows == null) {
@@ -607,7 +689,7 @@ async function performLogin(username, password, fallback) {
 
 async function performRegister(username, password) {
     try {
-        const result = await pool.query(`
+        const result = await queryDatabase(`
             INSERT INTO users (username,password,role)
             VALUES (?,?,"public")`, [username, password]);
         return result[0].affectedRows > 0;
@@ -619,8 +701,17 @@ async function performRegister(username, password) {
 
 async function resetPassword(username, newPassword) {
     try {
+        // Check if the user had a password before
+        // If they did not, then we can assume that they are signing in with Discord and do not need a password
+        var user = await checkIfUserExists(username, null, true);
+        if (user == null || user.password == null) {
+            console.log("User does not exist: " + username);
+            return false; // User does not exist OR they are signing in with Discord
+        }
+
+
         const hashedPassword = newPassword;
-        const result = await pool.query(`
+        const result = await queryDatabase(`
             UPDATE users
             SET password = ?
             WHERE username = ?`, [hashedPassword, username]);
@@ -631,13 +722,13 @@ async function resetPassword(username, newPassword) {
     }
 }
 
-async function getUserRole(username) {
+async function getUserRole(value, key = 'username') {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT role
             FROM users
-            WHERE username = ?`, [username]);
+            WHERE ? = ?`, [key, value]);
     } catch (error) {
         console.log(error);
     } finally {
@@ -649,10 +740,37 @@ async function getUserRole(username) {
     }
 }
 
+async function getUsername(userID) {
+    var rows = [null];
+    try {
+        [rows] = await queryDatabase(`
+            SELECT username, memberID
+            FROM users
+            WHERE userID = ?`, [userID]);
+
+        if (rows.length == 0) {
+            // Check if the memberID points to a member in the Members table
+            let memberID = rows[0].memberID;
+            [rows] = await queryDatabase(`
+                SELECT UName AS username
+                FROM Members
+                WHERE MemberID = ?`, [memberID]);
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0].username;
+        }
+    }
+}
+
 async function getUserMemberID(username) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT MemberID
             FROM users
             WHERE username = ?`, [username]);
@@ -668,16 +786,16 @@ async function getUserMemberID(username) {
     }
 }
 
-async function getUserByDiscordId(discordId) {
+async function getMemberByDiscordId(discordId) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
-            SELECT username, users.memberID
-            FROM users, members, attendance
-            WHERE attendance.MemberDiscordID = ? AND attendance.MemberID = members.MemberID AND users.memberID = members.MemberID;`, [discordId]);
+        [rows] = await queryDatabase(`
+            SELECT *
+            FROM Members
+            WHERE MemberDiscordID = ?`, [discordId]);
     }
     catch (error) {
-        console.error("Error in getUserByDiscordId:", error);
+        console.error("Error in getMemberByDiscordId:", error);
     }
     finally {
         if (rows.length == 0) {
@@ -688,21 +806,27 @@ async function getUserByDiscordId(discordId) {
     }
 }
 
-async function createUser(username, password, role, memberID, memberDiscordId = null) {
+async function createUser(username, password, memberDiscordId = null, role = 'public', memberID = null) {
+
+    var created = false;
+    var result = [null];
     try {
 
         // Check if the user already exists
         var userExists = await checkIfUserExists(username, memberDiscordId);
         if (userExists) {
             console.log("User already exists: " + username);
+
+            // Let them log in if they are already registered
+
             return false; // User already exists
         }
 
-        // If the user is signing with a Discord account, lookup the discord ID from the attendance table
+        // If the user is signing with a Discord account, lookup the discord ID from the members table
         if (memberDiscordId != null) {
-            memberID = await getUserByDiscordId(memberDiscordId);
+            memberID = await getMemberByDiscordId(memberDiscordId);
 
-            // If the memberID is null, it means the user does not in the discord guild
+            // If the memberID is not found, it means the user is not in the members table, this means that they are not a member of the Discord server
             if (memberID == null) {
                 console.log("No member found with Discord ID: " + memberDiscordId);
                 role = "public";
@@ -713,27 +837,49 @@ async function createUser(username, password, role, memberID, memberDiscordId = 
             }
 
             // Create the user with the Discord ID, since no password is needed for Discord login
-            var result = await pool.query(`
+            result = await queryDatabase(`
                 INSERT INTO users (username, password, role, memberID)
-                VALUES (?, ?, ?, ?)`, [username, null, role, memberID]);
-            return result.affectedRows > 0;
+                VALUES (?, ?, ?, ?)`, [null, null, role, memberID]);
+            if (result[0].affectedRows > 0) {
+                created = true;
+            }
         } else {
             // Is a normal user registration
             // The password is already hashed in the route
             // Insert the new user into the database
 
-            var result = await pool.query(`
+            result = await queryDatabase(`
                 INSERT INTO users (username, password, role, memberID)
                 VALUES (?, ?, ?, ?)`, [username, password, role, memberID]);
 
             if (result[0].affectedRows > 0) {
+                // User created successfully
                 console.log("User created successfully: " + username);
-                return true; // User created successfully
+                created = true;
             }
         }
     } catch (error) {
         console.error("Error in createUser:", error);
-        return false;
+        return null;
+    } finally {
+        if (created) {
+
+            result = await queryDatabase(`
+                SELECT userID, username, role, memberID
+                FROM users
+                WHERE username = ?`, [username]);
+            // Return the user object with userID, username, and role
+
+            return {
+                "userID": result[0].userID, // Return the user ID of the newly created user
+                "username": result[0].username,
+                "role": result[0].role,
+                "memberID": result[0].memberID // Return the member ID if available
+            }
+        } else {
+            console.log("User creation failed for: " + username);
+            return null; // User creation failed
+        }
     }
 }
 
@@ -753,10 +899,10 @@ async function getMemberAttendance(name) {
     // Get the member's record from the database
     try {
         console.log("Getting attendance records for " + name);
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT MemberDiscordID, thursdays, sundays, (thursdays + sundays) AS numberOfEventsAttended
-            FROM Attendance,Members
-            WHERE Members.UName = ? AND Members.MemberID = Attendance.MemberID`, [name]);
+            FROM Members
+            WHERE UName = ?`, [name]);
 
     } catch (error) {
         console.log(error);
@@ -785,7 +931,7 @@ async function isAttendanceUpdated() {
     try {
         // Check if the attendance records have been updated in the last 12 hours
         var calcTime = new Date().getTime().valueOf() - (3600000 * 12);
-        var [rows] = await pool.query('SELECT lastUpdate FROM Attendance ORDER BY lastUpdate DESC LIMIT 1;');
+        var [rows] = await queryDatabase('SELECT lastUpdate FROM Members ORDER BY lastUpdate DESC LIMIT 1;');
         var lastUpdateInt = Date.parse(rows[0].lastUpdate).valueOf();
 
         if (lastUpdateInt > calcTime) {
@@ -823,7 +969,7 @@ async function updateMemberAttendance(bypassCheck = false) {
         var memberDetails = [];
         try {
             // Only update the members that are Active or LOA
-            var [temp] = await pool.query('SELECT MemberID,UName FROM Members WHERE playerStatus NOT IN ("Inactive", "Reserve")');
+            var [temp] = await queryDatabase('SELECT MemberID,UName FROM Members WHERE playerStatus NOT IN ("Inactive", "Reserve")');
 
             for (var i = 0; i < temp.length; i++) {
 
@@ -867,50 +1013,21 @@ async function updateMemberAttendance(bypassCheck = false) {
             var memberName = memberDetails[i].memberName;
             var thursdays = memberDetails[i].thursdays;
             var sundays = memberDetails[i].sundays;
-            var total = memberDetails[i].sundays + memberDetails[i].thursdays;
             var updatedTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
             // Update the attendance records in the database
-            var query = await pool.query(`
-                UPDATE Attendance
-                SET thursdays = ?, sundays = ?, numberOfEventsAttended = ?, lastUpdate = ?
-                WHERE MemberDiscordID = ?`, [thursdays, sundays, total, updatedTime, memberDiscordId]);
+            var query = await queryDatabase(`
+                UPDATE Members
+                SET thursdays = ?, sundays = ?, lastUpdate = ?
+                WHERE MemberDiscordID = ?`, [thursdays, sundays, updatedTime, memberDiscordId]);
 
             if (query[0].affectedRows > 0) {
                 results.push(query[0].affectedRows);
             }
             else {
-                // If the member is not found in the database, check if the member exists in the Members table, if so, insert the member into the Attendance table
-                try {
-                    var [rows] = await pool.query('SELECT MemberID FROM Members WHERE UName = ?', [memberName]);
-                    if (rows.length > 0) {
-
-                        // Member exists in the Members table
-                        if (rows[0].MemberID != null) {
-                            console.log("Member " + memberName + " found in the database. Updating attendance records...");
-                            var memberId = rows[0].MemberID;
-
-                            // Insert the member into the Attendance table
-                            var insert = await pool.query('INSERT INTO Attendance (MemberID, MemberDiscordID, thursdays, sundays, numberOfEventsAttended, lastUpdate) VALUES (?,?,?,?,?,?)', [memberId, memberDiscordId, thursdays, sundays, total, updatedTime]);
-                        } else {
-                            // Else, the member does not exist, skip the member
-                            console.log("Member " + memberName + " not found in the database. Skipping...");
-
-                            // AKA: No record was inserted
-                            var insert = false;
-                        }
-                    }
-                } catch (error) {
-                    console.error("ERROR: " + error);
-                    var insert = false;
-                } finally {
-                    if (insert) {
-                        console.log("SUCCESS: Inserted attendance records for member " + memberName);
-                        results.push(insert[0].affectedRows);
-                    } else {
-                        console.warn("FAIL: Failed to insert attendance records for member " + memberName);
-                    }
-                }
+                // If the member is not found in the Members table, log the error
+                console.log("UPDATE ATTEND: Member " + memberName + " not found in the database");
+                results.push(0); // Push 0 to indicate no update was made for this member
             }
         }
 
@@ -948,17 +1065,17 @@ async function setMemberLOAStatuses(LOAs) {
         for (var i = 0; i < LOAs.length; i++) {
             if (Date.now() > LOAs[i].startDate && Date.now() < LOAs[i].endDate) {
                 // console.log("Member " + LOAs[i].memberId + " is on LOA");
-                [rows] = await pool.query(`
-                    UPDATE Members, Attendance
+                [rows] = await queryDatabase(`
+                    UPDATE Members
                     SET playerStatus = 'LOA'
-                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [LOAs[i].memberId]);
+                    WHERE Members.MemberDiscordID = ?`, [LOAs[i].memberId]);
             }
         }
 
         // Now check for any members that were on LOA but are no longer on LOA
 
         // Get all members that are on LOA
-        var [membersOnLOA] = await pool.query(`SELECT Attendance.MemberDiscordID FROM Members, Attendance WHERE Members.playerStatus = 'LOA' AND Members.MemberID = Attendance.MemberID`);
+        var [membersOnLOA] = await queryDatabase(`SELECT Members.MemberDiscordID FROM Members WHERE Members.playerStatus = 'LOA'`);
 
         // Loop through the members on LOA and check if they are in the LOAs array
         for (var i = 0; i < membersOnLOA.length; i++) {
@@ -973,10 +1090,10 @@ async function setMemberLOAStatuses(LOAs) {
             // If the member is not in the LOAs array, set their status to Active
             if (!found) {
                 // console.log("Member " + membersOnLOA[i].MemberDiscordID + " is no longer on LOA");
-                [rows] = await pool.query(`
-                    UPDATE Members, Attendance
+                [rows] = await queryDatabase(`
+                    UPDATE Members
                     SET playerStatus = 'Active'
-                    WHERE Attendance.MemberDiscordID = ? AND Attendance.MemberID = Members.MemberID`, [membersOnLOA[i].MemberDiscordID]);
+                    WHERE Members.MemberDiscordID = ?`, [membersOnLOA[i].MemberDiscordID]);
             }
         }
     } catch (error) {
@@ -1001,7 +1118,7 @@ async function setMemberLOAStatuses(LOAs) {
 async function getMemberLOA(name) {
     var rows = null;
     try {
-        rows = await pool.query(`
+        rows = await queryDatabase(`
             SELECT status
             FROM Members
             WHERE UName = ?`, [name]);
@@ -1023,7 +1140,7 @@ async function getMemberLOA(name) {
 async function getSOPs() {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
             FROM sop
             ORDER BY sopID ASC`);
@@ -1047,7 +1164,7 @@ async function getSOPs() {
 async function getSOPbyID(id) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
             FROM sop
             WHERE sopID = ?`, [id]);
@@ -1061,7 +1178,7 @@ async function getSOPbyID(id) {
 async function createSOP(sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             INSERT INTO sop (sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted)
             VALUES (?,?,?,?,?,?,?)`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted]);
     } catch (error) {
@@ -1074,7 +1191,7 @@ async function createSOP(sopTitle, sopDescription, authors, sopType, sopDocID, i
 async function editSOP(sopID, sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted) {
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             UPDATE sop
             SET sopTitle = ?, sopDescription = ?, authors = ?, sopType = ?, sopDocID = ?, isAAC = ?, isRestricted = ?
             WHERE sopID = ?`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted, sopID]);
@@ -1091,7 +1208,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
     try {
 
         // First, get the latest ORBAT for the mission
-        var [rows] = await pool.query(`
+        var [rows] = await queryDatabase(`
             SELECT missionID
             FROM missionorbats
             WHERE dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
@@ -1103,7 +1220,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
         }
 
         // Check if the member is already in the ORBAT
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT MemberID
             FROM missionorbatmembers
             WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
@@ -1115,7 +1232,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
             if (memberRole == "NONE") {
                 try {
                     console.log("Unassigning member: " + memberID + " from mission ID: " + missionID);
-                    rows = await pool.query(`
+                    rows = await queryDatabase(`
                         DELETE FROM missionorbatmembers
                         WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
                     if (rows[0].affectedRows > 0) {
@@ -1142,7 +1259,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                 }
 
                 // Update the member's role and slotNodeID
-                rows = await pool.query(`
+                rows = await queryDatabase(`
                     UPDATE missionorbatmembers
                     SET MemberRole = ?, slotNodeID = ?, memberCallsign = ?
                     WHERE memberID = ? AND missionID = ?`, [memberRole, slotNodeID, callsign, memberID, missionID]);
@@ -1151,7 +1268,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                 }
             } else {
                 // If slotNodeID is provided, update the member's role and slotNodeID directly
-                rows = await pool.query(`
+                rows = await queryDatabase(`
                     UPDATE missionorbatmembers
                     SET slotNodeID = ?, memberCallsign = ?
                     WHERE memberID = ? AND missionID = ?`, [slotNodeID, callsign, memberID, missionID]);
@@ -1175,7 +1292,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                 }
 
                 // Insert the member into the ORBAT with the specified role and slotNodeID
-                rows = await pool.query(`
+                rows = await queryDatabase(`
                     INSERT INTO missionorbatmembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
                     VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
                 if (rows[0].affectedRows > 0) {
@@ -1183,7 +1300,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                 }
             } else {
                 // If slotNodeID is provided, insert the member into the ORBAT with the specified role and slotNodeID
-                rows = await pool.query(`
+                rows = await queryDatabase(`
                     INSERT INTO missionorbatmembers (memberID, missionID, MemberRole, memberCallsign, slotNodeID, updatedAt)
                     VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
                 if (rows[0].affectedRows > 0) {
@@ -1195,7 +1312,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
         // Finally, update the mission ORBAT record
         console.log("Updating mission ORBAT record...");
 
-        rows = await pool.query(`
+        rows = await queryDatabase(`
                         UPDATE missionorbats
                         SET filledSlots = (SELECT COUNT(*) FROM missionorbatmembers WHERE missionID = ?)
                         WHERE missionID = ?`, [missionID, missionID]);
@@ -1227,14 +1344,14 @@ async function getNextAvailableSlot(memberRole, missionID) {
     var callsign = null;
 
     // Get all currently filled slotNodeIDs for the mission
-    [rows] = await pool.query(`
+    [rows] = await queryDatabase(`
         SELECT slotNodeID
         FROM missionorbatmembers
         WHERE missionID = ?`, [missionID]);
     var filledNodes = rows.map(row => row.slotNodeID);
 
     // Now obtain all the possible slotNodeIDs for the mission
-    [rows] = await pool.query(`
+    [rows] = await queryDatabase(`
         SELECT layout
         FROM missionorbattemplates, missionorbats
         WHERE missionorbats.templateID = missionorbattemplates.templateID AND missionorbats.missionID = ?`, [missionID]);
@@ -1324,11 +1441,20 @@ async function getLiveOrbat() {
     var layout = [];
     try {
         // Get the latest mission ORBAT template that is scheduled for the future
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT missionorbattemplates.layout, missionorbats.missionID, missionorbats.dateOfMission
             FROM missionorbats, missionorbattemplates
             WHERE missionorbats.templateID = missionorbattemplates.templateID AND 
             missionorbats.dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+
+        if (typeof rows[0] == "undefined" || rows.length == 0) {
+            console.log("No live ORBAT found for the next mission");
+            return {
+                missionID: -1,
+                dateOfMission: -1,
+                layout: [{ "id": -1, "roleName": "ORBAT not published", "callsign": "", "parentNodeId": "root", "filled": false }]
+            };
+        }
 
         console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
@@ -1338,19 +1464,19 @@ async function getLiveOrbat() {
             layout = unwrapORBATJSON(rows[0].layout);
         }
 
-        // console.log(layout);
+        console.log(rows[0].missionID);
 
         if (layout.length == 0) {
-            console.log("No layout found for the live ORBAT");
+            console.log("No mission found for the live ORBAT");
             return {
                 missionID: -1,
                 dateOfMission: -1,
-                layout: []
+                layout: [{ "id": -1, "roleName": "No ORBAT found", "callsign": "", "parentNodeId": null, "filled": false }],
             };
         }
 
         // Now get the members that are in the ORBAT for the mission
-        var [members] = await pool.query(`
+        var [members] = await queryDatabase(`
             SELECT Members.MemberID, Members.UName, Ranks.prefix, missionorbatmembers.memberRole, missionorbatmembers.slotNodeID
             FROM Members, missionorbatmembers, Ranks
             WHERE Members.MemberID = missionorbatmembers.memberID AND missionorbatmembers.missionID = ? AND
@@ -1373,7 +1499,7 @@ async function getLiveOrbat() {
         }
 
         // Return the live ORBAT layout with member details
-        if (message.length > 0) {
+        if (message.length > 0 && typeof rows[0].missionID != "undefined") {
             return {
                 missionID: rows[0].missionID,
                 dateOfMission: rows[0].dateOfMission,
@@ -1402,7 +1528,7 @@ async function getMemberSlotInfoFromOrbat(memberID) {
 
     try {
         // Get the missionID of the next scheduled ORBAT
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT missionID, missionorbattemplates.composition
             FROM missionorbats, missionorbattemplates
             WHERE dateOfMission > ? AND missionorbats.templateID = missionorbattemplates.templateID`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
@@ -1418,7 +1544,7 @@ async function getMemberSlotInfoFromOrbat(memberID) {
         }
         var missionID = rows[0].missionID;
         // Now get the member's role in the ORBAT for the mission
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT memberRole, slotNodeID, memberCallsign
             FROM missionorbatmembers
             WHERE memberID = ? AND missionID = ?`, [memberID,
@@ -1451,7 +1577,7 @@ async function getMissions() {
     // This function will return all the missions held in the database
     var rows = [null];
     try {
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT missionID, dateOfMission, missionorbats.templateID, composition, filledSlots, size
             FROM missionorbats
             LEFT JOIN missionorbattemplates
@@ -1484,7 +1610,7 @@ async function getMissionCompositions() {
     var rows = [null];
     try {
         var response = [];
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
             SELECT DISTINCT composition, templateID
             FROM missionorbattemplates`);
 
@@ -1518,7 +1644,7 @@ async function patchMissions(missionID, templateID, dateOfMission) {
         var missionDateString = missionDate.toISOString().slice(0, 19).replace('T', ' ');
 
         // Check if the mission already exists
-        [rows] = await pool.query(`
+        [rows] = await queryDatabase(`
                 SELECT missionID
                 FROM missionorbats
                 WHERE missionID = ?`, [missionID]);
@@ -1527,7 +1653,7 @@ async function patchMissions(missionID, templateID, dateOfMission) {
             // Mission exists, update it
             doesNotExist = false;
             console.log("Updating existing mission with ID: " + rows[0].missionID);
-            rows = await pool.query(`
+            rows = await queryDatabase(`
                         UPDATE missionorbats
                         SET templateID = ?, dateOfMission = ?
                         WHERE missionID = ?`, [templateID, missionDateString, missionID]);
@@ -1544,7 +1670,7 @@ async function patchMissions(missionID, templateID, dateOfMission) {
             // Format dateOfMission to UTC format for MySQL
             var dateOfMissionUTC = new Date(dateOfMission).toISOString().slice(0, 19).replace('T', ' ');
 
-            rows = await pool.query(`
+            rows = await queryDatabase(`
                             INSERT INTO missionorbats (templateID, filledSlots, dateOfMission)
                             VALUES (?, 0, ?)`, [templateID, dateOfMissionUTC]);
 
@@ -1565,7 +1691,7 @@ async function deleteMission(missionID) {
     var rows = [null];
 
     try {
-        rows = await pool.query(`
+        rows = await queryDatabase(`
             DELETE FROM missionorbats
             WHERE missionID = ?`, [missionID]);
 
@@ -1623,6 +1749,8 @@ async function getDashboardData() {
     // Loop through the members and check if they are eligible for the next rank
 
     for (var row of rows) {
+
+        row.numberOfEventsAttended = row.thursdays + row.sundays;
 
         // console.log("Checking member: " + row.UName + " with rank: " + row.rankName + " and events attended: " + row.numberOfEventsAttended);
 
@@ -1717,7 +1845,7 @@ async function getDashboardData() {
     for (var loa of loaResponse) {
         try {
             // Get the member's name from the database
-            var [member] = await pool.query('SELECT UName, playerStatus, playerRank FROM Members, Attendance WHERE MemberDiscordID = ? AND Members.MemberID = Attendance.MemberID', [loa.memberId]);
+            var [member] = await queryDatabase('SELECT UName, playerStatus, playerRank FROM Members WHERE MemberDiscordID = ?', [loa.memberId]);
 
             // console.log("Member LOA", member);
             // console.log("Player Rank", member[0].playerRank);
@@ -1812,7 +1940,7 @@ module.exports = {
     getMembers, getFullMemberInfo, getMember, deleteMember, updateMember,
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
-    getPool, closePool, performRegister, getUserRole, getUserMemberID, getUserByDiscordId, createMember, getDashboardData, getMemberLOA,
-    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID,
-    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists
+    getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA, createUser,
+    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
+    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById
 };

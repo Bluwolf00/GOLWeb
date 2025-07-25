@@ -1,10 +1,10 @@
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.classList.add('show');
+      entry.target.classList.add('showContent');
     //   observer.unobserve(entry.target);
     } else {
-        entry.target.classList.remove('show');
+        entry.target.classList.remove('showContent');
     }
   });
 }, { threshold: 0.1 });

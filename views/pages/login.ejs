@@ -6,7 +6,7 @@
     <script defer src="/scripts/login.js"></script>
 
     <style>
-        .logInSection {
+        #loginSection {
             margin: 5% auto;
             width: 50%;
             padding: 20px;
@@ -14,11 +14,11 @@
             border-radius: 10px;
         }
 
-        .logInSection h1 {
+        #loginSection h1 {
             margin-bottom: 20px;
         }
 
-        .logInSection button {
+        #loginSection button {
             margin-top: 20px;
         }
 
@@ -48,7 +48,7 @@
 
             </div>
 
-            <section class="logInSection">
+            <section id="loginSection">
                 <h1>Log In</h1>
 
                 <form action="" method="POST" id="loginForm">
@@ -62,14 +62,16 @@
                     </div>
                     <button type="submit" class="btn btn-primary" id="loginButton">Log In</button>
                 </form>
+
+                <div class="row">
+                    <h3>3rd Party Login</h3>
+                    <a href="/auth/discord" class="btn btn-secondary"><i class="bi bi-discord"></i> Log In with Discord</a>
+                </div>
             </section>
 
 
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-        </script>
         <script src="/scripts/loader.js"></script>
     </main>
 

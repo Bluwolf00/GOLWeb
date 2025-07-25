@@ -4,13 +4,40 @@ const db = require('../database.js');
 const middle = require('../middle.js');
 const authPage = middle.authPage;
 
+function getUserData(req) {
+    // Prepare user data
+    let role = '';
+    let username = '';
+    let loggedIn = false;
+    if (req.session.passport) {
+        loggedIn = true;
+        role = req.session.passport.user.role;
+        username = req.session.passport.user.username;
+    } else {
+        loggedIn = req.session.loggedin || false;
+        role = req.session.role || 'public'; // Default to 'public' if role is not set
+        username = req.session.username || '';
+    }
+
+    return {
+        loggedIn: loggedIn,
+        role: role.toLowerCase(),
+        username: username
+    };
+}
+
 router.get('/', authPage, async (req,res) => {
+
+    let userData = getUserData(req);
+
     res.render('pages/dashboard/dashboard', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
 router.get('/users', authPage, async (req,res) => {
+    let userData = getUserData(req);
     var editSuccess = req.query.editSuccess;
     var createSuccess = req.query.createSuccess;
 
@@ -21,7 +48,8 @@ router.get('/users', authPage, async (req,res) => {
         createSuccess = -1;
     }
     res.render('pages/dashboard/users', {
-        username: req.session.username,
+        username: userData.username,
+        userLogged: userData.loggedIn,
         editSuccess: editSuccess,
         createSuccess: createSuccess
     });
@@ -31,6 +59,7 @@ router.get('/users', authPage, async (req,res) => {
 
 // ROUTES THAT ARE NOT YET IMPLEMENTED
 router.get('/badges', authPage, async (req,res) => {
+    let userData = getUserData(req);
     var editSuccess = req.query.editSuccess;
     var createSuccess = req.query.createSuccess;
 
@@ -41,15 +70,18 @@ router.get('/badges', authPage, async (req,res) => {
         createSuccess = -1;
     }
     res.render('pages/dashboard/dashbadges', {
-        username: req.session.username,
+        username: userData.username,
+        userLogged: userData.loggedIn,
         editSuccess: editSuccess,
         createSuccess: createSuccess
     });
 });
 
 router.get('/sop', authPage, async (req,res) => {
+    let userData = getUserData(req);
     res.render('pages/dashboard/dashsop', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
@@ -58,8 +90,10 @@ router.get('/videos', authPage, async (req,res) => {
 });
 
 router.get('/ranks', authPage, async (req,res) => {
+    let userData = getUserData(req);
     res.render('pages/dashboard/dashranks', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 
@@ -76,8 +110,10 @@ router.get('/trainings', authPage, async (req,res) => {
 });
 
 router.get('/missions', authPage, async (req,res) => {
+    let userData = getUserData(req);
     res.render('pages/dashboard/dashmissions', {
-        username: req.session.username
+        username: userData.username,
+        userLogged: userData.loggedIn
     });
 });
 

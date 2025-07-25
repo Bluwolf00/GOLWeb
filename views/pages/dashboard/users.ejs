@@ -7,7 +7,7 @@
   <script defer src="/scripts/dashusertable.js"></script>
 </head>
 
-<%- include('../../partials/headernav', {pageTitle: "Dashboard"}) %>
+<%- include('../../partials/headernav', {pageTitle: "Dashboard", loggedin: userLogged, username: username}) %>
 
 <body>
   <main>
@@ -56,6 +56,12 @@
                   aria-describedby="help-name-text">
                 <small class="form-text" id="help-name-text">This should match the username on Discord (excl. The rank
                   prefix)</small>
+              </div>
+              <div class="form-group">
+                <label for="discordId">Discord ID</label><br>
+                <input type="text" class="form-control" id="discordId" name="discordId" placeholder="Discord ID"
+                  aria-describedby="help-discordId-text">
+                <small class="form-text" id="help-discordId-text">This should match the Discord ID of the user</small>
               </div>
               <div class="form-group">
                 <label for="rank">Rank</label>
@@ -131,6 +137,12 @@
               <div class="form-group">
                 <label for="new-uname">Name</label>
                 <input required type="text" class="form-control" id="new-uname" name="newuname" placeholder="Name">
+              </div>
+              <div class="form-group">
+                <label for="new-discordId">Discord ID</label><br>
+                <input type="text" class="form-control" id="new-discordId" name="newdiscordId" placeholder="Discord ID"
+                  aria-describedby="help-new-discordId-text">
+                <small class="form-text" id="help-new-discordId-text">This should match the Discord ID of the user</small>
               </div>
               <div class="form-group">
                 <label for="new-rank">Rank</label>
@@ -234,10 +246,6 @@
         </tbody>
       </table>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-    </script>
     <script defer>
       var isloggedIn = "<%= loggedin %>"
     </script>

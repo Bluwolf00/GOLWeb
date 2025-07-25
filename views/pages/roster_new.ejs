@@ -2,6 +2,9 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
+    <meta property="og:title" content="Guerrillas of Liberation - Order of Battle">
+    <meta property="og:description"
+        content="Official unit structure of the Guerrillas of Liberation Arma 3 Realism MilSim Unit.">
     <%- include('../partials/head', {pageTitle: "GOL ORBAT"}) %>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.0.1"></script>
@@ -22,7 +25,7 @@
     </style>
 </head>
 
-<%- include('../partials/headernav', {pageTitle: "Orbat"}) %>
+<%- include('../partials/headernav', {pageTitle: "Orbat", loggedin: userLogged, username: username}) %>
 
 <body>
     <main>
@@ -43,7 +46,7 @@
                             d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
                     </svg></a>
             </div>
-            
+
             <div class="row my-2" id="orbatStats">
                 <div class="col-sm">
                     <p class="lead">Expected Votes: <span class="highlight" id="activePlayers">##</span></p>
@@ -96,12 +99,6 @@
                 </div>
             </div>
         </div>
-
-
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-        </script>
     </main>
 
     <script defer>

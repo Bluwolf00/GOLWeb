@@ -17,6 +17,28 @@ var store = multer.diskStorage({
 });
 const upload = multer({ storage: store });
 
+function getUserData(req) {
+    // Prepare user data
+    let role = '';
+    let username = '';
+    let loggedIn = false;
+    if (req.session.passport) {
+        loggedIn = true;
+        role = req.session.passport.user.role;
+        username = req.session.passport.user.username;
+    } else {
+        loggedIn = req.session.loggedin || false;
+        role = req.session.role || 'public'; // Default to 'public' if role is not set
+        username = req.session.username || '';
+    }
+
+    return {
+        loggedIn: loggedIn,
+        role: role.toLowerCase(),
+        username: username
+    };
+}
+
 // -- GET REQUESTS - DATA --
 
 router.get('/memberinfo', async (req, res) => {
@@ -177,11 +199,12 @@ router.get('/seniorMembers', authPage, async (req, res) => {
 router.get('/getSOPs', async (req, res) => {
     try {
         var sops = await db.getSOPs();
+        let userData = getUserData(req);
 
         console.log("SOPs fetched:", sops.length);
 
         // Check if the logged user has access to restricted SOPs
-        if (req.session.loggedin && req.session.role && (req.session.role.toLowerCase() === 'member' || req.session.role.toLowerCase() === 'admin' || req.session.role.toLowerCase() === 'moderator')) {
+        if (userData.loggedIn && userData.role && (userData.role.toLowerCase() === 'member' || userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'moderator')) {
             console.log("User is a member or has access to restricted SOPs, not modifying SOP URLs.");
         } else {
             console.log("User is not a member or does not have access to restricted SOPs, setting SOP URLs to null.");
@@ -231,12 +254,16 @@ router.get('/assignedToBadge', authPage, async (req, res) => {
 });
 
 router.get('/getLoggedInUser', async (req, res) => {
-    if (req.session.loggedin) {
 
-        var memberID = await db.getUserMemberID(req.session.username);
+    // Get user data
+    let userData = getUserData(req);
+
+    if (userData.loggedIn) {
+
+        var memberID = await db.getUserMemberID(userData.username);
         res.status(200).send({
-            "username": req.session.username,
-            "role": req.session.role,
+            "username": userData.username,
+            "role": userData.role,
             "memberID": memberID || null
         });
     } else {
@@ -271,10 +298,14 @@ router.get('/getLiveOrbat', async (req, res) => {
 });
 
 router.get('/getMemberLiveOrbatInfo', async (req, res) => {
+
+    // Get user data
+    let userData = getUserData(req);
+
     try {
-        if (req.session.loggedin === true) {
+        if (userData.loggedIn === true) {
             // If the user is logged in, we will use their memberID to get their role in the live ORBAT
-            var memberID = await db.getUserMemberID(req.session.username);
+            var memberID = await db.getUserMemberID(userData.username);
             if (!memberID) {
                 res.status(401).send("Unauthorized - User not found in the database.");
                 return;
@@ -406,7 +437,7 @@ router.post('/performRegister', async (req, res) => {
     } else {
         // Hash the password before storing it
         const hashedPassword = await bcrypt.hash(password, 10);
-        result = await db.performRegister(username, hashedPassword);
+        result = await db.createUser(username, hashedPassword);
         if (result) {
             res.status(201).send({ "fullStatus": "Success - Registration Sucessful.", "statusMessage": "Success: Registration Sucessful. Redirecting..." });
         } else {
@@ -485,16 +516,17 @@ router.post('/changeRank', authPage, async (req, res) => {
 
 router.post('/createMember', authPage, async (req, res) => {
     var memberName = req.body.newuname;
+    var memberDiscordId = req.body.newdiscordId; // New field for Discord ID
     var memberRank = req.body.newrank;
     var memberCountry = req.body.newcountry;
     var memberParent = req.body.newreporting;
     var memberJoined = req.body.newjoined;
 
-    if (!memberName || !memberRank || !memberCountry || !memberParent) {
+    if (!memberName || !memberDiscordId || !memberRank || !memberCountry || !memberParent) {
         res.status(400).send("Bad Request - Missing Parameters");
         return;
     }
-    var result = await db.createMember(memberName, memberRank, memberCountry, memberParent, memberJoined);
+    var result = await db.createMember(memberName, memberDiscordId, memberRank, memberCountry, memberParent, memberJoined);
     var referer = req.get('referer');
     if (referer.indexOf('?') > -1) {
         referer = referer.substring(0, referer.indexOf('?'));
@@ -732,7 +764,8 @@ router.post('/resetPassword', authPage, async (req, res) => {
 
 router.patch('/orbatSubmission', async (req, res) => {
 
-    // console.log(req.body);
+    // Get user data
+    let userData = getUserData(req);
 
     var memberID = req.body.selectedMember;
     var memberRole = req.body.chosen_role;
@@ -750,14 +783,14 @@ router.patch('/orbatSubmission', async (req, res) => {
     }
 
     // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
-    if (req.session.loggedin && req.session.role && req.session.role.toLowerCase() !== "admin" && req.session.role.toLowerCase() !== "moderator") {
-        if (parseInt(memberID) !== parseInt(req.session.memberID)) {
-            console.log("Member ID: %d | Session Member ID: %s", memberID, req.session.memberID);
-            console.log(memberID !== req.session.memberID);
+    if (userData.loggedIn && userData.role && userData.role.toLowerCase() !== "admin" && userData.role.toLowerCase() !== "moderator") {
+        if (parseInt(memberID) !== parseInt(userData.memberID)) {
+            console.log("Member ID: %d | Session Member ID: %s", memberID, userData.memberID);
+            console.log(memberID !== userData.memberID);
             res.status(403).send("Forbidden - You are not allowed to update this member's ORBAT.");
             return;
         }
-    } else if (!req.session.loggedin) {
+    } else if (!userData.loggedIn) {
         res.status(401).send("Unauthorized - You must be logged in to update the ORBAT.");
         return;
     }
