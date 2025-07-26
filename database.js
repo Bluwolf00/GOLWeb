@@ -49,7 +49,7 @@ async function queryDatabase(query, params = []) {
             console.warn("No rows returned for query:", query, "with params:", params);
         }
     } catch (error) {
-        console.log("ERROR: " + error);
+        console.error("ERROR: " + error);
     } finally {
         if (typeof conn !== 'undefined' || conn !== null) {
             pool.releaseConnection(conn); // Ensure the connection is released back to the pool
