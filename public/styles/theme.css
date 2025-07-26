@@ -545,8 +545,16 @@ footer {
 }
 
 #footerText {
-  position: relative;
-  top: 25%;
+  margin-top: 1rem;
+}
+
+#footerText > a {
+  text-decoration: none;
+  color: #999999;
+}
+
+#footerText > a:hover {
+  color: #2287ad;
 }
 
 /* ORBAT page */
@@ -881,6 +889,20 @@ footer {
 
 #loginSection>.row {
   margin: 1rem 0;
+}
+
+/* Contact */
+
+#contact-members {
+  margin: 2em 0;
+  background-color: var(--blu-bg);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+  border-radius: 20px;
+  padding: 1rem 1rem;
+}
+
+#contact-members .col {
+  margin-bottom: 1.5em;
 }
 
 /* Misc */

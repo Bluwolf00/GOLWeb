@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <%- include('../../partials/head', {pageTitle: "Terms of Service"}) %>
+
+    <style>
+        b {
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<%- include('../../partials/headernav', {pageTitle: "Terms of Service", loggedin: userLogged, username: username}) %>
+
+<body>
+    <main>
+        <div class="container my-5 text-center">
+
+            <img id="front-logo" src="/img/logo_new.png" alt="">
+            <h1 class="mb-5">Terms of Service</h1>
+
+            <p class="lead">This page informs you of the Guerrillas of Liberation ("our", "us", or "we") terms of services. By making use of this website (gol-clan.com)
+                or our services, you agree to these terms.</p>
+
+            <p class="lead">This page covers the following topics:</p>
+
+        </div>
+
+        <section>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="border-bottom py-2">
+                            <h3>1. Introduction</h3>
+                            <p>
+                                Welcome to the Guerrillas of Liberation community. By accessing or using our website,
+                                forums, or affiliated services, you agree to abide by these Terms of Service. These
+                                terms
+                                are designed to foster a respectful, secure, and engaging environment for all members.
+                            </p>
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>2. Community Conduct</h3>
+                            <p>We expect all members to uphold the values of camaraderie, tactical integrity, and mutual
+                                respect. You agree not to:</p>
+                            <ul>
+                                <li>Harass, threaten, or abuse other members.</li>
+                                <li>Post content that is illegal, offensive, or violates intellectual property rights.
+                                </li>
+                                <li>Engage in disruptive behavior that undermines gameplay or community cohesion.</li>
+                            </ul>
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>3. Content Ownership</h3>
+                            <p>
+                                You retain ownership of the content you create, but by posting on our platforms, you
+                                grant
+                                Guerrillas of Liberation a non-exclusive license to use, display, and distribute your
+                                content within the community. This helps us showcase member contributions and maintain
+                                archival continuity.
+                            </p>
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>4. Moderation and Enforcement</h3>
+                            <p>Our moderators are empowered to enforce these terms. Actions may include:</p>
+                            <ul>
+                                <li>Content removal</li>
+                                <li>Temporary or permanent bans</li>
+                                <li>Revocation of access to specific services</li>
+                            </ul>
+                            <p>Moderation decisions are final, but respectful appeals may be considered.</p>
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>5. Privacy and Data</h3>
+                            <p>
+                                We respect your privacy. Basic account data is collected to facilitate community
+                                interaction. For more details, refer to our <a
+                                    href="https://gol-clan.com/policy/privacy">Privacy
+                                    Policy</a>.
+                            </p>
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>6. External Services</h3>
+                            <p>
+                                Our platforms may link to third-party services (e.g., Discord, game servers). We are not
+                                responsible for the content or policies of these external sites.
+                            </p>
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>7. Changes to Terms</h3>
+                            <p>
+                                We may update these Terms of Service periodically. Continued use of our services implies
+                                acceptance of any changes.
+                            </p>
+
+                        </div>
+
+                        <div class="border-bottom py-2">
+                            <h3>8. Contact</h3>
+                            <p>
+                                For questions or concerns, please reach out via our <a
+                                    href="https://gol-clan.com/discord">Discord</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <script defer>
+            var isloggedIn = "<%= loggedin %>"
+        </script>
+        <script src="/scripts/checkLogged.js"></script>
+    </main>
+
+    <footer>
+        <%- include('../../partials/footer') %>
+    </footer>
+</body>
+
+</html>

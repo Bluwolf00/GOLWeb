@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <%- include('../partials/head', {pageTitle: "Contact Us"}) %>
+
+    <style>
+        b {
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<%- include('../partials/headernav', {pageTitle: "Contact Us", loggedin: userLogged, username: username}) %>
+
+<body>
+    <main>
+        <div class="container my-5 text-center">
+
+            <div class="row">
+                <div class="col">
+                    <img id="front-logo" src="/img/logo_new.png" alt="">
+                    <h1 class="mb-5">Contact Us</h1>
+                    <p class="lead">If you have any questions or feedback, feel free to reach out to us!</p>
+                </div>
+            </div>
+
+            <div class="container" id="contact-members">
+                <div class="row">
+                    <div class="col">
+                        <img src="/img/nation/sweden.png" alt="sweden" class="img"
+                            style="border-radius:100px;width:80px;height:80px;">
+
+                        <h2>Oksman</h2>
+                        <p class="lead">Community Leader</p>
+                        <p>Discord: <a href="/discord">Join our Discord</a></p>
+                    </div>
+                    <div class="col">
+                        <img src="/img/nation/scotland.png" alt="scotland" class="img"
+                            style="border-radius:100px;width:80px;height:80px;">
+                        <h2>Blu.</h2>
+                        <p class="lead">Website Owner, Community Manager, Data Protection Officer</p>
+                        <p>Discord: <a href="/discord">Join our Discord</a></p>
+                        <p>GitHub: <a href="https://github.com/Bluwolf00">Visit our GitHub</a></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <img src="/img/nation/united kingdom.png" alt="united kingdom" class="img"
+                            style="border-radius:100px;width:80px;height:80px;">
+                        <h2>Rutters</h2>
+                        <p class="lead">Community Officer</p>
+                        <p>Discord: <a href="/discord">Join our Discord</a></p>
+                    </div>
+                    <div class="col">
+                        <img src="/img/nation/united kingdom.png" alt="united kingdom" class="img"
+                            style="border-radius:100px;width:80px;height:80px;">
+                        <h2>Skeliton</h2>
+                        <p class="lead">Community Officer</p>
+                        <p>Discord: <a href="/discord">Join our Discord</a></p>
+                    </div>
+                    <div class="col">
+                        <img src="/img/nation/germany.png" alt="germany" class="img"
+                            style="border-radius:100px;width:80px;height:80px;">
+                        <h2>Filth</h2>
+                        <p class="lead">Community Officer</p>
+                        <p>Discord: <a href="/discord">Join our Discord</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <script defer>
+                var isloggedIn = "<%= loggedin %>"
+            </script>
+            <script src="/scripts/checkLogged.js"></script>
+    </main>
+
+    <footer>
+        <%- include('../partials/footer') %>
+    </footer>
+</body>
+
+</html>

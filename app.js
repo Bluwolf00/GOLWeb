@@ -58,6 +58,7 @@ app.use('/dashboard', dashboard);
 app.use('/data', dbData);
 app.use('/sop', require('./routes/sop.js'));
 app.use('/auth', require('./routes/auth.js'));
+app.use('/policy', require('./routes/policy.js'));
 
 function getUserData(req) {
     // Prepare user data
@@ -242,6 +243,17 @@ app.get('/mission-orbat/live', async (req, res) => {
     } else {
         res.render('pages/mission-orbat', { userLogged: userData.loggedIn, username: userData.username, selectedOption: req.query.selectedOption || 'roles' });
     }
+});
+
+app.get('/contact', (req, res) => {
+
+    // Prepare user data
+    let userData = getUserData(req);
+
+    res.render('pages/contact', {
+        userLogged: userData.loggedIn,
+        username: userData.username
+    });
 });
 
 app.get('/error', (req, res) => {
