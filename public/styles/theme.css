@@ -91,6 +91,7 @@ svg.icon-secondary {
 
 .navbar-collapse {
   background-color: transparent;
+  z-index: 99;
 }
 
 .navbar-text {
@@ -423,6 +424,7 @@ div.card-body>div {
 
 .card-title {
   font-size: 1.2rem;
+  min-height: 2.5em;
 }
 
 .card-title>a {
@@ -548,12 +550,12 @@ footer {
   margin-top: 1rem;
 }
 
-#footerText > a {
+#footerText>a {
   text-decoration: none;
   color: #999999;
 }
 
-#footerText > a:hover {
+#footerText>a:hover {
   color: #2287ad;
 }
 
@@ -1000,6 +1002,12 @@ footer {
     filter: blur(5px);
     transform: translateX(-75%);
     transition: all 0.5s ease-in-out;
+  }
+
+  .showContent {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
   }
 
   #hamburger {
