@@ -773,19 +773,31 @@ async function getUsername(userID) {
 
 async function getUserMemberID(username) {
     var rows = [null];
+    let memberID = null;
+
+    console.log("Username: " + username);
     try {
         [rows] = await queryDatabase(`
             SELECT MemberID
             FROM users
             WHERE username = ?`, [username]);
+
+        if (typeof rows[0] === "undefined" || rows[0] === null) {
+            // Member may be signed in with Discord
+            [rows] = await queryDatabase(`
+                SELECT MemberID
+                FROM Members
+                WHERE UName = ?`, [username]);
+        }
+        memberID = rows[0].MemberID;
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         if (rows.length == 0) {
             return null;
         } else {
             // console.log("getUserMemberID | MemberID: " + rows[0].MemberID);
-            return rows[0].MemberID;
+            return memberID;
         }
     }
 }
