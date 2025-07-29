@@ -422,7 +422,7 @@ div.card-body>div {
   top: 0;
 }
 
-.card-title {
+.video-card > .card-body > .card-title {
   font-size: 1.2rem;
   min-height: 2.5em;
 }
