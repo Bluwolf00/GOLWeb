@@ -49,7 +49,7 @@ async function queryDatabase(query, params = []) {
             console.warn("No rows returned for query:", query, "with params:", params);
         }
     } catch (error) {
-        console.error("ERROR: " + error);
+        console.error("ERROR: " + error, "Query: " + query, "Params: ", params);
     } finally {
         if (typeof conn !== 'undefined' || conn !== null) {
             pool.releaseConnection(conn); // Ensure the connection is released back to the pool
@@ -102,13 +102,22 @@ async function getFullMemberInfo(memberID) {
     return rows[0]
 };
 
-async function getMember(name) {
+async function getMember(input, byID = false) {
     var rows = [null];
     try {
-        rows = await queryDatabase(`
-            SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,playerStatus
-            FROM Members,Ranks
-            WHERE Members.playerRank = Ranks.rankID AND UName = ?`, [name])
+
+        if (byID) {
+            [rows] = await queryDatabase(`
+                SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,playerStatus
+                FROM Members,Ranks
+                WHERE Members.playerRank = Ranks.rankID AND Members.MemberID = ?`, [input]);
+        } else {
+            [rows] = await queryDatabase(`
+                SELECT UName,rankName,rankPath,Country,Nick,DateOfJoin,DateOfPromo,playerStatus
+                FROM Members,Ranks
+                WHERE Members.playerRank = Ranks.rankID AND UName = ?`, [input])
+        }
+
     } catch (error) {
         console.log(error);
     } finally {
@@ -899,7 +908,7 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
                     FROM users
                     WHERE username = ?`, [username]);
                 // Return the user object with userID, username, and role
-    
+
                 return {
                     "userID": result[0][0].userID, // Return the user ID of the newly created user
                     "username": result[0][0].username,
@@ -1277,6 +1286,28 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                     message = "Error unassigning member from ORBAT: " + error.message;
                     slotNodeID = -2; // Set slotNodeID to -2 to indicate error
                 }
+            } else if (Array.isArray(memberRole)) {
+                // If memberRole is an array, we need to find the next available slot for each role
+                let memberRoleArray = memberRole.map(role => role);
+
+                // Randomly shuffle the memberRoleArray
+                for (let i = memberRoleArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
+                }
+
+                for (let i = 0; i < memberRoleArray.length; i++) {
+                    let role = memberRoleArray[i];
+                    let slotInfo = await getNextAvailableSlot(role, missionID);
+                    // console.log("Iteration " + i + ": Checking role: " + role);
+                    // console.log("Slot Info: ", slotInfo);
+                    if (slotInfo.slotNodeID != null) {
+                        slotNodeID = slotInfo.slotNodeID;
+                        callsign = slotInfo.callsign;
+                        memberRole = role; // Update memberRole to the current role being processed
+                        break; // Stop searching once we find an available slot
+                    }
+                }
             }
 
             // If slotNodeID is null, find the next available slot with the specified role
@@ -1312,11 +1343,39 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
             console.log("Member " + memberID + " is not in the ORBAT for mission ID: " + missionID);
             // Member is not in the ORBAT
             if (slotNodeID == null) {
-                console.log("Finding next available slot for member: " + memberID + " with role: " + memberRole);
-                // If slotNodeID is null, find the next available slot with the specified role
-                let slotInfo = await getNextAvailableSlot(memberRole, missionID);
-                slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
-                var callsign = slotInfo ? slotInfo.callsign : null;
+                let callsign = "";
+                let slotInfo = null;
+
+                if (Array.isArray(memberRole)) {
+                    // If memberRole is an array, we need to find the next available slot for each role
+                    let memberRoleArray = memberRole.map(role => role);
+
+                    // Randomly shuffle the memberRoleArray
+                    for (let i = memberRoleArray.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
+                    }
+
+                    console.log(memberRoleArray);
+
+                    for (let i = 0; i < memberRoleArray.length; i++) {
+                        let role = memberRoleArray[i];
+                        let slotInfo = await getNextAvailableSlot(role, missionID);
+                        if (slotInfo) {
+                            slotNodeID = slotInfo.slotNodeID;
+                            callsign = slotInfo.callsign;
+                            memberRole = role; // Update memberRole to the current role being processed
+                            break; // Stop searching once we find an available slot
+                        }
+                    }
+                } else {
+                    console.log("Finding next available slot for member: " + memberID + " with role: " + memberRole);
+                    // If slotNodeID is null, find the next available slot with the specified role
+                    slotInfo = await getNextAvailableSlot(memberRole, missionID);
+                    slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
+                    callsign = slotInfo ? slotInfo.callsign : null;
+                }
+
                 if (slotNodeID == null) {
                     console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
                     message = "No available slot found for role: " + memberRole;
@@ -1414,7 +1473,7 @@ async function getNextAvailableSlot(memberRole, missionID) {
                 }
             } else if (layout[node].roleName == memberRole && !filledNodes.includes(layout[node].id)) {
                 // If the node is available and matches the role, set it as the available node
-                console.log("Found available node for role: " + memberRole + " with ID: " + layout[node].id);
+                // console.log("Found available node for role: " + memberRole + " with ID: " + layout[node].id);
                 slotNodeID = layout[node].id;
                 callsign = layout[node].callsign;
                 break; // Found an available node, no need to continue
@@ -1488,7 +1547,7 @@ async function getLiveOrbat() {
             };
         }
 
-        console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
+        // console.log("Found live ORBAT for mission ID: " + rows[0].missionID + " on date: " + rows[0].dateOfMission);
         // Unwrap the ORBAT JSON layout
         if (typeof rows[0].layout === "string") {
             layout = unwrapORBATJSON(JSON.parse(rows[0].layout));

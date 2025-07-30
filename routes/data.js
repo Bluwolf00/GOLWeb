@@ -42,7 +42,16 @@ function getUserData(req) {
 // -- GET REQUESTS - DATA --
 
 router.get('/memberinfo', async (req, res) => {
-    var member = await db.getMember(req.query.name);
+    let username = req.query.name;
+    var member = {};
+
+
+    if (username) {
+        member = await db.getMember(username, false);
+    } else {
+        let id = req.query.memberID;
+        member = await db.getMember(id, true);
+    }
     // console.log(req.query.name);
     res.send(member);
 });
@@ -776,11 +785,38 @@ router.patch('/orbatSubmission', async (req, res) => {
         memberRole = "NONE";
     }
 
-    if (memberRole === "FAC") {
-        // Expand the role to Forward Air Controller
-        // This is to ensure that the role is correctly set in the database
-        memberRole = "Forward Air Controller";
+    switch (memberRole.toLowerCase()) {
+        case "fac":
+            // Handle Forward Air Controller role
+            memberRole = "Forward Air Controller";
+            break;
+
+        case "any basic":
+            // Set memberRole to be an array of the basic roles
+            memberRole = [
+                "Rifleman",
+                "Grenadier",
+                "Assistant Gunner",
+                "Automatic Rifleman"
+            ];
+            break;
+
+        case "any leader":
+            // Set memberRole to be an array of the leader roles
+            memberRole = [
+                "Fire Team Leader",
+                "Squad Leader",
+                "Platoon Leader"
+            ];
+            break;
+
+        default:
+            break;
     }
+
+    console.log("Member Role: ", memberRole);
+
+
 
     // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
     if (userData.loggedIn && userData.role && userData.role.toLowerCase() !== "admin" && userData.role.toLowerCase() !== "moderator") {

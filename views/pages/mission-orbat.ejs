@@ -65,34 +65,39 @@
                             <div class="text-muted">Please select one of the roles from the dropdown:</div>
                             <select name="chosen_role" id="roleSelect" class="form-select mt-3">
                                 <option value="" selected disabled>Select a role</option>
-                                <option value="Any Role">Any Role</option>
-                                <optgroup label="Leadership Roles">
-                                    <option value="Fire Team Leader">Fire Team Leader</option>
-                                    <option value="Squad Leader">Squad Leader</option>
-                                    <option value="Platoon Leader">Platoon Leader</option>
+                                <optgroup label="=== Any Role Groups ===" id="anyRoleGroup">
+                                    <!-- <option value="Any Role" style="color: deepskyblue;">Any Role</option> -->
+                                    <option value="Any Basic" style="color: red;">Any Basic Role</option>
+                                    <option value="Any Leader" style="color: grey;" id="anyLeadershipOption" disabled>Any Leadership Role</option>
+                                    <option value="Any Support" style="color: yellow;">Any Support Role</option>
+                                </optgroup>
+                                <optgroup label="=== Leadership Roles ===" id="leadershipRoleGroup" disabled>
+                                    <option value="Platoon Leader" style="color: grey;">Platoon Leader</option>
+                                    <option value="Squad Leader" style="color: grey;">Squad Leader</option>
+                                    <option value="Fire Team Leader" style="color: grey;">Fire Team Leader</option>
                                 </optgroup>
 
-                                <optgroup label="Basic Roles">
-                                    <option value="Rifleman">Rifleman</option>
-                                    <option value="Grenadier">Grenadier</option>
-                                    <option value="Assistant Gunner">Asst. Gunner</option>
-                                    <option value="Automatic Rifleman">Automatic Rifleman</option>
-                                    <option value="Light Rifleman">Light Rifleman</option>
-                                    <option value="Ammo Bearer">Ammo Bearer</option>
+                                <optgroup label="=== Basic Roles ===" id="basicRoleGroup">
+                                    <option value="Rifleman" style="color: red;">Rifleman</option>
+                                    <option value="Grenadier" style="color: red;">Grenadier</option>
+                                    <option value="Assistant Gunner" style="color: deepskyblue;">Asst. Gunner</option>
+                                    <option value="Automatic Rifleman" style="color: deepskyblue;">Automatic Rifleman</option>
                                 </optgroup>
 
-                                <optgroup label="Crew Roles">
-                                    <option value="Crew Driver">Crew Driver</option>
-                                    <option value="Crew Gunner">Crew Gunner</option>
-                                    <option value="Crew Commander">Crew Commander</option>
+                                <optgroup label="=== Crew Roles ===" id="crewRoleGroup">
+                                    <option value="Crew Driver" style="color: yellow;">Crew Driver</option>
+                                    <option value="Crew Gunner" style="color: yellow;">Crew Gunner</option>
+                                    <option value="Crew Commander" style="color: yellow;">Crew Commander</option>
                                 </optgroup>
 
-                                <optgroup label="Specialist Roles">
-                                    <option value="Pilot">Pilot</option>
-                                    <option value="FAC">FAC</option>
-                                    <option value="Squad Medic">Squad Medic</option>
-                                    <option value="Platoon Medic">Platoon Medic</option>
-                                    <option value="CSW Operator">CSW Operator</option>
+                                <optgroup label="=== Specialist Roles ===" id="specialistRoleGroup">
+                                    <option value="Pilot" style="color: deepskyblue;">Pilot</option>
+                                    <option value="FAC" style="color: deepskyblue;">Forward Air Controller</option>
+                                    <option value="Squad Medic" style="color: yellow;">Squad Medic</option>
+                                    <option value="Platoon Medic" style="color: yellow;">Platoon Medic</option>
+                                    <option value="CSW Operator" style="color: yellow;">CSW Operator</option>
+                                    <option value="Light Rifleman" style="color: yellow;">Light Rifleman</option>
+                                    <option value="Ammo Bearer" style="color: yellow;">Ammo Bearer</option>
                                 </optgroup>
                             </select>
                         </div>

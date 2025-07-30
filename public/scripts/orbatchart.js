@@ -1,5 +1,7 @@
 // Org Chart from https://github.com/bumbeishvili/org-chart/tree/master
 
+var loggedMemberData = {};
+
 async function createOrg(data, selectedOption = "roles") {
     new d3.OrgChart()
         .nodeUpdate(function (d, i, arr) {
@@ -97,49 +99,48 @@ async function createOrg(data, selectedOption = "roles") {
         .fit();
 }
 
-async function populateMemberDropD() {
+async function populateMemberDropD(loggedInMember) {
 
     // Default is to populate with the logged in user
 
     var memberSelect = document.getElementById("memberSelect");
 
-    var loggedInMember = await fetch('/data/getLoggedInUser');
+    // Clear existing options
+    memberSelect.innerHTML = "";
 
-    if (loggedInMember.ok) {
-        loggedInMember = await loggedInMember.json();
+    let optionGroup = document.createElement("optgroup");
+    optionGroup.label = "Logged In Member";
+    var option = document.createElement("option");
+    option.value = loggedInMember.memberID;
+    option.textContent = loggedInMember.username;
+    optionGroup.appendChild(option);
+    memberSelect.appendChild(optionGroup);
 
-        // Clear existing options
-        memberSelect.innerHTML = "";
-
-        let optionGroup = document.createElement("optgroup");
-        optionGroup.label = "Logged In Member";
-        var option = document.createElement("option");
-        option.value = loggedInMember.memberID;
-        option.textContent = loggedInMember.username;
-        optionGroup.appendChild(option);
-        memberSelect.appendChild(optionGroup);
-
-        if (loggedInMember.role.toLowerCase() === "admin") {
-            // If the user is an admin, populate the dropdown with all members
-            var allMembers = await fetch('/data/getMembers?order=UNameASC');
-            if (allMembers.ok) {
-                allMembers = await allMembers.json();
-                let optionGroup = document.createElement("optgroup");
-                optionGroup.label = "Other Members";
-                for (const member of allMembers) {
-                    var option = document.createElement("option");
-                    option.value = member.MemberID;
-                    option.textContent = member.UName;
-                    optionGroup.appendChild(option);
+    if (loggedInMember.role.toLowerCase() === "admin") {
+        // If the user is an admin, populate the dropdown with all members
+        var allMembers = await fetch('/data/getMembers?order=UNameASC');
+        if (allMembers.ok) {
+            allMembers = await allMembers.json();
+            let activeGroup = document.createElement("optgroup");
+            activeGroup.label = "Active Members";
+            let reserveGroup = document.createElement("optgroup");
+            reserveGroup.label = "Reserve Members";
+            for (const member of allMembers) {
+                var option = document.createElement("option");
+                option.value = member.MemberID;
+                option.textContent = member.UName;
+                if (member.playerStatus.toLowerCase() === "reserve") {
+                    reserveGroup.appendChild(option);
+                } else {
+                    activeGroup.appendChild(option);
                 }
-                memberSelect.appendChild(optionGroup);
-                return; // Exit after populating with all members
-            } else {
-                console.error("Failed to fetch all members data.");
             }
+            memberSelect.appendChild(activeGroup);
+            memberSelect.appendChild(reserveGroup);
+            return; // Exit after populating with all members
+        } else {
+            console.error("Failed to fetch all members data.");
         }
-    } else {
-        console.error("Failed to fetch logged in member data.");
     }
 }
 
@@ -263,11 +264,42 @@ async function handleChartUpdate() {
 // Retrieve the data from the server and create the org chart
 async function init() {
 
+    var memberResponse = await fetch('/data/getLoggedInUser');
+
+    if (!memberResponse.ok) {
+        console.error("Failed to fetch logged in user data.");
+        return;
+    }
+    let loggedUserData = await memberResponse.json();
+    let memberID = loggedUserData.memberID;
+
+    let response = await fetch('/data/memberinfo?memberID=' + memberID);
+    loggedMemberData = await response.json();
+
+    if (!loggedMemberData) {
+        console.error("Failed to fetch logged in user data.");
+        return;
+    }
+
+    if (["lance corporal", "corporal", "sergeant", "second lieutenant", "first lieutenant"].includes(loggedMemberData.rankName.toLowerCase())) {
+        document.getElementById("leadershipRoleGroup").disabled = false;
+        let children = document.getElementById("leadershipRoleGroup").childNodes;
+
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].tagName === "OPTION") {
+                children[i].style.color = "lime";
+            }
+        }
+        
+        document.getElementById("anyLeadershipOption").disabled = false;
+        document.getElementById("anyLeadershipOption").style.color = "lime";
+    }
+
     // console.log("Initializing org chart...");
     await handleChartUpdate();
-    
+
     if (document.getElementById("memberSelect") != null || document.getElementById("memberSelect") != undefined) {
-        populateMemberDropD();
+        populateMemberDropD(loggedUserData);
     } else {
         console.log("Member select dropdown not found, skipping population.");
     }
