@@ -144,7 +144,7 @@ async function getProfile() {
     var id = url.substring(url.lastIndexOf('=') + 1);
     // console.log(id);
 
-    [data] = await fetch('/data/memberinfo?name=' + id)
+    data = await fetch('/data/memberinfo?name=' + id)
         .then((response) => response.json());
     // console.log(data);
     playerName = data.UName;

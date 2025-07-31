@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
 const fs = require('fs');
-const { start } = require('repl');
 dotenv.config()
 
 var pool;
@@ -15,7 +14,8 @@ function establishPool() {
         password: process.env.MYSQL_PASSWORD,
         database: process.env.MYSQL_DATABASE,
         timezone: 'Z', // Set timezone to UTC
-        connectionLimit: 10 // Set the maximum number of connections in the pool
+        connectionLimit: 10, // Set the maximum number of connections in the pool
+
     }).promise(); // Use promise-based API for async/await
 }
 
@@ -43,6 +43,7 @@ async function queryDatabase(query, params = []) {
     var rows = [null];
     try {
         var conn = await pool.getConnection();
+        await conn.beginTransaction(); // Start a transaction
         rows = await conn.query(query, params);
 
         if (rows[0] === null) {
@@ -52,7 +53,7 @@ async function queryDatabase(query, params = []) {
         console.error("ERROR: " + error, "Query: " + query, "Params: ", params);
     } finally {
         if (typeof conn !== 'undefined' || conn !== null) {
-            pool.releaseConnection(conn); // Ensure the connection is released back to the pool
+            conn.destroy(); // Destroy the connection to not leak resources
             conn = null; // Set conn to null to prevent further use
         }
         return rows;
