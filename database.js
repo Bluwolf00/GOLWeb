@@ -43,7 +43,6 @@ async function queryDatabase(query, params = []) {
     var rows = [null];
     try {
         var conn = await pool.getConnection();
-        await conn.beginTransaction(); // Start a transaction
         rows = await conn.query(query, params);
 
         if (rows[0] === null) {
