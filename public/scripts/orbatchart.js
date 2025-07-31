@@ -264,6 +264,12 @@ async function handleChartUpdate() {
 // Retrieve the data from the server and create the org chart
 async function init() {
 
+    if (window.location.search.includes("selectedOption")) {
+        // Get the selected option from the URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var selectedOption = urlParams.get("selectedOption") || "roles";
+    }
+
     var memberResponse = await fetch('/data/getLoggedInUser');
 
     if (!memberResponse.ok) {
@@ -302,12 +308,6 @@ async function init() {
         populateMemberDropD(loggedUserData);
     } else {
         console.log("Member select dropdown not found, skipping population.");
-    }
-
-    if (window.location.search.includes("selectedOption")) {
-        // Get the selected option from the URL
-        var urlParams = new URLSearchParams(window.location.search);
-        var selectedOption = urlParams.get("selectedOption") || "roles";
     }
 
     // Add event listener to the form

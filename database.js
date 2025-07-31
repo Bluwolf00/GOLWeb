@@ -1299,8 +1299,6 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                 for (let i = 0; i < memberRoleArray.length; i++) {
                     let role = memberRoleArray[i];
                     let slotInfo = await getNextAvailableSlot(role, missionID);
-                    // console.log("Iteration " + i + ": Checking role: " + role);
-                    // console.log("Slot Info: ", slotInfo);
                     if (slotInfo.slotNodeID != null) {
                         slotNodeID = slotInfo.slotNodeID;
                         callsign = slotInfo.callsign;
@@ -1361,7 +1359,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                     for (let i = 0; i < memberRoleArray.length; i++) {
                         let role = memberRoleArray[i];
                         let slotInfo = await getNextAvailableSlot(role, missionID);
-                        if (slotInfo) {
+                        if (slotInfo.slotNodeID != null) {
                             slotNodeID = slotInfo.slotNodeID;
                             callsign = slotInfo.callsign;
                             memberRole = role; // Update memberRole to the current role being processed
