@@ -281,7 +281,7 @@ async function init() {
         return;
     }
 
-    if (["lance corporal", "corporal", "sergeant", "second lieutenant", "first lieutenant"].includes(loggedMemberData.rankName.toLowerCase())) {
+    if (["lance corporal", "corporal", "sergeant", "second lieutenant", "first lieutenant"].includes(loggedMemberData.rankName.toLowerCase()) && selectedOption === "roles") {
         document.getElementById("leadershipRoleGroup").disabled = false;
         let children = document.getElementById("leadershipRoleGroup").childNodes;
 
