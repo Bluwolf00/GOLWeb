@@ -703,18 +703,21 @@ router.post('/editSOP', authPage, async (req, res) => {
     const { sopID, title, Authors, description, docType, docId } = req.body;
     var isAAC;
     var isRestricted;
-    if (req.body.newaacSOP === 'on') {
+    if (req.body.aacSOP === 'on') {
         isAAC = 1;
     } else {
         isAAC = 0;
     }
-    if (req.body.newrestrictedDoc === 'on') {
+    if (req.body.restrictedDoc === 'on') {
         isRestricted = 1;
     } else {
         isRestricted = 0;
     }
 
+    console.log("Parameters: ", { sopID, title, Authors, description, docType, docId, isAAC, isRestricted });
+
     if (!sopID || !title || !Authors || !description || !docType || !docId) {
+        console.error("Missing Parameters");
         res.status(400).send("Bad Request - Missing Parameters");
         return;
     }
@@ -725,8 +728,9 @@ router.post('/editSOP', authPage, async (req, res) => {
         var authorList = Authors.split(',').map(author => author.trim());
         // Validate each author and check if their name returns a valid member
         for (const author of authorList) {
-            const member = await db.getMember(author);
+            const member = await db.getMember(parseInt(author), true);
             if (!member || member.length === 0) {
+                console.error(`Bad Request - Author "${author}" does not exist.`);
                 res.status(400).send({ "result": `Bad Request - Author "${author}" does not exist.` });
                 return;
             }

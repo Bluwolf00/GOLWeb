@@ -1229,7 +1229,7 @@ async function createSOP(sopTitle, sopDescription, authors, sopType, sopDocID, i
     }
 }
 
-async function editSOP(sopID, sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted) {
+async function editSOP(sopID, sopTitle, authors, sopDescription, sopType, sopDocID, isAAC, isRestricted) {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`

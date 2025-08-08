@@ -91,14 +91,19 @@ async function handleEditSOP() {
         }
     });
 
+    var btn = document.getElementById('submitSopEditBtn');
+    btn.disabled = true;
+
     if (response.ok) {
         createAlert('SOP updated successfully!', 'success', 'editSopModal', 3000);
         setTimeout(() => {
+            btn.disabled = false;
             closeModal('editSopModal');
             populate();
         }, 3000);
     } else {
         createAlert('Failed to update SOP. Please try again.', 'danger', 'editSopModal', 3000);
+        btn.disabled = false;
     }
 }
 
