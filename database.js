@@ -128,17 +128,28 @@ async function getMember(input, byID = false) {
 async function getMemberNames(memberIDs, includeRank = false) {
     var rows = [null];
     var result = [];
+
+    var members = [];
+    if (!Array.isArray(memberIDs)) {
+        members = memberIDs.split(',');
+    } else {
+        members = memberIDs;
+    }
     try {
 
         if (includeRank === true) {
             [rows] = await queryDatabase(`
                 SELECT UName, prefix
                 FROM Members, Ranks
-                WHERE Members.playerRank = Ranks.rankID AND MemberID IN (?)`, memberIDs);
+                WHERE Members.playerRank = Ranks.rankID AND MemberID IN (?)`, [members]);
+
+                console.log(rows);
 
             for (let row of rows) {
                 result.push(`${row.prefix}. ${row.UName}`);
             }
+
+            console.log(result);
 
         } else {
             [rows] = await queryDatabase(`

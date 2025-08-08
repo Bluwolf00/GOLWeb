@@ -4,9 +4,9 @@ async function getAllSOPs() {
         let response = await fetch('/data/getSOPs');
         if (!response.ok) throw new Error('Network response was not ok');
         let result = await response.json();
-        console.log("SOPs fetched successfully:", sops);
-
         sops = result;
+        
+        console.log("SOPs fetched successfully:", sops);
     } catch (error) {
         console.error("Error fetching SOPs:", error);
     } finally {
