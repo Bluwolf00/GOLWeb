@@ -32,7 +32,7 @@ async function populate() {
             <th><span>${sop.sopID}</span></th>
             <td><span>${sop.sopTitle}</span></td>
             <td><span>${sop.authors}</span></td>
-            <td><span class="text-body-secondary sopDescription">${sop.sopDescription}</span></td>
+            <td><span class="sopDescription">${sop.sopDescription}</span></td>
             <td><span>${sop.sopType}</span></td>
             <td><span>${sop.sopDocID}</span></td>
             <td><span>${sop.isAAC}</span></td>
@@ -48,32 +48,55 @@ async function populate() {
 }
 
 async function handleCreateSOP() {
-    const formData = new FormData(document.getElementById('createSopForm'));
-        const response = await fetch('/data/createSop', {
-            method: 'POST',
-            body: formData
-        });
+    // const formData = new FormData(document.getElementById('createSopForm'));
+    var data = $('#createSopForm').serializeArray();
+
+    var jsonData = {};
+    data.forEach(function(item) {
+        jsonData[item.name] = item.value;
+    });
+
+    const response = await fetch('/data/createSop', {
+        method: 'POST',
+        body: JSON.stringify(jsonData),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 
         if (response.ok) {
             createAlert('SOP created successfully!', 'success', 'createSopModal', 3000);
-            closeModal('createSopModal');
-            populate();
+            setTimeout(() => {
+                closeModal('createSopModal');
+                populate();
+            }, 3000);
         } else {
             createAlert('Failed to create SOP. Please try again.', 'danger', 'createSopModal', 3000);
         }
 }
 
 async function handleEditSOP() {
-    const formData = new FormData(document.getElementById('editSopForm'));
+    var data = $('#editSopForm').serializeArray();
+
+    var jsonData = {};
+    data.forEach(function(item) {
+        jsonData[item.name] = item.value;
+    });
+
     const response = await fetch('/data/editSop', {
         method: 'POST',
-        body: formData
+        body: JSON.stringify(jsonData),
+        headers: {
+            'Content-Type': 'application/json'
+        }
     });
 
     if (response.ok) {
         createAlert('SOP updated successfully!', 'success', 'editSopModal', 3000);
-        closeModal('editSopModal');
-        populate();
+        setTimeout(() => {
+            closeModal('editSopModal');
+            populate();
+        }, 3000);
     } else {
         createAlert('Failed to update SOP. Please try again.', 'danger', 'editSopModal', 3000);
     }
@@ -85,12 +108,12 @@ function init() {
 
     document.getElementById('submitSopEditBtn').addEventListener('click', async (event) => {
         event.preventDefault();
-        createAlert('This feature is not yet implemented.', 'warning', 'editSopModal', 3000);
+        await handleEditSOP();
     });
 
     document.getElementById('editSopForm').addEventListener('submit', async (event) => {
         event.preventDefault();
-        createAlert('This feature is not yet implemented.', 'warning', 'editSopModal', 3000);
+        await handleEditSOP();
     });
 
     document.getElementById('submitSopCreateBtn').addEventListener('click', async (event) => {
@@ -104,6 +127,39 @@ function init() {
     });
 
     
+}
+
+async function deleteSOP(sopID) {
+
+    // Delete Modal
+    
+    var modal = bootstrap.Modal.getInstance(document.getElementById('deleteSopModal'));
+
+    if (!modal) {
+        modal = new bootstrap.Modal(document.getElementById('deleteSopModal'));
+    }
+    modal.show();
+
+    const confirmDeleteBtn = document.getElementById('confirmDeleteSopBtn');
+    confirmDeleteBtn.onclick = async () => {
+        let deleteBtn = document.getElementById('confirmDeleteSopBtn');
+        deleteBtn.disabled = true;
+        const response = await fetch(`/data/deleteSOP?sopID=${sopID}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            createAlert('SOP deleted successfully!', 'success', 'main', 3000);
+            setTimeout(() => {
+                document.getElementById('confirmDeleteSopBtn').disabled = false;
+                closeModal('deleteSopModal');
+                populate();
+            }, 3000);
+        } else {
+            createAlert('Failed to delete SOP. Please try again.', 'danger', 'main', 3000);
+            deleteBtn.disabled = false;
+        }
+    };
 }
 
 async function closeModal(elementId) {
@@ -126,8 +182,13 @@ async function openEditModal(sopID) {
 
     // console.log(sop);
 
+    var sopID = document.getElementById('sopID');
+    sopID.value = sop.sopID;
+    sopID.readOnly = true;
+
     var sopTitle = document.getElementById('sopTitle');
     sopTitle.value = sop.sopTitle;
+
     var authors = document.getElementById('authors');
     authors.value = sop.authors;
 
@@ -152,19 +213,27 @@ async function openEditModal(sopID) {
     else
         isRestricted.checked = false;
 
-
-    
     modal.show();
 }
 
 function createAlert(message, type, form, timeout = -1) {
     var alert = document.createElement("div");
     alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.style.position = "sticky";
+    alert.style.zIndex = "9999";
+    alert.style.top = "0";
     alert.role = "alert";
     alert.innerHTML = message +
         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
     alert.id = "imageAlertMessage";
-    var formEl = document.getElementById(form)
+
+    var formEl;
+    if (form === "main") {
+        formEl = document.querySelector("main");
+    } else {
+        formEl = document.getElementById(form);
+    }
+
     formEl.prepend(alert);
 
     if (timeout > 0) {

@@ -40,6 +40,9 @@ async function performRegister() {
 function createAlert(message, type, form, timeout = -1) {
     var alert = document.createElement("div");
     alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.style.position = "sticky";
+    alert.style.zIndex = "9999";
+    alert.style.top = "0";
     alert.role = "alert";
     alert.innerHTML = message +
         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';

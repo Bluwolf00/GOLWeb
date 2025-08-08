@@ -27,14 +27,18 @@
             <div class="row text-center">
                 <h1>SLOT SELECTION</h1>
                 <p class="text-muted">Please select your
-                        <% if (selectedOption === "slots") { %>
-                        <strong>slot</strong>
-                        <% } else { %>
-                        <strong>role</strong>
-                        <% } %>
-                        before the operation starts.</p>
+                    <% if (selectedOption === "slots") { %>
+                    <strong>slot</strong>
+                    <% } else { %>
+                    <strong>role</strong>
+                    <% } %>
+                    before the operation starts.</p>
                 <p class="text-muted">Disclaimer: These slots only indicate a preference and leaders hold the right to
                     move players into other slots.</p>
+
+            </div>
+            <div class="row text-center">
+                <div class="col"><button id="exportBtn" class="btn btn-primary">Export to PNG</button></div>
             </div>
 
             <div class="chart-container" id="orgChart"></div>
@@ -68,7 +72,8 @@
                                 <optgroup label="=== Any Role Groups ===" id="anyRoleGroup">
                                     <!-- <option value="Any Role" style="color: deepskyblue;">Any Role</option> -->
                                     <option value="Any Basic" style="color: red;">Any Basic Role</option>
-                                    <option value="Any Leader" style="color: grey;" id="anyLeadershipOption" disabled>Any Leadership Role</option>
+                                    <option value="Any Leader" style="color: grey;" id="anyLeadershipOption" disabled>
+                                        Any Leadership Role</option>
                                     <option value="Any Support" style="color: yellow;">Any Support Role</option>
                                 </optgroup>
                                 <optgroup label="=== Leadership Roles ===" id="leadershipRoleGroup" disabled>
@@ -81,7 +86,8 @@
                                     <option value="Rifleman" style="color: red;">Rifleman</option>
                                     <option value="Grenadier" style="color: red;">Grenadier</option>
                                     <option value="Assistant Gunner" style="color: deepskyblue;">Asst. Gunner</option>
-                                    <option value="Automatic Rifleman" style="color: deepskyblue;">Automatic Rifleman</option>
+                                    <option value="Automatic Rifleman" style="color: deepskyblue;">Automatic Rifleman
+                                    </option>
                                 </optgroup>
 
                                 <optgroup label="=== Crew Roles ===" id="crewRoleGroup">

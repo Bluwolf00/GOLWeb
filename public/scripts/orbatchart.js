@@ -1,9 +1,10 @@
 // Org Chart from https://github.com/bumbeishvili/org-chart/tree/master
 
 var loggedMemberData = {};
+var chart = null;
 
 async function createOrg(data, selectedOption = "roles") {
-    new d3.OrgChart()
+    chart = new d3.OrgChart()
         .nodeUpdate(function (d, i, arr) {
             if (d.data.id == "root") {
                 d3.select(this).style('display', 'none');
@@ -82,8 +83,8 @@ async function createOrg(data, selectedOption = "roles") {
                                         <div class='id-div' style="color:#FFFFFF;display:flex;justify-content:flex-end;margin-top:5px;margin-right:8px">#${d.data.id}</div>
                                         <div style="display:flex;justify-content:flex-end;margin-top:5px">   <img src=${imagePath} style="margin-right:${8}px;border-radius:0px;width:25px;height:25px;" /> </div>
                                         <div style="background-color:${color};margin-top:${-imageDiffVert - 32}px;margin-left:${15}px;border-radius:100px;width:50px;height:50px;" ></div>
-                                        <div style="margin-top:${-imageDiffVert - 32}px;">   <img src="/img/logo_new.png" style="margin-left:${20}px;height:40px;" /></div>
-                                        <div class='name-div'>${d.data.roleName}</div>
+                                        <div style="margin-top:${-imageDiffVert - 32}px;">   <img src="/img/logo_new_thumb.png" style="margin-left:${20}px;height:40px;" /></div>
+                                        <div class='name-div' style="font-size: 15px; margin-left: 20px; margin-top: 10px; color: #dee2e6">${d.data.roleName}</div>
                                         <div style="display:flex;justify-content:space-between;margin-right:10px;">
                                         <div style="color:${textcolor};margin-left:20px;margin-top:3px;font-size:10px;">${d.data.callsign}</div>                
                                         <div class='name-div' style="color:${textcolor};margin-left:20px;margin-top:3px;font-size:10px;">${rankPrefix}${playerName}</div>
@@ -147,6 +148,9 @@ async function populateMemberDropD(loggedInMember) {
 function createAlert(message, type, form, timeout = -1) {
     var alert = document.createElement("div");
     alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.style.position = "sticky";
+    alert.style.zIndex = "9999";
+    alert.style.top = "0";
     alert.role = "alert";
     alert.innerHTML = message +
         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
@@ -296,7 +300,7 @@ async function init() {
                 children[i].style.color = "lime";
             }
         }
-        
+
         document.getElementById("anyLeadershipOption").disabled = false;
         document.getElementById("anyLeadershipOption").style.color = "lime";
     }
@@ -342,6 +346,12 @@ async function init() {
                 this.classList.add("selected-bubble");
             });
         });
+    }
+
+    document.getElementById("exportBtn").onclick = async function () {
+        if (chart) {
+            chart.exportImg({ full: true, backgroundColor: '#212529'});
+        }
     }
 
 };

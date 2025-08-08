@@ -677,16 +677,17 @@ router.post('/assignBadge', authPage, async (req, res) => {
 });
 
 router.post('/createSOP', authPage, async (req, res) => {
-    const { sopTitle, authors, sopDescription, sopType, isAAC, isRestricted } = req.body;
-    const sopDocID = req.file ? req.file.filename : null;
+    const { newtitle, newauthors, newdescription, newdocType, newdocId } = req.body;
+    const isAAC = req.body.newaacSOP === 'on';
+    const isRestricted = req.body.newrestrictedDoc === 'on';
 
-    if (!sopTitle || !authors || !sopDescription || !sopType) {
+    if (!newtitle || !newauthors || !newdescription || !newdocType || !newdocId) {
         res.status(400).send("Bad Request - Missing Parameters");
         return;
     }
 
     try {
-        const result = await db.createSOP(sopTitle, authors, sopDescription, sopType, isAAC, sopDocID, isRestricted);
+        const result = await db.createSOP(newtitle, newauthors, newdescription, newdocType, newdocId, isAAC, isRestricted);
         if (result) {
             res.status(201).send({ "result": "SOP created successfully", "status": 201 });
         } else {
@@ -699,18 +700,29 @@ router.post('/createSOP', authPage, async (req, res) => {
 });
 
 router.post('/editSOP', authPage, async (req, res) => {
-    const { sopID, sopTitle, authors, sopDescription, sopType, isAAC, isRestricted } = req.body;
-    const sopDocID = req.file ? req.file.filename : null;
+    const { sopID, title, Authors, description, docType, docId } = req.body;
+    var isAAC;
+    var isRestricted;
+    if (req.body.newaacSOP === 'on') {
+        isAAC = 1;
+    } else {
+        isAAC = 0;
+    }
+    if (req.body.newrestrictedDoc === 'on') {
+        isRestricted = 1;
+    } else {
+        isRestricted = 0;
+    }
 
-    if (!sopID || !sopTitle || !authors || !sopDescription || !sopType) {
+    if (!sopID || !title || !Authors || !description || !docType || !docId) {
         res.status(400).send("Bad Request - Missing Parameters");
         return;
     }
 
     // Check if the authors are valid
-    if (authors.contains(',')) {
+    if (Authors.includes(',')) {
         // If authors are provided as a comma-separated string, split them into an array
-        var authorList = authors.split(',').map(author => author.trim());
+        var authorList = Authors.split(',').map(author => author.trim());
         // Validate each author and check if their name returns a valid member
         for (const author of authorList) {
             const member = await db.getMember(author);
@@ -722,7 +734,7 @@ router.post('/editSOP', authPage, async (req, res) => {
     }
 
     try {
-        const result = await db.editSOP(sopID, sopTitle, authors, sopDescription, sopType, isAAC, sopDocID, isRestricted);
+        const result = await db.editSOP(sopID, title, Authors, description, docType, docId, isAAC, isRestricted);
         if (result) {
             res.status(200).send({ "result": "SOP updated successfully", "status": 200 });
         } else {
@@ -963,6 +975,27 @@ router.delete('/deleteMission', authPage, async (req, res) => {
     } catch (error) {
         console.error("Error deleting mission:", error);
         res.status(500).send({ "result": "Internal Server Error - Unable to delete mission." });
+    }
+});
+
+router.delete('/deleteSOP', authPage, async (req, res) => {
+    const sopID = req.query.sopID;
+
+    if (!sopID) {
+        res.status(400).send("Bad Request - Missing sopID parameter");
+        return;
+    }
+
+    try {
+        const result = await db.deleteSOP(sopID);
+        if (result.affectedRows > 0) {
+            res.status(200).send({ "result": "SOP deleted successfully" });
+        } else {
+            res.status(404).send({ "result": "SOP not found or already deleted" });
+        }
+    } catch (error) {
+        console.error("Error deleting SOP:", error);
+        res.status(500).send({ "result": "Internal Server Error - Unable to delete SOP." });
     }
 });
 

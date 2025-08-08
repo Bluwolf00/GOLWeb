@@ -1223,9 +1223,9 @@ async function createSOP(sopTitle, sopDescription, authors, sopType, sopDocID, i
             INSERT INTO sop (sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted)
             VALUES (?,?,?,?,?,?,?)`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted]);
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
-        return rows[0];
+        return rows;
     }
 }
 
@@ -1239,7 +1239,20 @@ async function editSOP(sopID, sopTitle, sopDescription, authors, sopType, sopDoc
     } catch (error) {
         console.log(error);
     } finally {
-        return rows[0];
+        return rows;
+    }
+}
+
+async function deleteSOP(sopID) {
+    var rows = [null];
+    try {
+        [rows] = await queryDatabase(`
+            DELETE FROM sop
+            WHERE sopID = ?`, [sopID]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
     }
 }
 
@@ -2031,5 +2044,6 @@ module.exports = {
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA, createUser,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
-    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById
+    createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById,
+    deleteSOP
 };
