@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
 const fs = require('fs');
+const { diff } = require('util');
 dotenv.config()
 
 var pool;
@@ -1873,17 +1874,26 @@ async function getDashboardData() {
                 // If the member is a Recruit and has attended at least 4 events, they are eligible for the next rank
                 eligible++;
             }
-            if (((Math.abs(row.numberOfEventsAttended - 4)) < difference) || difference == -1) {
+
+            var eventsToGo = 4 - row.numberOfEventsAttended;
+
+            if ((Math.abs(4 - row.numberOfEventsAttended) < difference) || difference == -1) {
                 // If the member is closer to the next rank than the current difference, update the difference
-                difference = Math.abs(row.numberOfEventsAttended - 4);
+                difference = Math.abs(4 - row.numberOfEventsAttended);
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
             }
+
+            // If the difference is negative, meaning that the member is eligible, set it to 0
+            if (eventsToGo < 0) {
+                eventsToGo = 0;
+            }
+
             memberPromos.push({
                 "UName": row.UName,
                 "rankName": row.rankName,
                 "numberOfEventsAttended": row.numberOfEventsAttended,
                 "nextRank": "Private",
-                "eventsToGo": Math.abs(row.numberOfEventsAttended - 4),
+                "eventsToGo": eventsToGo,
                 "memberStatus": row.playerStatus
             });
         }
@@ -1896,12 +1906,18 @@ async function getDashboardData() {
                 // console.log("Member " + row.UName + " is eligible for the next rank");
             }
 
-            if ((Math.abs(row.numberOfEventsAttended - 30) < difference) || difference == -1) {
+            var eventsToGo = 30 - row.numberOfEventsAttended;
+
+            if ((Math.abs(30 - row.numberOfEventsAttended) < difference) || difference == -1) {
                 // If the member is closer to the next rank than the current difference, update the difference
-                difference = Math.abs(row.numberOfEventsAttended - 30);
+                difference = Math.abs(30 - row.numberOfEventsAttended);
+                // If the difference is negative, meaning that the member is eligible, set it to 0
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
             }
-            var eventsToGo = Math.abs(row.numberOfEventsAttended - 30);
+
+            if (eventsToGo < 0) {
+                eventsToGo = 0;
+            }
 
             // Filter out members that are still a long way from the next rank
             if (eventsToGo < 20) {
@@ -1910,7 +1926,7 @@ async function getDashboardData() {
                     "rankName": row.rankName,
                     "numberOfEventsAttended": row.numberOfEventsAttended,
                     "nextRank": "Private Second Class",
-                    "eventsToGo": Math.abs(row.numberOfEventsAttended - 30),
+                    "eventsToGo": eventsToGo,
                     "memberStatus": row.playerStatus
                 });
             }
@@ -1924,13 +1940,19 @@ async function getDashboardData() {
                 console.log("Member " + row.UName + " is eligible for the next rank");
             }
 
-            if ((Math.abs(row.numberOfEventsAttended - 60) < difference) || difference == -1) {
+            // difference = 60 - row.numberOfEventsAttended;
+
+            var eventsToGo = 60 - row.numberOfEventsAttended;
+
+            if ((Math.abs(60 - row.numberOfEventsAttended) < difference) || difference == -1) {
                 // If the member is closer to the next rank than the current difference, update the difference
-                difference = Math.abs(row.numberOfEventsAttended - 60);
+                difference = Math.abs(60 - row.numberOfEventsAttended);
                 nextEligibleMember = `${row.rankName} ${row.UName}`;
             }
 
-            var eventsToGo = Math.abs(row.numberOfEventsAttended - 60);
+            if (eventsToGo < 0) {
+                eventsToGo = 0;
+            }
 
             // Filter out members that are still a long way from the next rank
             if (eventsToGo < 20) {
@@ -1939,7 +1961,7 @@ async function getDashboardData() {
                     "rankName": row.rankName,
                     "numberOfEventsAttended": row.numberOfEventsAttended,
                     "nextRank": "Private First Class",
-                    "eventsToGo": Math.abs(row.numberOfEventsAttended - 60),
+                    "eventsToGo": eventsToGo,
                     "memberStatus": row.playerStatus
                 });
             }
@@ -2044,6 +2066,8 @@ async function getDashboardData() {
         "memberLOAs": memberLOAs,
         "nextPaymentDue": nextPaymentDue
     }
+
+    console.log(dashboardData);
 
     return dashboardData;
 }
