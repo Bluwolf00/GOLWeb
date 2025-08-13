@@ -8,8 +8,8 @@ const authPage = async (req,res,next) => {
     if (req.session.loggedin || req.session.passport) {
         var role;
         try {
-
-            if (req.session.passport.user) {
+            // Check if user is logged in via Passport
+            if (typeof req.session.passport !== 'undefined') {
                 let role = req.session.passport.user.role.toLowerCase();
                 // User is logged in via Passport
                 if (role == "admin" || role == "moderator") {
@@ -20,13 +20,16 @@ const authPage = async (req,res,next) => {
                     res.redirect('/error?error=403');
                 }
             } else {
-                // User is logged in via UName + Password
+                // User is logged in via Username + Password
                 role = await db.getUserRole(req.session.username);
-                if (role == "Admin" || role == "Moderator") {
+
+                role = role.toLowerCase();
+                if (role == "admin" || role == "moderator") {
                     next();
                 } else {
                     // Forbidden - Client lacks permission
                     // res.status(403).send("403 Forbidden");
+                    console.warn("Forbidden access attempt to admin page by user:", req.session.username);
                     res.redirect('/error?error=403');
                     
                 }
@@ -35,12 +38,14 @@ const authPage = async (req,res,next) => {
         } catch (error) {
             // Error - Database error
             // res.status(500).send("500 Internal Server Error");
+            console.error("Error:", error);
             res.redirect('/login');
         }
 
     } else {
         // Unauthorized - Client not logged in
         // res.status(401).send("401 Unauthorized");
+        console.warn("Unauthorized access attempt to admin page");
         res.redirect('/login');
     }
 }

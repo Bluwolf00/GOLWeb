@@ -19,6 +19,7 @@ sessionStore.onReady().then(() => {
     console.log('MYSQL Session Store is ready');
 }).catch((error) => {
     console.error('Error establishing the MySQL Session Store: ', error);
+    process.exit(1); // Exit the process if the session store cannot be established
 });
 
 app.use(session({

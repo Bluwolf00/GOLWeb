@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const embeds = require('./embeds.js');
 const fs = require('fs');
-const { diff } = require('util');
 dotenv.config()
 
 var pool;
+var activeConns = 0; // Track the number of active connections
 
 function establishPool() {
     pool = mysql.createPool({
@@ -15,9 +15,28 @@ function establishPool() {
         password: process.env.MYSQL_PASSWORD,
         database: process.env.MYSQL_DATABASE,
         timezone: 'Z', // Set timezone to UTC
-        connectionLimit: 10, // Set the maximum number of connections in the pool
+        connectionLimit: 14 // Set the maximum number of connections in the pool
 
     }).promise(); // Use promise-based API for async/await
+
+    pool.on('connection', (connection) => {
+        // console.log("INFO:  Database connection established with ID: " + connection.threadId);
+        process.stdout.write(`\x1b[34mINFO: Database connection established: ${connection.threadId}\x1b[0m\n`);
+        activeConns++;
+        process.stdout.write(`\x1b[34mINFO: Database Active Connections: ${activeConns}\x1b[0m\n`);
+    });
+
+    // pool.on('release', (connection) => {
+    //     // console.error("ERROR:  Database connection error: " + error);
+    //     process.stderr.write(`\x1b[31mINFO: Database connection released: ${connection.threadId}\x1b[0m\n`);
+    // });
+
+    // pool.on('acquire', (connection) => {
+    //     // console.log("INFO:  Database connection acquired with ID: " + connection.threadId);
+    //     process.stdout.write(`\x1b[33mINFO: Database connection acquired: ${connection.threadId}\x1b[0m\n`);
+    // });
+
+    return pool;
 }
 
 establishPool();
@@ -42,17 +61,26 @@ async function queryDatabase(query, params = []) {
     // This function is used to query the database with a prepared statement
     // It returns the rows returned by the query
     var rows = [null];
+    var conn = null;
     try {
-        var conn = await pool.getConnection();
-        rows = await conn.query(query, params);
+        // var conn = await pool.getConnection();
+        rows = await pool.query(query, params);
 
         if (rows[0] === null) {
             console.warn("No rows returned for query:", query, "with params:", params);
         }
     } catch (error) {
         console.error("ERROR: " + error, "Query: " + query, "Params: ", params);
+
+        if (error.code === 'ER_CON_COUNT_ERROR') {
+            // Connection limit exceeded
+            // Flush the database connections
+
+            await pool.end();
+            establishPool();
+        }
     } finally {
-        if (typeof conn !== 'undefined' || conn !== null) {
+        if (typeof conn !== 'undefined' && conn !== null) {
             conn.destroy(); // Destroy the connection to not leak resources
             conn = null; // Set conn to null to prevent further use
         }
@@ -144,13 +172,13 @@ async function getMemberNames(memberIDs, includeRank = false) {
                 FROM Members, Ranks
                 WHERE Members.playerRank = Ranks.rankID AND MemberID IN (?)`, [members]);
 
-                console.log(rows);
+                // console.log(rows);
 
             for (let row of rows) {
                 result.push(`${row.prefix}. ${row.UName}`);
             }
 
-            console.log(result);
+            // console.log(result);
 
         } else {
             [rows] = await queryDatabase(`
@@ -750,10 +778,18 @@ async function resetPassword(username, newPassword) {
 async function getUserRole(value, key = 'username') {
     var rows = [null];
     try {
-        [rows] = await queryDatabase(`
-            SELECT role
-            FROM users
-            WHERE ? = ?`, [key, value]);
+        if (key === 'username') {
+            // If the key is username, we can directly query the users table
+            [rows] = await queryDatabase(`
+                SELECT role
+                FROM users
+                WHERE username = ?`, [value]);
+        } else {
+            [rows] = await queryDatabase(`
+                SELECT role
+                FROM users
+                WHERE ? = ?`, [key, value]);
+        }
     } catch (error) {
         console.log(error);
     } finally {
@@ -2003,7 +2039,7 @@ async function getDashboardData() {
                 });
             }
         } catch (error) {
-            console.log("Error getting member name for LOA: " + loa.memberName + " - " + error);
+            console.error("Error getting member name for LOA: " + loa.memberName + " - " + error);
         }
     }
 
@@ -2067,7 +2103,7 @@ async function getDashboardData() {
         "nextPaymentDue": nextPaymentDue
     }
 
-    console.log(dashboardData);
+    // console.log(dashboardData);
 
     return dashboardData;
 }
