@@ -842,12 +842,25 @@ async function getUserMemberID(username) {
         process.stderr.write(`\x1b[33mINFO: getUserMemberID | Query executed for username: ${username}\x1b[0m\n`);
         process.stderr.write(`\x1b[33mINFO: getUserMemberID | rows: ${JSON.stringify(rows)}\x1b[0m\n`);
 
-        if (rows[0].MemberID === null || typeof rows[0].MemberID === "undefined") {
+        if (rows.length == 0) {
             // Member may be signed in with Discord
             [rows] = await queryDatabase(`
                 SELECT MemberID
                 FROM Members
                 WHERE UName = ?`, [username]);
+        }
+
+        try {
+            // Wrapped in Try Catch in case "MemberID" is undefined
+            if (rows[0].MemberID === null || typeof rows[0].MemberID === "undefined") {
+                // Member may be signed in with Discord
+                [rows] = await queryDatabase(`
+                    SELECT MemberID
+                    FROM Members
+                    WHERE UName = ?`, [username]);
+            }
+        } catch (error) {
+            console.error("Error in getUserMemberID:", error);
         }
 
         memberID = rows[0].MemberID;
