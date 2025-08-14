@@ -314,7 +314,7 @@ router.get('/getMemberLiveOrbatInfo', async (req, res) => {
     let userData = getUserData(req);
 
     try {
-        if (userData.loggedIn === true || userData.memberID) {
+        if (userData.loggedIn === true || userData.memberID != null) {
             // If the user is logged in, we will use their memberID to get their role in the live ORBAT
             var memberID = await db.getUserMemberID(userData.username);
             if (!memberID) {
