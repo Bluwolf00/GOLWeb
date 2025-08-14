@@ -832,12 +832,21 @@ async function getUserMemberID(username) {
     var rows = [null];
     let memberID = null;
 
-    console.log("Username: " + username);
+    // console.log("Username: " + username);
     try {
         [rows] = await queryDatabase(`
             SELECT MemberID
             FROM users
             WHERE username = ?`, [username]);
+
+        if (rows[0].MemberID === null) {
+            // If no rows found, possibly signed in with Discord. Use UName
+            [rows] = await queryDatabase(`
+                SELECT MemberID
+                FROM Members
+                WHERE UName = ?`, [username]);
+
+        }
 
         if (typeof rows[0] === "undefined" || rows[0] === null) {
             // Member may be signed in with Discord
