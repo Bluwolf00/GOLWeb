@@ -26,6 +26,7 @@ function getUserData(req) {
         loggedIn = true;
         role = req.session.passport.user.role;
         username = req.session.passport.user.username;
+        memberID = req.session.passport.user.memberID;
     } else {
         loggedIn = req.session.loggedin || false;
         role = req.session.role || 'public'; // Default to 'public' if role is not set
@@ -35,7 +36,8 @@ function getUserData(req) {
     return {
         loggedIn: loggedIn,
         role: role.toLowerCase(),
-        username: username
+        username: username,
+        memberID: req.session.memberID || null
     };
 }
 
@@ -312,10 +314,11 @@ router.get('/getMemberLiveOrbatInfo', async (req, res) => {
     let userData = getUserData(req);
 
     try {
-        if (userData.loggedIn === true) {
+        if (userData.loggedIn === true || userData.memberID) {
             // If the user is logged in, we will use their memberID to get their role in the live ORBAT
             var memberID = await db.getUserMemberID(userData.username);
             if (!memberID) {
+                process.stderr.write("ERROR [getMemberLiveOrbatInfo]: memberID not found in the database.");
                 res.status(401).send("Unauthorized - User not found in the database.");
                 return;
             }
