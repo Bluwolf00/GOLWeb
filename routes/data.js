@@ -838,9 +838,11 @@ router.patch('/orbatSubmission', async (req, res) => {
 
 
     // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
-    if (userData.loggedIn && userData.role && userData.role.toLowerCase() !== "admin" && userData.role.toLowerCase() !== "moderator") {
+    if (userData.role && userData.role.toLowerCase() !== "admin" && userData.role.toLowerCase() !== "moderator") {
         if (parseInt(memberID) !== parseInt(userData.memberID)) {
             console.log("Member ID: %d | Session Member ID: %s", memberID, userData.memberID);
+            process.stderr.write("ERROR [orbatSubmission]: User is not an admin or moderator and is trying to update another member's ORBAT.\n");
+            process.stderr.write("Member ID: %d | Session Member ID: %s", memberID, userData.memberID);
             console.log(memberID !== userData.memberID);
             res.status(403).send("Forbidden - You are not allowed to update this member's ORBAT.");
             return;
