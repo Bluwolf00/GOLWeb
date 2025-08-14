@@ -839,8 +839,6 @@ async function getUserMemberID(username) {
             FROM users
             WHERE username = ?`, [username]);
 
-            console.log(rows[0].MemberID);
-
         if (rows[0].MemberID === null || typeof rows[0].MemberID === "undefined") {
             // Member may be signed in with Discord
             [rows] = await queryDatabase(`
@@ -848,6 +846,10 @@ async function getUserMemberID(username) {
                 FROM Members
                 WHERE UName = ?`, [username]);
         }
+
+        process.stderr.write(`\x1b[33mINFO: getUserMemberID | Query executed for username: ${username}\x1b[0m\n`);
+        process.stderr.write(`\x1b[33mINFO: getUserMemberID | rows: ${JSON.stringify(rows)}\x1b[0m\n`);
+
         memberID = rows[0].MemberID;
     } catch (error) {
         console.error(error);
