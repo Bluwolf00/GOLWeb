@@ -1605,11 +1605,15 @@ async function getLiveOrbat() {
     var layout = [];
     try {
         // Get the latest mission ORBAT template that is scheduled for the future
+        // Set date to 3h before current time
+        var date = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+
+
         [rows] = await queryDatabase(`
             SELECT missionorbattemplates.layout, missionorbats.missionID, missionorbats.dateOfMission
             FROM missionorbats, missionorbattemplates
             WHERE missionorbats.templateID = missionorbattemplates.templateID AND 
-            missionorbats.dateOfMission > ?`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+            missionorbats.dateOfMission > ?`, [date]);
 
         if (typeof rows[0] == "undefined" || rows.length == 0) {
             console.log("No live ORBAT found for the next mission");

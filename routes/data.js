@@ -21,6 +21,7 @@ function getUserData(req) {
     // Prepare user data
     let role = '';
     let username = '';
+    let memberID = null;
     let loggedIn = false;
     if (req.session.passport) {
         loggedIn = true;
@@ -37,7 +38,7 @@ function getUserData(req) {
         loggedIn: loggedIn,
         role: role.toLowerCase(),
         username: username,
-        memberID: req.session.memberID || null
+        memberID: memberID
     };
 }
 
@@ -791,6 +792,7 @@ router.post('/resetPassword', authPage, async (req, res) => {
 // -- PATCH REQUESTS - DATA --
 
 router.patch('/orbatSubmission', async (req, res) => {
+    // This route is for updating the MEMBERS on the Mission ORBAT
 
     // Get user data
     let userData = getUserData(req);
@@ -840,9 +842,8 @@ router.patch('/orbatSubmission', async (req, res) => {
     // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
     if (userData.role && userData.role.toLowerCase() !== "admin" && userData.role.toLowerCase() !== "moderator") {
         if (parseInt(memberID) !== parseInt(userData.memberID)) {
-            console.log("Member ID: %d | Session Member ID: %s", memberID, userData.memberID);
-            process.stderr.write("ERROR [orbatSubmission]: User is not an admin or moderator and is trying to update another member's ORBAT.\n");
-            process.stderr.write("Member ID: %d | Session Member ID: %s", memberID, userData.memberID);
+            process.stderr.write("WARN [orbatSubmission]: User is not an admin or moderator and is trying to update another member's ORBAT.\n");
+            // process.stderr.write("Member ID: %d | Session Member ID: %s", memberID, userData.memberID);
             console.log(memberID !== userData.memberID);
             res.status(403).send("Forbidden - You are not allowed to update this member's ORBAT.");
             return;
