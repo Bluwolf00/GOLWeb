@@ -142,6 +142,12 @@ async function init() {
     var aacRowCreated = false;
     sops.forEach((sop, index, access) => {
 
+        if (index % 3 === 0) {
+            row = document.createElement('div');
+            row.className = 'row mb-3';
+            parentDiv.appendChild(row);
+        }
+
         if (sop.isAAC === 1 && !aacRowCreated) {
             // Found AAC SOPs, start a new row and add a title
             row = document.createElement('div');
@@ -153,13 +159,24 @@ async function init() {
             aacRowCreated = true;
         }
 
-        if (index % 3 === 0) {
-            row = document.createElement('div');
-            row.className = 'row mb-3';
-            parentDiv.appendChild(row);
-        }
+        if (index % 3 === 0 && index === sops.length - 1) {
+            col = document.createElement('div');
+            col.className = 'col-md mb-3';
+            row.appendChild(col);
 
-        createSOPCard(sop, row);
+            createSOPCard(sop, row);
+
+            col = document.createElement('div');
+            col.className = 'col-md mb-3';
+            row.appendChild(col);
+        } else if (index % 3 === 1 && index === sops.length - 1) {
+            col = document.createElement('div');
+            col.className = 'col-md mb-3';
+            row.appendChild(col);
+            createSOPCard(sop, row);
+        } else {
+            createSOPCard(sop, row);
+        }
     });
 
     // Load the observer script

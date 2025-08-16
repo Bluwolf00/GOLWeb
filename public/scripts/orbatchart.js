@@ -253,6 +253,17 @@ async function handleChartUpdate() {
     var response = await fetch('/data/getLiveOrbat');
     var rawJSON = await response.json();
 
+    var missionDateTime = (new Date(rawJSON.dateOfMission));
+    document.getElementById("missionDateTimeLbl").textContent = "- " + missionDateTime.toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }) + " -";
+
     var data = rawJSON.layout;
 
     var root = {

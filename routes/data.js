@@ -835,9 +835,7 @@ router.patch('/orbatSubmission', async (req, res) => {
             break;
     }
 
-    console.log("Member Role: ", memberRole);
-
-
+    // console.log("Member Role: ", memberRole);
 
     // If the memberID does not equal the current logged in user, we will check if the user is an admin or moderator
     if (userData.role && userData.role.toLowerCase() !== "admin" && userData.role.toLowerCase() !== "moderator") {

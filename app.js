@@ -57,7 +57,6 @@ const { authMemberPage } = require('./middle.js');
 // Additional Routes
 app.use('/dashboard', dashboard);
 app.use('/data', dbData);
-app.use('/sop', require('./routes/sop.js'));
 app.use('/auth', require('./routes/auth.js'));
 app.use('/policy', require('./routes/policy.js'));
 

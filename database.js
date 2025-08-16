@@ -1278,7 +1278,7 @@ async function getSOPbyID(id) {
     }
 }
 
-async function createSOP(sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted) {
+async function createSOP(sopTitle, authors, sopDescription, sopType, sopDocID, isAAC, isRestricted) {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
@@ -1415,6 +1415,13 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
         } else {
             console.log("Member " + memberID + " is not in the ORBAT for mission ID: " + missionID);
             // Member is not in the ORBAT
+
+            if (memberRole === "NONE") {
+                console.log("Member " + memberID + " is not in the ORBAT, but role is set to NONE. No action taken.");
+                message = "Member is not in the ORBAT, no action taken.";
+                return;
+            }
+
             if (slotNodeID == null) {
                 let callsign = "";
                 let slotInfo = null;
