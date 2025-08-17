@@ -799,10 +799,15 @@ router.patch('/orbatSubmission', async (req, res) => {
 
     var memberID = req.body.selectedMember;
     var memberRole = req.body.chosen_role;
-    var memberSlotID = req.body.memberSlotID;
+    var memberSlotID = req.body.slotNodeID;
     var unassign = req.body.unassign;
+    var lock = req.body.lock;
 
-    if (unassign === "on") {
+    console.log("Member ID: ", memberID);
+    console.log("Role Name: ", memberRole);
+    console.log("Slot Node ID: ", memberSlotID);
+
+    if (unassign == true) {
         memberRole = "NONE";
     }
 
@@ -851,6 +856,10 @@ router.patch('/orbatSubmission', async (req, res) => {
         return;
     }
 
+    console.log("Member ID: ", memberID);
+    console.log("Role Name: ", memberRole);
+    console.log("Slot Node ID: ", memberSlotID);
+
     if (!memberID || !memberRole) {
         res.status(400).send("Bad Request - Missing Parameters");
         return;
@@ -861,7 +870,8 @@ router.patch('/orbatSubmission', async (req, res) => {
         var result = await db.updateMissionORBAT(memberID, memberRole);
     } else {
         // Slot Selection
-        var result = await db.updateMissionORBAT(memberID, memberRole, memberSlotID);
+        var result = await db.updateMissionORBAT(memberID, memberRole, memberSlotID, lock);
+        console.log("Result from updateMissionORBAT: ", result);
     }
 
     if (result) {

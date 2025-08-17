@@ -2,6 +2,7 @@
 
 var loggedMemberData = {};
 var chart = null;
+var selectedOption = window.location.search.includes("selectedOption") ? new URLSearchParams(window.location.search).get("selectedOption") : "roles";
 
 async function createOrg(data, selectedOption = "roles") {
     chart = new d3.OrgChart()
@@ -61,6 +62,11 @@ async function createOrg(data, selectedOption = "roles") {
                 classNames += " available";
             }
 
+            if (playerName === "Locked") {
+                borderColor = '2px rgba(255, 0, 0, 0.73)';
+                classNames += " locked";
+            }
+
             switch (d.data.playerName) {
                 case undefined:
                     imagePath = "/img/badge/Placeholder_Badge.png";
@@ -118,6 +124,17 @@ async function populateMemberDropD(loggedInMember) {
     memberSelect.appendChild(optionGroup);
 
     if (loggedInMember.role.toLowerCase() === "admin") {
+
+        // Add Lock Slot button
+        if (selectedOption === "slots") {
+            let lockOption = document.createElement("option");
+            lockOption.value = "lock";
+            lockOption.textContent = "Lock Slot";
+            lockOption.style.color = "red";
+            lockOption.id = "lockOption";
+            optionGroup.appendChild(lockOption);
+        }
+
         // If the user is an admin, populate the dropdown with all members
         var allMembers = await fetch('/data/getMembers?order=UNameASC');
         if (allMembers.ok) {
@@ -178,6 +195,19 @@ async function handleFormSubmit(event, selectedOption) {
     var roleName = formData.get("chosen_role");
     var slotNodeID = formData.get("chosen_slot");
 
+    console.log("Form submitted with data:", {
+        memberID,
+        roleName,
+        slotNodeID
+    });
+
+    if (memberID === null) {
+        // Check if the lock option is selected
+        if (document.getElementById("lockOption").selected) {
+            memberID = -5;
+        }
+    }
+
     if (memberID === undefined || memberID === null || memberID === "") {
         createAlert("Please select a member to assign.", "warning", "main", 3000);
         return;
@@ -195,8 +225,10 @@ async function handleFormSubmit(event, selectedOption) {
             "selectedMember": memberID,
             "chosen_role": roleName,
             "slotNodeID": slotNodeID || null, // If slotNodeID is not provided, it will be null
-            "unassign": formData.get("unassign") === "off" // Check if the unassign checkbox is checked
+            "unassign": formData.get("unassign") === "off", // Check if the unassign checkbox is checked
+            "lock": formData.get("lock") === "on" // Check if the lock checkbox is checked
         }
+        console.log("Data to be sent for slot assignment:", data);
     } else {
         var data = {
             "selectedMember": memberID,
@@ -302,6 +334,7 @@ async function init() {
         return;
     }
 
+    // Only allow leadership roles to be selected by leadership ranks
     if (["lance corporal", "corporal", "sergeant", "second lieutenant", "first lieutenant"].includes(loggedMemberData.rankName.toLowerCase()) && selectedOption === "roles") {
         document.getElementById("leadershipRoleGroup").disabled = false;
         let children = document.getElementById("leadershipRoleGroup").childNodes;
@@ -355,7 +388,29 @@ async function init() {
                     b.classList.remove("selected-bubble");
                 });
                 this.classList.add("selected-bubble");
+
+                document.getElementById("lock").disabled = false;
             });
+        });
+
+        // Initially disable the lock button until a slot is chosen
+        document.getElementById("lock").disabled = true;
+
+        // Add event listener for slot locking
+        document.getElementById("lock").addEventListener("click", function () {
+            console.log("Clicked lock button");
+            var isChecked = this.checked;
+            var slotNodeID = document.getElementById("chosenSlotNodeID").value;
+            console.log(isChecked, slotNodeID);
+
+            if (isChecked && slotNodeID) {
+                // Disable the member selection and set it to "Locked"
+                document.getElementById("lockOption").selected = true;
+                document.getElementById("memberSelect").disabled = true;
+            } else {
+                document.getElementById("lockOption").selected = false;
+                document.getElementById("memberSelect").disabled = false;
+            }
         });
     }
 

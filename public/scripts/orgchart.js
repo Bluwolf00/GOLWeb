@@ -1,7 +1,8 @@
 // Org Chart from https://github.com/bumbeishvili/org-chart/tree/master
 
 async function createOrg(data) {
-    new d3.OrgChart()
+    var centerNodes = [];
+    var chart = new d3.OrgChart()
         .nodeUpdate(function (d, i, arr) {
             if (d.data.nodeId == "root") {
                 d3.select(this).style('display', 'none');
@@ -20,11 +21,22 @@ async function createOrg(data) {
         .childrenMargin((d) => 50)
         .compactMarginBetween((d) => 35)
         .compactMarginPair((d) => 30)
-        .neighbourMargin((a, b) => 20)
+        .neighbourMargin((a, b) => {
+            if (a.data.playerStatus != "Reserve" && b.data.playerStatus === "Reserve") {
+                return 200;
+            } else {
+                return 20;
+            }
+        })
         .compact(true)
         .pagingStep(10)
         .initialExpandLevel(4)
         .nodeContent(function (d, i, arr, state) {
+            if (d.data.playerStatus != "Reserve") {
+                if (d.data.nodeId != "root" || d.data.parentNodeId != "root") {
+                    centerNodes.push(d);
+                }
+            }
             const color = 'transparent';
             const imageDiffVert = 25 + 2;
             const textcolor = "rgb(90, 137, 238)";
@@ -103,8 +115,12 @@ async function createOrg(data) {
         })
         .container('.chart-container')
         .data(data)
-        .render()
-        .fit();
+        .render();
+
+        chart.fit({
+            animate: false,
+            nodes: centerNodes
+        });
 }
 
 // Call the endpoint to update the LOAs on the database

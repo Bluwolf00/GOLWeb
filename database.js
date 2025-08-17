@@ -1318,7 +1318,7 @@ async function deleteSOP(sopID) {
     }
 }
 
-async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
+async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock = false) {
     var message = "";
 
     try {
@@ -1335,109 +1335,51 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
             missionID = rows[0].missionID;
         }
 
-        // Check if the member is already in the ORBAT
-        [rows] = await queryDatabase(`
-            SELECT MemberID
-            FROM missionorbatmembers
-            WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
-
-        if (rows.length > 0) {
-            // If the member is already in the ORBAT, update their role and slotNodeID
-
-            // If the member is to be unassigned, remove them from the ORBAT
-            if (memberRole == "NONE") {
-                try {
-                    console.log("Unassigning member: " + memberID + " from mission ID: " + missionID);
-                    rows = await queryDatabase(`
-                        DELETE FROM missionorbatmembers
-                        WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
-                    if (rows[0].affectedRows > 0) {
-                        console.log("Member unassigned from the ORBAT for mission ID: " + missionID);
-                    }
-                    message = "Member sucessfully unassigned from the ORBAT";
-                    slotNodeID = -1; // Set slotNodeID to -1 to indicate unassignment
-                } catch (error) {
-                    console.error("Error unassigning member from ORBAT: " + error);
-                    message = "Error unassigning member from ORBAT: " + error.message;
-                    slotNodeID = -2; // Set slotNodeID to -2 to indicate error
-                }
-            } else if (Array.isArray(memberRole)) {
-                // If memberRole is an array, we need to find the next available slot for each role
-                let memberRoleArray = memberRole.map(role => role);
-
-                // Randomly shuffle the memberRoleArray
-                for (let i = memberRoleArray.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
-                }
-
-                for (let i = 0; i < memberRoleArray.length; i++) {
-                    let role = memberRoleArray[i];
-                    let slotInfo = await getNextAvailableSlot(role, missionID);
-                    if (slotInfo.slotNodeID != null) {
-                        slotNodeID = slotInfo.slotNodeID;
-                        callsign = slotInfo.callsign;
-                        memberRole = role; // Update memberRole to the current role being processed
-                        break; // Stop searching once we find an available slot
-                    }
-                }
-            }
-
-            // If slotNodeID is null, find the next available slot with the specified role
-            if (slotNodeID == null) {
-                let slotInfo = await getNextAvailableSlot(memberRole, missionID);
-                slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
-                var callsign = slotInfo ? slotInfo.callsign : null;
-                if (slotNodeID == null) {
-                    console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
-                    message = "No available slot found for role: " + memberRole;
-                    return;
-                }
-
-                // Update the member's role and slotNodeID
-                rows = await queryDatabase(`
-                    UPDATE missionorbatmembers
-                    SET MemberRole = ?, slotNodeID = ?, memberCallsign = ?
-                    WHERE memberID = ? AND missionID = ?`, [memberRole, slotNodeID, callsign, memberID, missionID]);
-                if (rows[0].affectedRows > 0) {
-                    console.log("Updated member role and slotNodeID in the ORBAT for mission ID: " + missionID);
-                }
-            } else {
-                // If slotNodeID is provided, update the member's role and slotNodeID directly
-                rows = await queryDatabase(`
-                    UPDATE missionorbatmembers
-                    SET slotNodeID = ?, memberCallsign = ?
-                    WHERE memberID = ? AND missionID = ?`, [slotNodeID, callsign, memberID, missionID]);
-                if (rows[0].affectedRows > 0) {
-                    console.log("Updated member role in the ORBAT for mission ID: " + missionID);
-                }
+        // Check if the slot is to be set to locked
+        if (memberID === 0 || lock) {
+            [rows] = await queryDatabase(`
+                INSERT INTO missionorbatmembers (memberID, missionID, roleName, slotNodeID)
+                VALUES (?, ?, ?, ?)`, [memberID, missionID, memberRole, slotNodeID]);
+            if (rows[0].affectedRows > 0) {
+                console.log("Slot locked in the ORBAT for mission ID: " + missionID);
             }
         } else {
-            console.log("Member " + memberID + " is not in the ORBAT for mission ID: " + missionID);
-            // Member is not in the ORBAT
-
-            if (memberRole === "NONE") {
-                console.log("Member " + memberID + " is not in the ORBAT, but role is set to NONE. No action taken.");
-                message = "Member is not in the ORBAT, no action taken.";
-                return;
-            }
-
-            if (slotNodeID == null) {
-                let callsign = "";
-                let slotInfo = null;
-
-                if (Array.isArray(memberRole)) {
+            // Check if the member is already in the ORBAT
+            [rows] = await queryDatabase(`
+                SELECT MemberID
+                FROM missionorbatmembers
+                WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
+    
+            if (rows.length > 0) {
+                // If the member is already in the ORBAT, update their role and slotNodeID
+    
+                // If the member is to be unassigned, remove them from the ORBAT
+                if (memberRole == "NONE") {
+                    try {
+                        console.log("Unassigning member: " + memberID + " from mission ID: " + missionID);
+                        rows = await queryDatabase(`
+                            DELETE FROM missionorbatmembers
+                            WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
+                        if (rows[0].affectedRows > 0) {
+                            console.log("Member unassigned from the ORBAT for mission ID: " + missionID);
+                        }
+                        message = "Member sucessfully unassigned from the ORBAT";
+                        slotNodeID = -1; // Set slotNodeID to -1 to indicate unassignment
+                    } catch (error) {
+                        console.error("Error unassigning member from ORBAT: " + error);
+                        message = "Error unassigning member from ORBAT: " + error.message;
+                        slotNodeID = -2; // Set slotNodeID to -2 to indicate error
+                    }
+                } else if (Array.isArray(memberRole)) {
                     // If memberRole is an array, we need to find the next available slot for each role
                     let memberRoleArray = memberRole.map(role => role);
-
+    
                     // Randomly shuffle the memberRoleArray
                     for (let i = memberRoleArray.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
                     }
-
-                    console.log(memberRoleArray);
-
+    
                     for (let i = 0; i < memberRoleArray.length; i++) {
                         let role = memberRoleArray[i];
                         let slotInfo = await getNextAvailableSlot(role, missionID);
@@ -1448,34 +1390,102 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
                             break; // Stop searching once we find an available slot
                         }
                     }
-                } else {
-                    console.log("Finding next available slot for member: " + memberID + " with role: " + memberRole);
-                    // If slotNodeID is null, find the next available slot with the specified role
-                    slotInfo = await getNextAvailableSlot(memberRole, missionID);
-                    slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
-                    callsign = slotInfo ? slotInfo.callsign : null;
                 }
-
+    
+                // If slotNodeID is null, find the next available slot with the specified role
                 if (slotNodeID == null) {
-                    console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
-                    message = "No available slot found for role: " + memberRole;
-                    return;
-                }
-
-                // Insert the member into the ORBAT with the specified role and slotNodeID
-                rows = await queryDatabase(`
-                    INSERT INTO missionorbatmembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
-                if (rows[0].affectedRows > 0) {
-                    console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
+                    let slotInfo = await getNextAvailableSlot(memberRole, missionID);
+                    slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
+                    var callsign = slotInfo ? slotInfo.callsign : null;
+                    if (slotNodeID == null) {
+                        console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
+                        message = "No available slot found for role: " + memberRole;
+                        return;
+                    }
+    
+                    // Update the member's role and slotNodeID
+                    rows = await queryDatabase(`
+                        UPDATE missionorbatmembers
+                        SET MemberRole = ?, slotNodeID = ?, memberCallsign = ?
+                        WHERE memberID = ? AND missionID = ?`, [memberRole, slotNodeID, callsign, memberID, missionID]);
+                    if (rows[0].affectedRows > 0) {
+                        console.log("Updated member role and slotNodeID in the ORBAT for mission ID: " + missionID);
+                    }
+                } else {
+                    // If slotNodeID is provided, update the member's role and slotNodeID directly
+                    rows = await queryDatabase(`
+                        UPDATE missionorbatmembers
+                        SET slotNodeID = ?, memberCallsign = ?
+                        WHERE memberID = ? AND missionID = ?`, [slotNodeID, callsign, memberID, missionID]);
+                    if (rows[0].affectedRows > 0) {
+                        console.log("Updated member role in the ORBAT for mission ID: " + missionID);
+                    }
                 }
             } else {
-                // If slotNodeID is provided, insert the member into the ORBAT with the specified role and slotNodeID
-                rows = await queryDatabase(`
-                    INSERT INTO missionorbatmembers (memberID, missionID, MemberRole, memberCallsign, slotNodeID, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
-                if (rows[0].affectedRows > 0) {
-                    console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
+                console.log("Member " + memberID + " is not in the ORBAT for mission ID: " + missionID);
+                // Member is not in the ORBAT
+    
+                if (memberRole === "NONE") {
+                    console.log("Member " + memberID + " is not in the ORBAT, but role is set to NONE. No action taken.");
+                    message = "Member is not in the ORBAT, no action taken.";
+                    return;
+                }
+    
+                if (slotNodeID == null) {
+                    let callsign = "";
+                    let slotInfo = null;
+    
+                    if (Array.isArray(memberRole)) {
+                        // If memberRole is an array, we need to find the next available slot for each role
+                        let memberRoleArray = memberRole.map(role => role);
+    
+                        // Randomly shuffle the memberRoleArray
+                        for (let i = memberRoleArray.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
+                        }
+    
+                        console.log(memberRoleArray);
+    
+                        for (let i = 0; i < memberRoleArray.length; i++) {
+                            let role = memberRoleArray[i];
+                            let slotInfo = await getNextAvailableSlot(role, missionID);
+                            if (slotInfo.slotNodeID != null) {
+                                slotNodeID = slotInfo.slotNodeID;
+                                callsign = slotInfo.callsign;
+                                memberRole = role; // Update memberRole to the current role being processed
+                                break; // Stop searching once we find an available slot
+                            }
+                        }
+                    } else {
+                        console.log("Finding next available slot for member: " + memberID + " with role: " + memberRole);
+                        // If slotNodeID is null, find the next available slot with the specified role
+                        slotInfo = await getNextAvailableSlot(memberRole, missionID);
+                        slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
+                        callsign = slotInfo ? slotInfo.callsign : null;
+                    }
+    
+                    if (slotNodeID == null) {
+                        console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
+                        message = "No available slot found for role: " + memberRole;
+                        return;
+                    }
+    
+                    // Insert the member into the ORBAT with the specified role and slotNodeID
+                    rows = await queryDatabase(`
+                        INSERT INTO missionorbatmembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
+                        VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+                    if (rows[0].affectedRows > 0) {
+                        console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
+                    }
+                } else {
+                    // If slotNodeID is provided, insert the member into the ORBAT with the specified role and slotNodeID
+                    rows = await queryDatabase(`
+                        INSERT INTO missionorbatmembers (memberID, missionID, MemberRole, memberCallsign, slotNodeID, updatedAt)
+                        VALUES (?, ?, ?, ?, ?, ?)`, [memberID, missionID, memberRole, callsign, slotNodeID, new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+                    if (rows[0].affectedRows > 0) {
+                        console.log("Inserted member into the ORBAT for mission ID: " + missionID + " with role: " + memberRole + " and slotNodeID: " + slotNodeID);
+                    }
                 }
             }
         }
@@ -1485,7 +1495,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null) {
 
         rows = await queryDatabase(`
                         UPDATE missionorbats
-                        SET filledSlots = (SELECT COUNT(*) FROM missionorbatmembers WHERE missionID = ?)
+                        SET filledSlots = (SELECT COUNT(*) FROM missionorbatmembers WHERE missionID = ? AND memberID > 0)
                         WHERE missionID = ?`, [missionID, missionID]);
 
         if (rows[0].affectedRows > 0) {
