@@ -10,16 +10,18 @@ async function createOrg(data) {
         })
         .linkUpdate(function (d, i, arr) {
             d3.select(this)
-            .attr("stroke", d => d.data._upToTheRootHighlighted ? '#E27396' : '#E4E2E9')
-            .attr("stroke-width", d => d.data._upToTheRootHighlighted ? 5 : 1)
+            .attr("stroke", d => d.data._upToTheRootHighlighted ? '#e27396' : '#E4E2E9')
+            .attr("stroke-width", d => d.data._upToTheRootHighlighted ? 5 : 1);
+
             if (d.parent.id == "root") {
                 d3.select(this).style('display', 'none');
             }
         })
         .nodeHeight((d) => 85 + 25)
         .nodeWidth((d) => 220 + 2)
-        .childrenMargin((d) => 50)
-        .compactMarginBetween((d) => 35)
+        .childrenMargin((d) => 40)
+        .siblingsMargin((d) => 20)
+        .compactMarginBetween((d) => 15)
         .compactMarginPair((d) => 30)
         .neighbourMargin((a, b) => {
             if (a.data.playerStatus != "Reserve" && b.data.playerStatus === "Reserve") {

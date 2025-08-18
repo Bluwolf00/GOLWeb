@@ -1246,7 +1246,7 @@ async function getSOPs() {
         [rows] = await queryDatabase(`
             SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
             FROM sop
-            ORDER BY sopID ASC`);
+            ORDER BY isAAC ASC, sopID ASC;`);
 
         for (let i = 0; i < rows.length; i++) {
             // For each SOP, get the SOP URL from the embeds module
