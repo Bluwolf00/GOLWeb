@@ -565,6 +565,7 @@ router.post('/updateRank', authPage, async (req, res) => {
 });
 
 router.post('/updateBadge', [authPage, upload.single('image')], async (req, res) => {
+
     var badgeID = req.body.badgeid;
     var badgeName = req.body.name;
     var badgeDescription = req.body.desc;
@@ -616,6 +617,57 @@ router.post('/updateBadge', [authPage, upload.single('image')], async (req, res)
         res.status(200).redirect('/dashboard/badges?editSuccess=1');
     } else {
         res.status(500).redirect('/dashboard/badges?editSuccess=0');
+    }
+});
+
+router.post('/createBadge', [authPage, upload.single('new-image')], async (req, res) => {
+
+    console.log(req.body);
+
+    var badgeName = req.body.newname;
+    var badgeDescription = req.body.newdesc;
+    var badgeIsQualification = req.body.newqual;
+    var badgeImage = req.file;
+    var badgeImgPath = null;
+
+    if (!badgeName || !badgeDescription || typeof badgeIsQualification === "undefined") {
+        res.status(400).send("Bad Request - Missing Parameters.");
+        return;
+    }
+
+    if (badgeIsQualification === "on") {
+        badgeIsQualification = 1;
+    } else {
+        badgeIsQualification = 0;
+    }
+    
+    try {
+        if (badgeImage) {
+            // If an image is uploaded, use its path
+            badgeImgPath = (badgeImage.destination.split("public/")[1]) + badgeImage.filename; // This will be the path to the uploaded file
+        } else {
+            badgeImgPath = null; // If no image is uploaded, use a placeholder or existing path
+            console.log("No image uploaded, using existing badge image path.");
+        }
+    } catch (error) {
+        console.error("Error processing uploaded image:", error);
+        res.status(500).send("Error processing uploaded image: " + error.message);
+        return;
+    }
+
+    var result = null;
+    try {
+        result = await db.createBadge(badgeName, badgeIsQualification, badgeDescription, badgeImgPath);
+    } catch (error) {
+        console.error("Error updating badge:", error);
+        res.status(500).send("Error updating badge: " + error.message);
+        result.affectedRows = 0; // Set affectedRows to 0 to indicate failure
+    } finally {
+        if (result && result.affectedRows > 0) {
+            res.status(200).redirect('/dashboard/badges?createSuccess=1');
+        } else {
+            res.status(500).redirect('/dashboard/badges?createSuccess=0');
+        }
     }
 });
 

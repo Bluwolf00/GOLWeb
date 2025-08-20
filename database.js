@@ -418,6 +418,26 @@ async function updateBadge(badgeID, badgeName, isQualification, badgeDescription
     }
 }
 
+async function createBadge(badgeName, isQualification, badgeDescription, badgePath) {
+    var rows = [null];
+    try {
+        // console.log("Updating badge path: " + badgePath);
+        if (badgePath == null || badgePath == "") {
+            [rows] = await queryDatabase(`
+                INSERT INTO Badges (badgeName, isQualification, badgeDescription)
+                VALUES (?, ?, ?)`, [badgeName, isQualification, badgeDescription]);
+        } else {
+            [rows] = await queryDatabase(`
+                INSERT INTO Badges (badgeName, badgePath, isQualification, badgeDescription)
+                VALUES (?, ?, ?, ?)`, [badgeName, badgePath, isQualification, badgeDescription]);
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
 async function getMemberBadges(name) {
     var rows = [null];
     try {
@@ -2151,5 +2171,5 @@ module.exports = {
     getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA, createUser,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
     createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById,
-    deleteSOP
+    deleteSOP, createBadge
 };

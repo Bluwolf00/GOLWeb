@@ -167,7 +167,7 @@
             <h5 class="modal-title">Create Badge</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form action="/data/updateBadge" method="POST" enctype="multipart/form-data" id="createBadgeForm">
+          <form action="/data/createBadge" method="POST" enctype="multipart/form-data" id="createBadgeForm">
             <div class="modal-body">
               <div class="form-group">
                 <label for="new-name">Badge Name</label>
@@ -175,12 +175,12 @@
               </div>
               <div class="form-group">
                 <label for="new-desc">Badge Description</label>
-                <textarea class="form-control" name="new-desc" id="newdesc" rows="3" placeholder="Badge Description"
+                <textarea class="form-control" name="newdesc" id="newdesc" rows="3" placeholder="Badge Description"
                   required></textarea>
               </div>
               <div class="form-group">
                 <label for="new-qual" class="form-check-label">Qualification</label>
-                <input type="checkbox" class="form-check-input" name="new-qual" id="newqual">
+                <input type="checkbox" class="form-check-input" name="newqual" id="newqual">
               </div>
               <div class="form-group">
                 <label for="new-image">Badge Image</label><br>
