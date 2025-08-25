@@ -13,7 +13,7 @@ async function createOrg(data) {
             .attr("stroke", d => d.data._upToTheRootHighlighted ? '#e27396' : '#E4E2E9')
             .attr("stroke-width", d => d.data._upToTheRootHighlighted ? 5 : 1);
 
-            if (d.parent.id == "root") {
+            if (d.parent.id == "root" || d.parent.id == "origin" || d.parent.id == "origi2") {
                 d3.select(this).style('display', 'none');
             }
         })
@@ -32,13 +32,23 @@ async function createOrg(data) {
         })
         .compact(true)
         .pagingStep(10)
-        .initialExpandLevel(4)
+        .initialExpandLevel(6)
         .nodeContent(function (d, i, arr, state) {
             if (d.data.playerStatus != "Reserve") {
                 if (d.data.nodeId != "root" || d.data.parentNodeId != "root") {
                     centerNodes.push(d);
                 }
             }
+
+            if (d.data.rankName == "Origin") {
+                // These nodes are heading nodes and will contain h1 tags to mark the active and reserve squads
+                if (d.data.playerStatus == "Reserve") {
+                    return `<h1 style="text-align: center; letter-spacing: 0.15em; font-size: 5.5em; width: 100%;">Reserve</h1>`
+                } else {
+                    return `<h1 style="text-align: center; letter-spacing: 0.15em; font-size: 5.5em; width: 100%;">Active</h1>`;
+                }
+            }
+
             const color = 'transparent';
             const imageDiffVert = 25 + 2;
             const textcolor = "rgb(90, 137, 238)";
@@ -155,7 +165,7 @@ async function init() {
     });
 
     // Create dummy data for the root node
-    var root = {
+    var nodes = [{
         nodeId: "root",
         parentNodeId: null,
         Country: "Sweden",
@@ -166,9 +176,32 @@ async function init() {
         numberOfEventsAttended: 0,
         thursday: 0,
         sunday: 0
-    }
-    newdata.unshift(root);
-    
+    },{
+        nodeId: "origin",
+        parentNodeId: "root",
+        Country: "Sweden",
+        rankName: "Origin",
+        rankPath: "",
+        UName: "Origin",
+        playerStatus: "Active",
+        numberOfEventsAttended: 0,
+        thursday: 0,
+        sunday: 0
+    },
+    {
+        nodeId: "origi2",
+        parentNodeId: "root",
+        Country: "Sweden",
+        rankName: "Origin",
+        rankPath: "",
+        UName: "Origin",
+        playerStatus: "Reserve",
+        numberOfEventsAttended: 0,
+        thursday: 0,
+        sunday: 0
+    }];
+    newdata.unshift(...nodes);
+
     createOrg(newdata);
 
     // Get the number of active members from the data

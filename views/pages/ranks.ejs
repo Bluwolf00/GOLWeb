@@ -39,6 +39,52 @@
             // }
         }
     </script>
+
+    <style>
+        h5 {
+            letter-spacing: 0.1rem;
+            font-weight: 375;
+            margin-top: .5rem;
+        }
+
+        .ul-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .collapsible-content {
+
+            --line-height: 1.4;
+
+            overflow: hidden;
+            max-height: 0;
+            position: relative;
+            transition: max-height 0.2s ease-out;
+        }
+
+        /* .collapsible-content::before {
+            content: "";
+            height: calc(1em * var(--line-height));
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent, var(--bs-body-bg));
+        } */
+
+        .collapsible-btn {
+            background: none;
+            border: 1px solid var(--blu-bg-lg);
+            padding: 10px !important;
+            border-radius: 15px;
+            color: var(--blu-body-color);
+            cursor: pointer;
+            padding: 0;
+            text-decoration: none;
+            text-align: center;
+            transition: color 0.2s ease-out, background-color 0.2s ease-out;
+        }
+    </style>
 </head>
 
 <%- include('../partials/headernav', {pageTitle: "Ranks", loggedin: userLogged, username: username}) %>
@@ -86,9 +132,11 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Recruit <span class="rankPrefix">(Rct)</span></h2>
+                    <h5>New Player</h5>
                     <p class="rankDesc">
                         New players who have joined the group, are usually paired with a veteran to be assisted. No
-                        prior experience is required, we take of all players of all levels of experience.
+                        prior experience is required, we encourage participation of all players from all levels of
+                        experience.
                     </p>
                 </div>
             </div>
@@ -100,12 +148,16 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Private <span class="rankPrefix">(Pvt)</span></h2>
+                    <h5>Base Level Membership</h5>
                     <p class="rankDesc">
-                        <span class="bold">Base Level Membership.</span><br>
                         All players are expected to leave feedback to assist in improving the group's experience. All
-                        players are expected to follow the rules of conduct in and outside the game. <br>
-                        <span class="bold">Promotion after attending 2 Thursday + 2 Sunday events.</span>
+                        players are expected to follow the rules of conduct in and outside the game.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Requirements</h5>
+                        <span>Attend 2 Thursday trainings + 2 Sunday operations.</span>
+                    </div>
                 </div>
             </div>
 
@@ -117,22 +169,16 @@
                 <div class="col">
                     <div class="rankDescDiv" id="mainDesc">
                         <h2 class="rankHead">Private Second Class <span class="rankPrefix">(Psc)</span></h2>
+                        <h5>Experienced</h5>
                         <p class="rankDesc">
-                            <span class="bold">Experienced</span><br>
                             This player has been in the clan for an extended period (3 months+) and is part of the
-                            experienced player corps. They should assist with helping new players and conduct themselves
-                            professionally. <br>
-                            <span class="bold">Promotion after 30 played events.</span>
+                            experienced player corps.
                         </p>
-                    </div>
-                    <div class="rankDescDiv hide" id="airmanDesc">
-                        <h2 class="rankHead">Airman <span class="rankPrefix">(Amn)</span></h2>
-                        <p class="rankDesc">
-                            <span class="bold">Qualified Pilot</span><br>
-                            Has completed flight training to a acceptable standard.
-                            Familiar with Raven, Angel and Hammer roles. <br>
-                            <span class="bold">Eligible after 20 played events.</span>
-                        </p>
+                        <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                        <div class="collapsible-content">
+                            <h5>Requirements</h5>
+                            <span>Promotion after attending 30 events.</span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-2">
@@ -148,13 +194,16 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Private First Class <span class="rankPrefix">(Pfc)</span></h2>
+                    <h5>Senior Experienced</h5>
                     <p class="rankDesc">
-                        <span class="bold">Senior Experienced</span><br>
                         This player has been in the clan for an extended period (6 months+) and is part of the
-                        experienced player corps. They should assist with helping new players and conduct themselves
-                        professionally.<br>
-                        <span class="bold">Promotion after 60 played events.</span>
+                        experienced player corps.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Requirements</h5>
+                        <span>Promotion after attending 60 events.</span>
+                    </div>
                 </div>
                 <div class="col-sm-2">
                     <!-- Airman - Equivalent Level -->
@@ -169,14 +218,33 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Specialist <span class="rankPrefix">(Spc)</span></h2>
+                    <h5>Specialised Veteran</h5>
                     <p class="rankDesc">
-                        <span class="bold">Specialised Veteran</span><br>
                         This player has been in the clan for an extended period (6 months+) and conducts themselves
-                        professionally in their senior enlisted role. Assists team leaders with handling new players and
-                        offers help to the leaders in-game. This rank is given to players who have specialised in a
-                        certain gameplay role for example (Driving, Mortar, Anti-Tank, Medical etc.)<br>
-                        <span class="bold">Promotion based on NCO Decision.</span>
+                        sensibly in their senior enlisted role. This rank is given to players who have specialised in a
+                        certain area of expertise. An individual at this rank is expected to demonstrate a high level of
+                        skill
+                        and knowledge in their chosen field, and may be eligible to claim their specialist role more
+                        often.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Requirements</h5>
+                        <ul class="ul-list">
+                            <li>Must have at least 6 months of service in the clan</li>
+                            <li>
+                                Must specialise in a specific role/subject:
+                                <ul>
+                                    <li>Medical</li>
+                                    <li>Crew Served Support Weapons (Mortars, Statics etc.)</li>
+                                    <li>Signals (Communications)</li>
+                                    <li>Vehicle Commanding</li><br>
+                                </ul>
+                            </li>
+                            <li>Must notify NCOs of desire to specialise in any of the above subjects.</li>
+                            <li>Final decision based on NCO assessment.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -187,13 +255,27 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Lance Corporal <span class="rankPrefix">(LCpl)</span></h2>
+                    <h5>Veteran Member</h5>
                     <p class="rankDesc">
-                        <span class="bold">Veteran</span><br>
                         This player has been in the clan for an extended period (6 months+) and conducts themselves
-                        professionally in their senior enlisted role. Assists team leaders with handling new players and
-                        offers help to the leaders in-game.<br>
-                        <span class="bold">Promotion based on NCO Decision.</span>
+                        sensibly in their senior enlisted role. Assists with handling new players and
+                        offers help to others in-game. A trusted member of the group.<br>
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Responsibilities</h5>
+                        <ul class="ul-list">
+                            <li>Assist in the integration and steering of new members.</li>
+                            <li>Willing to accept 2IC (Second-in-Command) of fireteams.</li>
+                            <li>Act as a role model for junior members.</li>
+                        </ul>
+                        <h5>Requirements</h5>
+                        <ul class="ul-list">
+                            <li>Must have at least 6 months of service in the clan</li>
+                            <li>Conduct themselves in a sensible manner in-game.</li>
+                            <li>Final decision based on NCO assessment.</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-sm-2">
                     <!-- Senior Airman - Equivalent Level -->
@@ -214,13 +296,38 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Corporal <span class="rankPrefix">(Cpl)</span></h2>
+                    <h5>Junior NCO</h5>
                     <p class="rankDesc">
-                        <span class="bold">Junior NCO</span><br>
-                        Assist Administration - Promotions/Recruitment/Editing/Admin.<br>
-                        Team Leader obligation.<br>
-                        Squad Leader capable.<br>
-                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                        The Corporal is the first rank of Non-Commissioned Officer (NCO) in the Guerrillas of
+                        Liberation. This rank is responsible for leading a fireteam in-game, ensuring that all members
+                        are following the group's values and standards. The Corporal is expected to regularly take on a
+                        fireteam leadership role and assist with administrative tasks to keep the group running
+                        smoothly.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Responsibilities</h5>
+                        <ul class="ul-list">
+                            <li>Primary Team Leader obligation.</li>
+                            <li>Squad Leader in training.</li>
+                            <li>Contribute to leadership discussions and decision-making processes.</li>
+                            <li>Assist leadership with a select administrative task in the group.
+                                <ul>
+                                    <li>Promotions</li>
+                                    <li>Recruitment</li>
+                                    <li>Editing</li>
+                                    <li>Training</li>
+                                    <li>Other administrative tasks</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Expressed interest in leadership opportunities.</li>
+                            <li>Demonstrated ability to lead fireteams in-game.</li>
+                            <li>Final decision based on NCO assessment.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -231,35 +338,81 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Sergeant <span class="rankPrefix">(Sgt)</span></h2>
+                    <h5>Experienced NCO</h5>
                     <p class="rankDesc">
-                        <span class="bold">Experienced NCO</span><br>
-                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
-                        Squad/Team Leader obligation.<br>
-                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                        The Sergeant is a more experienced Non-Commissioned Officer (NCO) in the Guerrillas of
+                        Liberation. This rank is responsible for leading a squad in-game, ensuring that all members are
+                        following the group's values and standards. The Sergeant is expected to regularly take on a
+                        squad leadership role and assist with administrative tasks to keep the group running smoothly.
                     </p>
-                </div>
-                <div class="col-sm-2">
-                    <!-- Staff Sergeant - Equivalent Level -->
-                    <img class="rankThumb toned-down" src="/img/rank/SSgtA.png" alt="">
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Responsibilities</h5>
+                        <ul class="ul-list">
+                            <li>Primary Squad Leader obligation.</li>
+                            <li>Eligible to Platoon Lead.</li>
+                            <li>Assist with the training and development of junior NCOs.</li>
+                            <li>Contribute to leadership discussions and decision-making processes.</li>
+                            <li>Assist leadership with a select administrative task in the group.
+                                <ul>
+                                    <li>Promotions</li>
+                                    <li>Recruitment</li>
+                                    <li>Editing</li>
+                                    <li>Training</li>
+                                    <li>Other administrative tasks</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Minimum 6 months of service as a Corporal.</li>
+                            <li>Proficient with in-game fireteam leadership roles.</li>
+                            <li>Demonstrated ability to lead squads and several elements effectively.</li>
+                            <li>Promotion based on Leadership Decision.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
             <!-- <div class="row">
+                // Staff Sergeant
                 <div class="col-sm-2">
-                    Staff Sergeant
                     <img class="rankThumb" src="/img/rank/SSgt.png" alt="">
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Staff Sergeant <span class="rankPrefix">(SSgt)</span></h2>
+                    <h5>Senior NCO</h5>
                     <p class="rankDesc">
-                        <span class="bold">Senior NCO</span><br>
-                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
-                        Platoon/Squad Leader obligation.<br>
-                        <span class="bold">Promotion based on Leadership Decsision.</span>
+                        The Staff Sergeant is a senior Non-Commissioned Officer (NCO) in the Guerrillas of Liberation.
+                        This rank is responsible for assisting with the training and development of junior NCOs and
+                        ensuring that all members are following the group's values and standards.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Responsibilities</h5>
+                        <ul class="ul-list">
+                            <li>Assist with the training and development of junior NCOs.</li>
+                            <li>Contribute to leadership discussions and decision-making processes.</li>
+                            <li>Platoon Sergeant obligation.</li>
+                            <li>Assist leadership with select administrative tasks in the group.
+                                <ul>
+                                    <li>Promotions</li>
+                                    <li>Recruitment</li>
+                                    <li>Editing</li>
+                                    <li>Training</li>
+                                    <li>Other administrative tasks</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Minimum year of service as an NCO</li>
+                            <li>Promotion based on Leadership Decision.</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-sm-2">
-                    Staff Sergeant - Equivalent Level
+                    // Staff Sergeant - Equivalent Level
                     <img class="rankThumb toned-down" src="/img/rank/SSgtA.png" alt="">
                 </div>
             </div> -->
@@ -276,13 +429,28 @@
                     <img class="rankThumb" src="/img/rank/2LT_new.png" alt="">
                 </div>
                 <div class="col">
-                    <h2 class="rankHead">Second Lieutenant <span class="rankPrefix">(2lt)</span></h2>
+                    <h2 class="rankHead">Second Lieutenant <span class="rankPrefix">(2Lt)</span></h2>
+                    <h5>Acting GOL Second in Command</h5>
                     <p class="rankDesc">
-                        <span class="bold">Acting GOL Second in Command</span><br>
-                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
-                        Platoon/Squad Leader obligation.<br>
-                        <span class="bold">Elected based on NCO Decision.</span>
+                        This position serves as the second-in-command of the Guerrillas of Liberation. The Second
+                        Lieutenant assists the First Lieutenant in managing the group and is responsible for ensuring
+                        that all members are following the group's values and standards.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Responsibilities</h5>
+                        <ul class="ul-list">
+                            <li>Assist the Acting GOL Leader with administrative tasks.</li>
+                            <li>Assist with the training and development of junior NCOs.</li>
+                            <li>Organise mission details and ensure all necessary resources are available.</li>
+                            <li>Eligible to Platoon Lead.</li>
+                        </ul>
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>ONLY 1 Second Lieutenant may exist at a time.</li>
+                            <li>Elected based on NCO Decision.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -293,12 +461,28 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">First Lieutenant <span class="rankPrefix">(Lt)</span></h2>
+                    <h5>Acting GOL Leader</h5>
                     <p class="rankDesc">
-                        <span class="bold">Acting GOL Leader</span><br>
-                        Assists administration - Promotions/Recruitment/Editing/Training.<br>
-                        Platoon/Squad Leader obligation.<br>
-                        <span class="bold">Elected based on NCO Decision.</span>
+                        This position serves as the leader of the Guerrillas of Liberation and is responsible for
+                        overseeing all operations and activities within the group. The First Lieutenant is the
+                        highest-ranking officer in the GOL and is expected to lead by example, ensuring that all members
+                        adhere to the group's values and standards.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Responsibilities</h5>
+                        <ul class="ul-list">
+                            <li>Face of the clan.</li>
+                            <li>Make decisions on behalf of the GOL.</li>
+                            <li>Organise mission details and ensure all necessary resources are available.</li>
+                            <li>Eligible to Platoon Lead.</li>
+                        </ul>
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>ONLY 1 First Lieutenant may exist at a time.</li>
+                            <li>Elected based on NCO Decision.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -320,12 +504,25 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Airman <span class="rankPrefix">(Amn)</span></h2>
+                    <h5>Qualified Pilot</h5>
                     <p class="rankDesc">
-                        <span class="bold">Qualified Pilot</span><br>
-                        Has completed flight training to a acceptable standard.
-                        Familiar with Raven, Angel and Hammer roles.<br>
-                        <span class="bold">Eligible after attending 20 events as Pvt.</span>
+                        First rank of the Air Corps, this member has completed the basic flight training and is eligible
+                        to fly rotary airframes during operations.
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Requirements</h5>
+                        <ul class="ul-list">
+                            <li>Must have attended at least 20 events.</li>
+                            <li>Must have completed all required training modules.
+                                <ul>
+                                    <li>Raven Training (Attend Raven Training parts 1-3)</li>
+                                    <li>Angel Training (Attend Angel Training parts 1-2)</li>
+                                    <li>Hammer Training (Attend Hammer Training parts 1-3)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-sm-2">
                     <!-- Private Second Class - Equivalent -->
@@ -340,12 +537,27 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Airman First Class <span class="rankPrefix">(A1C)</span></h2>
+                    <h5>Experienced Pilot</h5>
                     <p class="rankDesc">
-                        <span class="bold">Experienced Pilot</span><br>
-                        This member has further developed their flight skills beyond the basic standards.
-                        Familiar with Giant, Para-Rescueman and Fixed-Wing Callsigns.<br>
-                        <span class="bold">Must have obtained Medical Qualification II or Higher.</span>
+                        This member has further developed their flight skills beyond the basic standards. They are
+                        proficient in flying a wider variety of aircraft and performing in more complex roles. Familiar
+                        with Giant, Para-Rescueman and Fixed-Wing Callsigns.<br>
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Requirements</h5>
+                        <ul class="ul-list">
+                            <li>Must have attended at least 40 events.</li>
+                            <li>Must have obtained Medical Qualification II or Higher.</li>
+                            <li>Must have completed all additional training modules.
+                                <ul>
+                                    <li>Giant Training (Attend Giant Training)</li>
+                                    <li>Phantom Training (Attend Phantom Training parts 1 & 2)</li>
+                                    <li>Banshee Training (Attend Banshee Training parts 1 & 2)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-sm-2">
                     <!-- Private Second Class -->
@@ -360,13 +572,19 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Senior Airman <span class="rankPrefix">(SrA)</span></h2>
+                    <h5>Veteran Pilot</h5>
                     <p class="rankDesc">
-                        <span class="bold">Veteran Pilot</span><br>
                         This member has demonstrated an advanced understanding of flight mechanics and procedures, while
                         additionally holding a higher standard of skill level. The duties of the member will include
                         assisting new pilots during operations (Flight Lead, Guidance, etc.)<br>
-                        <span class="bold">Promotion based on NCO Decision.</span>
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Promotion based on NCO Decision.</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-sm-2">
                     <!-- Lance Corporal -->
@@ -387,16 +605,17 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Staff Sergeant <span class="rankPrefix">(SSgt)</span></h2>
+                    <h5>Experienced NCO Pilot</h5>
                     <p class="rankDesc">
-                        <span class="bold">Experienced NCO Pilot</span><br>
                         Assists administration - Promotions/Recruitment/Training<br>
                         Develops and maintains SOP<br>
-                        <span class="bold">Promotion based on Leadership Decsision.</span>
                     </p>
-                </div>
-                <div class="col-sm-2">
-                    <!-- Sergeant -->
-                    <img class="rankThumb toned-down" src="/img/rank/Sgt.png" alt="">
+                    <div class="collapsible-content">
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Promotion based on Leadership Decision.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -407,13 +626,19 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Technical Sergeant <span class="rankPrefix">(TSgt)</span></h2>
+                    <h5>Senior NCO Pilot</h5>
+                    <h5>Acting AAC Second in Command</h5>
                     <p class="rankDesc">
-                        <span class="bold">Senior NCO Pilot</span><br>
-                        <span class="bold">Acting AAC Second in Command</span><br>
                         Assists administration - Promotions/Recruitment/Training<br>
                         Develops and maintains SOP<br>
-                        <span class="bold">Promotion based on Leadership Decsision.</span>
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Promotion based on Leadership Decision.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -430,18 +655,44 @@
                 </div>
                 <div class="col">
                     <h2 class="rankHead">Second Lieutenant <span class="rankPrefix">(2lt)</span></h2>
+                    <h5>Acting GOL Second in Command</h5>
+                    <h5>Acting Leader of AAC</h5>
                     <p class="rankDesc">
-                        <span class="bold">Acting GOL Second in Command</span><br>
-                        <span class="bold">Acting Leader of AAC</span><br>
                         Assists administration - Promotions/Recruitment/Editing/Training.<br>
                         Platoon/Squad Leader obligation.<br>
-                        <span class="bold">Elected based on NCO Decision.</span>
                     </p>
+                    <button class="btn btn-outline-secondary collapsible-btn">See More...</button>
+                    <div class="collapsible-content">
+                        <h5>Promotion Criteria</h5>
+                        <ul class="ul-list">
+                            <li>Elected based on NCO Decision.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
+
+    <script>
+        document.querySelectorAll('.collapsible-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                content.classList.toggle('show');
+                if (content.classList.contains('show')) {
+                    button.innerHTML = "See Less...";
+                } else {
+                    button.innerHTML = "See More...";
+                }
+
+                if (content.classList.contains('show')) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                } else {
+                    content.style.maxHeight = 0;
+                }
+            });
+        });
+    </script>
 
     <footer>
         <%- include('../partials/footer') %>
