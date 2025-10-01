@@ -145,6 +145,43 @@ async function getAttendanceFromAPI() {
     return attendanceArray;
 }
 
+function getMonthFromString(str, returnAbbreviation) {
+    if (returnAbbreviation) {
+        // If the month is the full name, convert it to the 3 letter abbreviation
+        switch (str) {
+            case "January":
+                return "Jan";
+            case "February":
+                return "Feb";
+            case "March":
+                return "Mar";
+            case "April":
+                return "Apr";
+            case "May":
+                return "May";
+            case "June":
+                return "Jun";
+            case "July":
+                return "Jul";
+            case "August":
+                return "Aug";
+            case "September":
+                return "Sep";
+            case "October":
+                return "Oct";
+            case "November":
+                return "Nov";
+            case "December":
+                return "Dec";
+            default:
+                return str;
+        }
+    } else {
+        date = str.replace(/January/g, "Jan").replace(/February/g, "Feb").replace(/March/g, "Mar").replace(/April/g, "Apr").replace(/May/g, "May").replace(/June/g, "Jun").replace(/July/g, "Jul").replace(/August/g, "Aug").replace(/September/g, "Sep").replace(/October/g, "Oct").replace(/November/g, "Nov").replace(/December/g, "Dec");
+        return date;
+    }
+}
+
 async function getMemberLOAsFromAPI() {
     var response;
     var data;
@@ -169,6 +206,11 @@ async function getMemberLOAsFromAPI() {
 
         for (var i = 0; i < data.length; i++) {
 
+            if (process.env.DEBUG_MODE) {
+                console.log("Processing message from: " + data[i].author.username + " - " + data[i].id + "\n");
+                console.log(data[i].content + "\n\n");
+            }
+
             // Ensure that the message is in the format we expect
             if (data[i].content.includes("From")) {
 
@@ -188,41 +230,73 @@ async function getMemberLOAsFromAPI() {
                 endDate = endDate.replace(/(\d+)(st|nd|rd|th)/, '$1');
 
                 // Trim the date to remove any whitespace
-                startDate.trim();
-                endDate.trim();
+                startDate = startDate.trim();
+                endDate = endDate.trim();
 
-                // If the day does not have a leading zero, add it
-                if (parseInt(startDate.substring(0, 3)) < 10) {
-                    startDate = "0" + startDate;
+                // If the end date contains "unknown" or is empty, set it to the end of the year
+                var year = new Date().getFullYear();
+                if (endDate.includes("nknown") || endDate === "") {
+                    endDate = "31 Dec " + year;
                 }
-                if (parseInt(endDate.substring(0, 3)) < 10) {
-                    endDate = "0" + endDate;
+
+                // If any of the dates includes "Start of" or "End of" and the month, set it to the corresponding date
+                if (startDate.includes("Start of")) {
+                    startDate = getMonthFromString(startDate, true) + " " + year;
+                }
+                if (endDate.includes("End of")) {
+                    endDate = getMonthFromString(endDate, true) + " " + year;
+                }
+
+                // If the start date includes "now" take the date from when the message was posted
+                if (startDate.includes("now")) {
+                    let now = data[i].timestamp;
+                    startDate = new Date(now).toDateString();
                 }
 
                 // If the year is not included, add the current year
-                var year = new Date().getFullYear();
-                if (!startDate.includes(year)) {
-                    startDate = startDate + " " + year;
+                if (!/\d{4}/.test(startDate)) {
+                    startDate += " " + year;
                 }
-                if (!endDate.includes(year)) {
-                    endDate = endDate + " " + year;
+                if (!/\d{4}/.test(endDate)) {
+                    endDate += " " + year;
                 }
 
                 // If the month is the full name, convert it to the 3 letter abbreviation
                 startDate = startDate.replace(/January/g, "Jan").replace(/February/g, "Feb").replace(/March/g, "Mar").replace(/April/g, "Apr").replace(/May/g, "May").replace(/June/g, "Jun").replace(/July/g, "Jul").replace(/August/g, "Aug").replace(/September/g, "Sep").replace(/October/g, "Oct").replace(/November/g, "Nov").replace(/December/g, "Dec");
                 endDate = endDate.replace(/January/g, "Jan").replace(/February/g, "Feb").replace(/March/g, "Mar").replace(/April/g, "Apr").replace(/May/g, "May").replace(/June/g, "Jun").replace(/July/g, "Jul").replace(/August/g, "Aug").replace(/September/g, "Sep").replace(/October/g, "Oct").replace(/November/g, "Nov").replace(/December/g, "Dec");
 
-                // Remove any special characters from the date
-                startDate = startDate.replace(/[^a-zA-Z0-9 ]/g, "");
-                endDate = endDate.replace(/[^a-zA-Z0-9 ]/g, "");
+                // Replace any slashes with dashes
+                startDate = startDate.replace(/\//g, "-");
+                endDate = endDate.replace(/\//g, "-");
+
+                // Remove any special characters from the date, except dashes
+                startDate = startDate.replace(/[^a-zA-Z0-9 -]/g, "");
+                endDate = endDate.replace(/[^a-zA-Z0-9 -]/g, "");
+
+                // Handle DD-MM-YYYY format and convert to YYYY-MM-DD
+                function convertToISO(dateStr) {
+                    // Match DD-MM-YYYY or D-M-YYYY
+                    const match = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+                    if (match) {
+                        const [, day, month, year] = match;
+                        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                    }
+                    return dateStr; // Return unchanged if not matching
+                }
+                startDate = convertToISO(startDate);
+                endDate = convertToISO(endDate);
 
                 // Get the member ID from the JSON
-                // If entered manuually, get the member ID from the message
-                // If the message is from the member, get the member ID from the message
                 if (data[i].content.includes("Member")) {
                     memberId = data[i].content.substring(data[i].content.indexOf("Member") + 7, data[i].content.indexOf("\n", data[i].content.indexOf("Member") + 7));
                 } else {
                     memberId = data[i].author.id;
+                }
+
+                if (process.env.DEBUG_MODE) {
+                    console.log("Member ID: " + memberId);
+                    console.log("Start Date: " + startDate);
+                    console.log("End Date: " + endDate + "\n");
                 }
 
                 // Set the dates to UNIX time
@@ -230,7 +304,9 @@ async function getMemberLOAsFromAPI() {
                 endDate = Date.parse(endDate);
 
                 if (isNaN(startDate) || isNaN(endDate)) {
-                    // console.log("Error parsing dates for member: " + memberId);
+                    if (process.env.DEBUG_MODE) {
+                        console.log("Invalid date format for member ID: " + memberId +  "\n Dates: " + startDate + " - " + endDate + ". Skipping entry.\n");
+                    }
                     continue; // Skip this entry if dates are invalid
                 }
 

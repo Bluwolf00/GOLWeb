@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <%- include('../../partials/head', {pageTitle: "GOL Dashboard - LOAs"}) %>
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <script defer src="/scripts/dashusertable.js"></script>
+</head>
+
+<%- include('../../partials/headernav', {pageTitle: "Dashboard", loggedin: userLogged, username: username}) %>
+
+<body>
+    <main>
+        <% if (typeof editSuccess !== 'undefined') { %>
+        <div class="container text-center">
+            <% if (editSuccess == 1) { %>
+            <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member
+                Successfully
+                Updated!</div>
+            <% } else if (editSuccess == 0){ %>
+            <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+                Update!</div>
+            <% } %>
+        </div>
+        <% } %>
+
+        <% if (typeof createSuccess !== 'undefined') { %>
+        <div class="container text-center">
+            <% if (createSuccess == 1) { %>
+            <div class="alert alert-success" role="alert"><span style="font-weight: bold;">EDIT</span> Member
+                Successfully
+                Created!</div>
+            <% } else if (createSuccess == 0){ %>
+            <div class="alert alert-danger" role="alert"><span style="font-weight: bold;">EDIT</span> Member Failed to
+                be
+                Created!</div>
+            <% } %>
+        </div>
+        <% } %>
+
+        <%- include('../../partials/dashnav', {pageName: "LOAs"}) %>
+
+        <div class="container mt-4">
+            <h2>Leave of Absence Members</h2>
+            <div class="row">
+                <div class="col-sm">
+                    <input type="text" name="searchTable" id="searchMemberTableInput" class="form-control my-3"
+                        placeholder="Search Members by Name..." onkeyup="searchMemberTable()">
+                </div>
+            </div>
+            <table class="table table-dark table-striped table-hover shadow" id="loas-table">
+                <thead>
+                    <tr style="text-align: center;">
+                        <th scope="col">Name</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Current Rank</th>
+                        <th scope="col">LOA Start Date</th>
+                        <th scope="col">LOA End Date</th>
+                    </tr>
+                </thead>
+                <tbody id="loa-list">
+                    <!-- LOA list will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        <script defer>
+            var isloggedIn = "<%= loggedin %>"
+        </script>
+        <script src="/scripts/checkLogged.js"></script>
+    </main>
+
+    <footer>
+        <%- include('../../partials/footer') %>
+    </footer>
+</body>
+
+</html>

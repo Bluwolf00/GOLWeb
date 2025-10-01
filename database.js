@@ -1170,6 +1170,12 @@ async function updateMemberLOAs() {
     // console.log("Updating LOAs...");
     var LOAs = await embeds.getMemberLOAsFromAPI();
 
+    // If Debug mode is enabled, print the LOAs to the console
+    if (process.env.DEBUG_MODE) {
+        console.log("LOAs from API:");
+        console.log(LOAs);
+    }
+
     // Also update the LOAs in the database
     // console.log("Sending LOAs to the database...");
     var result = await setMemberLOAStatuses(LOAs);
