@@ -64,6 +64,14 @@ async function populateTable() {
         `;
         tableBody.appendChild(row);
     });
+
+    new DataTable('#membersTable', {
+        paging: true,
+        searching: true,
+        info: false,
+        order: [[0, 'asc']],
+        columnDefs: [{ orderable: false, targets: 8 }]
+    });
 }
 
 async function tempModal(memberID, memberName, memberRank, action) {

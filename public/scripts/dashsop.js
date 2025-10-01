@@ -45,6 +45,15 @@ async function populate() {
         // <button class="btn btn-danger" onclick="deleteMember(${rank.ID})">Delete</button>
         tableBody.appendChild(row);
     });
+
+    new DataTable('#sopsTable', {
+        paging: true,
+        searching: true,
+        info: false,
+        order: [[0, 'asc']],
+        columnDefs: [{ orderable: false, targets: 8 }],
+        lengthMenu: [5, 10, 25, 50]
+    });
 }
 
 async function handleCreateSOP() {

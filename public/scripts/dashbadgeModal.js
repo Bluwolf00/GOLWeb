@@ -248,6 +248,15 @@ async function populateBadges() {
         `;
         tableBody.appendChild(row);
     });
+
+    new DataTable('#badgesTable', {
+        paging: true,
+        searching: true,
+        info: false,
+        order: [[0, 'asc']],
+        columnDefs: [{ orderable: false, targets: 5 }, { width: "25%", targets: 4 }],
+        lengthMenu: [5, 10, 25, 50]
+    });
 }
 
 async function handleBadgeImage() {

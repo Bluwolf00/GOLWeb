@@ -33,6 +33,14 @@ async function populate() {
         // <button class="btn btn-danger" onclick="deleteMember(${rank.ID})">Delete</button>
         tableBody.appendChild(row);
     });
+
+    new DataTable('#ranksTable', {
+        paging: true,
+        searching: true,
+        info: false,
+        order: [[0, 'asc']],
+        columnDefs: [{ orderable: false, targets: 5 }]
+    });
 }
 
 // Function that will hold all functions that will be called when the file is called

@@ -3,8 +3,26 @@
 
 <head>
   <%- include('../../partials/head', {pageTitle: "GOL Dashboard - Members"}) %>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css">
   <link rel="stylesheet" href="/styles/dashboard.css">
+  
+  <script defer src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+  <script defer src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.js"></script>
   <script defer src="/scripts/dashusertable.js"></script>
+
+  <style>
+
+    .buttonsDiv {
+      margin-bottom: 3%;
+    }
+
+    td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
 </head>
 
 <%- include('../../partials/headernav', {pageTitle: "Dashboard", loggedin: userLogged, username: username}) %>
@@ -192,12 +210,12 @@
         <button type="button" class="btn btn-secondary" onclick="location.reload();">Refresh</button>
       </div>
 
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-sm">
           <input type="text" name="searchTable" id="searchMemberTableInput" class="form-control my-3"
             placeholder="Search Members by Name..." onkeyup="searchMemberTable()">
         </div>
-      </div>
+      </div> -->
       <table id="membersTable" class="table table-dark table-striped table-hover">
         <thead>
           <tr style="background-color: rgb(86, 108, 130);">

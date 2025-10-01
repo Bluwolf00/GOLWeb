@@ -171,6 +171,14 @@ async function populateTable() {
         console.error('Error populating table:', error);
         createAlert('Failed to load missions. Please try again later.', 'danger', 'main', 5000);
     }
+
+    new DataTable('#missionsTable', {
+        paging: true,
+        searching: true,
+        info: false,
+        order: [[0, 'asc']],
+        columnDefs: [{ orderable: false, targets: 6 }]
+    });
 }
 
 async function deleteMission(missionId) {
