@@ -109,7 +109,7 @@ async function getMembers(includeParentName = false, order = "memberidasc") {
     if (includeParentName == true) {
         query = `SELECT m.MemberID,m.UName,m.playerRank,rankName,m.Country,m.DateOfJoin,m.DateOfPromo,m.Nick,m.nodeId,m.parentNodeId,p.UName AS parentUName,m.playerStatus FROM Ranks,Members m LEFT JOIN Members p ON m.parentNodeId = p.nodeId WHERE Ranks.rankID = m.playerRank ${orderBy}`
     } else {
-        query = `SELECT Members.MemberID,UName,m.playerRank,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays FROM Ranks,Members WHERE Members.playerRank = Ranks.rankID ${orderBy}`;
+        query = `SELECT Members.MemberID,UName,playerRank,rankName,rankPath,Country,nodeId,parentNodeId,Nick,playerStatus,thursdays,sundays FROM Ranks,Members WHERE Members.playerRank = Ranks.rankID ${orderBy}`;
     }
     try {
         [rows] = await queryDatabase(query);
