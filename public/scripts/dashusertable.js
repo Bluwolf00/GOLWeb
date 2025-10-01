@@ -49,12 +49,12 @@ async function populateTable() {
         row.innerHTML = `
             <td>${member.MemberID}</td>
             <td>${member.UName}</td>
-            <td>${member.rankName}</td>
+            <td data-order="${member.playerRank}">${member.rankName}</td>
             <td>${member.Country}</td>
             <td>${member.parentUName}</td>
             <td>${member.playerStatus}</td>
-            <td>${date}</td>
-            <td>${promo}</td>
+            <td data-order="${member.DateOfJoin}">${date}</td>
+            <td data-order="${member.DateOfPromo}">${promo}</td>
             <td>
               <button class="btn btn-primary" onclick="openEditModal(${member.MemberID})">Edit</button>
               <button class="btn btn-danger" onclick="deleteMember(${member.MemberID})">Delete</button>

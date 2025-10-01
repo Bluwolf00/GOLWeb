@@ -159,7 +159,7 @@ async function populateTable() {
                 <td>${mission.composition}</td>
                 <td>${mission.filledSlots}</td>
                 <td>${mission.size}</td>
-                <td>${missionDate}</td>
+                <td data-order="${mission.dateOfMission}">${missionDate}</td>
                 <td>
                     <button class="btn btn-primary" onclick="openEditModal(${mission.missionID})">Edit</button>
                     <button class="btn btn-danger" onclick="deleteMission(${mission.missionID})">Delete</button>

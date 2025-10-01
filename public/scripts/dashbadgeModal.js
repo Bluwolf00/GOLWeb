@@ -254,7 +254,7 @@ async function populateBadges() {
         searching: true,
         info: false,
         order: [[0, 'asc']],
-        columnDefs: [{ orderable: false, targets: 5 }, { width: "25%", targets: 4 }],
+        columnDefs: [{ orderable: false, targets: [5, 4, 3] }, { width: "25%", targets: 4 }],
         lengthMenu: [5, 10, 25, 50]
     });
 }

@@ -31,7 +31,7 @@ async function populate() {
         row.innerHTML = `
             <th><span>${sop.sopID}</span></th>
             <td><span>${sop.sopTitle}</span></td>
-            <td><span>${sop.authors}</span></td>
+            <td><span>${sop.authorNames}</span></td>
             <td><span class="sopDescription">${sop.sopDescription}</span></td>
             <td><span>${sop.sopType}</span></td>
             <td><span>${sop.sopDocID}</span></td>
@@ -51,7 +51,7 @@ async function populate() {
         searching: true,
         info: false,
         order: [[0, 'asc']],
-        columnDefs: [{ orderable: false, targets: 8 }],
+        columnDefs: [{ orderable: false, targets: [8, 5, 3] }],
         lengthMenu: [5, 10, 25, 50]
     });
 }
