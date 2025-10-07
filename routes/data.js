@@ -535,8 +535,11 @@ router.post('/createMember', authPage, async (req, res) => {
     var memberParent = req.body.newreporting;
     var memberJoined = req.body.newjoined;
 
+    console.log(req.body);
+
     if (!memberName || !memberDiscordId || !memberRank || !memberCountry || !memberParent) {
-        res.status(400).send("Bad Request - Missing Parameters");
+        let responseStr = `Bad Request - Missing Parameters | Variables Passed : ${memberName}, ${memberDiscordId}, ${memberRank}, ${memberCountry}, ${memberParent}`;
+        res.status(400).send(responseStr);
         return;
     }
     var result = await db.createMember(memberName, memberDiscordId, memberRank, memberCountry, memberParent, memberJoined);

@@ -335,7 +335,7 @@ async function createMember(memberName, memberdiscordId, rank, country, parentNa
         }
 
         var response = await queryDatabase(`
-            INSERT INTO Members (UName,playerRank,Country,nodeId,parentNodeId,DateOfJoin,nick,playerStatus,discordId) VALUES (?,?,?,?,?,?,?,?,?)`, [memberName, rankID, country, newNodeId, parentNodeId, dateOfJoin, nick, playerStatus, memberdiscordId]);
+            INSERT INTO Members (UName,playerRank,Country,nodeId,parentNodeId,DateOfJoin,nick,playerStatus,MemberDiscordID) VALUES (?,?,?,?,?,?,?,?,?)`, [memberName, rankID, country, newNodeId, parentNodeId, dateOfJoin, nick, playerStatus, memberdiscordId]);
 
         if (response[0].affectedRows > 0) {
             console.log("Member created successfully");
