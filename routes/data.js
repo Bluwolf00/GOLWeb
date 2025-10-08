@@ -187,6 +187,21 @@ router.get('/updateMemberLOAs', async (req, res) => {
     }
 });
 
+router.get('/getMemberLOAs', async (req, res) => {
+    var name = req.query.name;
+    var content = [];
+    try {
+        content = await db.getMemberLOAs(name);
+        if (content == null || content == false) {
+            content = [];
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500);
+    }
+    res.send(content);
+});
+
 // Needs rate limited
 router.get('/updateAttendance', async (req, res) => {
     var result = await db.updateMemberAttendance();

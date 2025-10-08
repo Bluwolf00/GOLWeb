@@ -1168,13 +1168,66 @@ async function updateMemberAttendance(bypassCheck = false) {
 async function updateMemberLOAs() {
 
     // console.log("Updating LOAs...");
-    var LOAs = await embeds.getMemberLOAsFromAPI();
+    // var LOAs = await embeds.getMemberLOAsFromAPI();
+    var LOAs = await getMembersLOAs(isActiveLOA = true);
+    if (LOAs == null || LOAs.length == 0) {
+        console.log("No active LOAs found");
+        return 203;
+    }
 
     // Also update the LOAs in the database
     // console.log("Sending LOAs to the database...");
     var result = await setMemberLOAStatuses(LOAs);
 
     return result;
+}
+
+async function getMembersLOAs(isActiveLOA = false) {
+    var rows = [null];
+    try {
+        if (isActiveLOA) {
+            // Get only the active LOAs (i.e. current date is between startDate and endDate)
+            [rows] = await queryDatabase(`
+                SELECT LoaID, MemberID, startDate, endDate
+                FROM loas
+                WHERE startDate <= NOW() AND endDate >= NOW()
+                ORDER BY startDate DESC`);
+        } else {
+            [rows] = await queryDatabase(`
+                SELECT LoaID, MemberID, startDate, endDate
+                FROM loas
+                ORDER BY startDate DESC`);
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
+async function getMemberLOAs(name) {
+    var rows = [null];
+    var memberId = -1;
+    try {
+
+        // First get the member ID from the username
+        [memberId] = await getUserMemberID(name);
+        if (memberId == null) {
+            console.log("Member " + name + " not found");
+            return null;
+        }
+
+        // Now get the LOAs for the member ID
+        [rows] = await queryDatabase(`
+            SELECT LoaID, MemberID, startDate, endDate
+            FROM loas
+            WHERE MemberID = ?
+            ORDER BY startDate DESC`, [memberId]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
 }
 
 async function setMemberLOAStatuses(LOAs) {
@@ -1187,24 +1240,26 @@ async function setMemberLOAStatuses(LOAs) {
     try {
         for (var i = 0; i < LOAs.length; i++) {
             if (Date.now() > LOAs[i].startDate && Date.now() < LOAs[i].endDate) {
-                // console.log("Member " + LOAs[i].memberId + " is on LOA");
+                // console.log("Member " + LOAs[i].MemberID + " is on LOA");
                 [rows] = await queryDatabase(`
                     UPDATE Members
                     SET playerStatus = 'LOA'
-                    WHERE Members.MemberDiscordID = ?`, [LOAs[i].memberId]);
+                    WHERE Members.MemberID = ?`, [LOAs[i].MemberID]);
             }
         }
 
         // Now check for any members that were on LOA but are no longer on LOA
 
         // Get all members that are on LOA
-        var [membersOnLOA] = await queryDatabase(`SELECT Members.MemberDiscordID FROM Members WHERE Members.playerStatus = 'LOA'`);
+        var [membersOnLOA] = await queryDatabase(`SELECT Members.MemberID FROM Members WHERE Members.playerStatus = 'LOA'`);
+
+        // console.log("Members currently on LOA: " + membersOnLOA.length);
 
         // Loop through the members on LOA and check if they are in the LOAs array
         for (var i = 0; i < membersOnLOA.length; i++) {
             var found = false;
             for (var j = 0; j < LOAs.length; j++) {
-                if (membersOnLOA[i].MemberDiscordID == LOAs[j].memberId) {
+                if (membersOnLOA[i].MemberID == LOAs[j].MemberID) {
                     found = true;
                     break;
                 }
@@ -1216,7 +1271,7 @@ async function setMemberLOAStatuses(LOAs) {
                 [rows] = await queryDatabase(`
                     UPDATE Members
                     SET playerStatus = 'Active'
-                    WHERE Members.MemberDiscordID = ?`, [membersOnLOA[i].MemberDiscordID]);
+                    WHERE Members.MemberID = ?`, [membersOnLOA[i].MemberID]);
             }
         }
     } catch (error) {
@@ -2171,5 +2226,5 @@ module.exports = {
     getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA, createUser,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
     createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById,
-    deleteSOP, createBadge
+    deleteSOP, createBadge, getMemberLOAs, getMembersLOAs
 };
