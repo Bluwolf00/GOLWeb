@@ -46,7 +46,6 @@ async function updateElement(element, value) {
             break;
         case 'events':
             eventsEle.innerText = value;
-
             break;
         case 'profileImg':
             profileImg.src = value;
@@ -200,7 +199,9 @@ async function getProfile() {
     try {
         response = await fetch('/data/getMemberAttendance?name=' + playerName);
         data = await response.json();
-        // playerEvents = data.numberOfEventsAttended;
+
+        if (data.thursdays === null || typeof data.thursdays !== 'number') { data.thursdays = 0; }
+        if (data.sundays === null || typeof data.sundays !== 'number') { data.sundays = 0; }
         playerEvents = data.thursdays + " | " + data.sundays;
     } catch (error) {
         console.log('Error fetching member attendance: %d', error);
