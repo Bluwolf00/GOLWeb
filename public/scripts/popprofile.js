@@ -53,6 +53,10 @@ async function updateElement(element, value) {
         case 'rankImg':
             rankImg.src = value;
             break;
+        case 'lastEvent':
+            daysSinceLastDeploymentEle = document.getElementById('daysSinceLastDeployment');
+            daysSinceLastDeploymentEle.innerText = value;
+            break;
         default:
             console.log('Invalid element: ' + element);
             break;
@@ -71,7 +75,7 @@ async function updateProfile() {
         ranksAbove = ranksAbove[0];
         ranksAbove = ranksAbove[0];
 
-        console.log(ranksAbove);
+        // console.log(ranksAbove);
 
         ranksAbove.forEach(rank => {
             var tempElement = document.createElement('a');
@@ -200,6 +204,16 @@ async function getProfile() {
         response = await fetch('/data/getMemberAttendance?name=' + playerName);
         data = await response.json();
 
+        var lastEventAttended = "N/A";
+        if (data.lastEventAttended !== null || typeof data.lastEventAttended === 'undefined') {
+            
+            // Set lastEventAttended to the number of days since the last event attended
+            var now = new Date();
+            var lastEventDate = new Date(data.lastEventAttended);
+            var daysSinceLastEvent = getDaysBetween(lastEventDate, now);
+            lastEventAttended = daysSinceLastEvent + " Days";
+        }
+
         if (data.thursdays === null || typeof data.thursdays !== 'number') { data.thursdays = 0; }
         if (data.sundays === null || typeof data.sundays !== 'number') { data.sundays = 0; }
         playerEvents = data.thursdays + " | " + data.sundays;
@@ -224,6 +238,8 @@ async function getProfile() {
 
     updateElement('status', playerStatus);
     // updateProfile();
+
+    updateElement('lastEvent', lastEventAttended);
 
     // Update the title of the page with the player's name
     document.title = "GOL Profile - " + playerName;

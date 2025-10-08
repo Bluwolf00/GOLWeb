@@ -291,6 +291,8 @@ async function getAttendanceReport() {
     eventArray = data.postedEvents;
 
     var attendanceReport = [];
+    var lastAttendedEvents = [];
+
     var thursdays = [];
     var sundays = [];
     var memberDiscordId;
@@ -314,6 +316,22 @@ async function getAttendanceReport() {
                         thursdays.push(memberDiscordId);
                     } else if (dayofWeek == 0) {
                         sundays.push(memberDiscordId);
+                    }
+
+                    // Check if the member is already in the lastAttendedEvents array
+                    // Unfortunately, this is rather inefficient, should be replaced with a dictionary if performance becomes an issue
+                    // However, given the likely size of the array, this is acceptable for now
+                    var memberIndex = lastAttendedEvents.findIndex(x => x.memberDiscordId === memberDiscordId);
+                    if (memberIndex === -1) {
+                        lastAttendedEvents.push({
+                            memberDiscordId: memberDiscordId,
+                            lastEventAttended: date
+                        });
+                    } else {
+                        // If the member is already in the array, check if the event date is more recent than the last event attended
+                        if (eventArray[i].startTime > lastAttendedEvents[memberIndex].lastEventAttended) {
+                            lastAttendedEvents[memberIndex].lastEventAttended = date;
+                        }
                     }
                 }
             }
@@ -348,33 +366,47 @@ async function getAttendanceReport() {
         for (var j = 0; j < eventArray[i].signUps.length; j++) {
             memberDiscordId = eventArray[i].signUps[j].userId;
             if (eventArray[i].signUps[j].specName == "Accepted" || eventArray[i].signUps[j].specName == "Both" || eventArray[i].signUps[j].specName == "Training") {
+                
+                // Include the last event attended
+                var lastEvent = lastAttendedEvents.find(x => x.memberDiscordId === memberDiscordId);
+                if (lastEvent) {
+                    var lastEventDate = lastEvent.lastEventAttended;
+                    lastEventDate = lastEventDate.toISOString().split('T')[0]; // Format the date as YYYY-MM-DD
+                } else {
+                    var lastEventDate = "N/A";
+                }
+
                 if (thursdaysCount[memberDiscordId] && sundaysCount[memberDiscordId]) {
                     attendanceReport.push({
                         memberDiscordId: memberDiscordId,
                         memberName: eventArray[i].signUps[j].name.substring((eventArray[i].signUps[j].name.indexOf(".") + 1), eventArray[i].signUps[j].name.length),
                         thursdays: thursdaysCount[memberDiscordId],
-                        sundays: sundaysCount[memberDiscordId]
+                        sundays: sundaysCount[memberDiscordId],
+                        lastEventAttended: lastEventDate
                     });
                 } else if (sundaysCount[memberDiscordId]) {
                     attendanceReport.push({
                         memberDiscordId: memberDiscordId,
                         memberName: eventArray[i].signUps[j].name.substring((eventArray[i].signUps[j].name.indexOf(".") + 1), eventArray[i].signUps[j].name.length),
                         thursdays: 0,
-                        sundays: sundaysCount[memberDiscordId]
+                        sundays: sundaysCount[memberDiscordId],
+                        lastEventAttended: lastEventDate
                     });
                 } else if (thursdaysCount[memberDiscordId]) {
                     attendanceReport.push({
                         memberDiscordId: memberDiscordId,
                         memberName: eventArray[i].signUps[j].name.substring((eventArray[i].signUps[j].name.indexOf(".") + 1), eventArray[i].signUps[j].name.length),
                         thursdays: thursdaysCount[memberDiscordId],
-                        sundays: 0
+                        sundays: 0,
+                        lastEventAttended: lastEventDate
                     });
                 } else {
                     attendanceReport.push({
                         memberDiscordId: memberDiscordId,
                         memberName: eventArray[i].signUps[j].name.substring(eventArray[i].signUps[j].name.indexOf("."), (eventArray[i].signUps[j].name.length - 1)),
                         thursdays: 0,
-                        sundays: 0
+                        sundays: 0,
+                        lastEventAttended: lastEventDate
                     });
                 }
             }

@@ -158,17 +158,36 @@ router.get('/getRankByID', authPage, async (req, res) => {
 
 router.get('/getMemberAttendance', async (req, res) => {
     var name = req.query.name;
-    var content = { "thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1 };
+    var content = { "thursdays": -1, "sundays": -1, "numberOfEventsAttended": -1, "lastEventAttended": null };
     try {
         temp = await db.getMemberAttendance(name);
         if (temp == null || temp == false) {
             content.thursdays = 0;
             content.sundays = 0;
             content.numberOfEventsAttended = 0;
+            content.lastEventAttended = null;
         } else {
             content.thursdays = temp.thursdays;
             content.sundays = temp.sundays;
             content.numberOfEventsAttended = temp.numberOfEventsAttended;
+            content.lastEventAttended = temp.lastEventAttended;
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500);
+    }
+    res.send(content);
+});
+
+router.get('/getLastEventAttended', async (req, res) => {
+    var name = req.query.name;
+    var content = { "lastEvent": null };
+    try {
+        temp = await db.getLastEventAttended(name);
+        if (temp == null || temp == false) {
+            content.lastEvent = null;
+        } else {
+            content.lastEvent = temp.lastEvent;
         }
     } catch (error) {
         console.log(error);

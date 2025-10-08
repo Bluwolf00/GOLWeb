@@ -1006,6 +1006,24 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
     }
 }
 
+async function getLastEventAttended(name) {
+    var rows = [null];
+    try {
+        [rows] = await queryDatabase(`
+            SELECT lastEventAttended
+            FROM Members
+            WHERE UName = ?`, [name])
+    } catch (error) {
+        console.log(error);
+    } finally {
+        if (rows.length == 0) {
+            return null;
+        } else {
+            return rows[0].lastEventAttended;
+        }
+    }
+}
+
 async function getMemberAttendance(name) {
     var rows = [null];
 
@@ -1023,7 +1041,7 @@ async function getMemberAttendance(name) {
     try {
         console.log("Getting attendance records for " + name);
         [rows] = await queryDatabase(`
-            SELECT MemberDiscordID, thursdays, sundays, (thursdays + sundays) AS numberOfEventsAttended
+            SELECT MemberDiscordID, thursdays, sundays, (thursdays + sundays) AS numberOfEventsAttended, lastEventDate
             FROM Members
             WHERE UName = ?`, [name]);
 
@@ -1041,6 +1059,7 @@ async function getMemberAttendance(name) {
         "thursdays": rows[0].thursdays,
         "sundays": rows[0].sundays,
         "numberOfEventsAttended": rows[0].numberOfEventsAttended,
+        "lastEventAttended": rows[0].lastEventDate,
         "inserted": updated
     }
 
@@ -1108,6 +1127,7 @@ async function updateMemberAttendance(bypassCheck = false) {
                         var thursdays = attendanceRecords[j].thursdays;
                         var sundays = attendanceRecords[j].sundays;
                         var memberDiscordId = attendanceRecords[j].memberDiscordId;
+                        var lastEventAttended = attendanceRecords[j].lastEventAttended;
                         // console.log("\n-- Member found in attendance records: " + attendanceRecords[j].memberName + " --\n");
 
                         // Push the details to the array
@@ -1116,7 +1136,8 @@ async function updateMemberAttendance(bypassCheck = false) {
                             "memberDiscordId": memberDiscordId,
                             "memberName": temp[i].UName,
                             "thursdays": thursdays,
-                            "sundays": sundays
+                            "sundays": sundays,
+                            "lastEventAttended": lastEventAttended
                         });
                         break;
                     }
@@ -1136,13 +1157,14 @@ async function updateMemberAttendance(bypassCheck = false) {
             var memberName = memberDetails[i].memberName;
             var thursdays = memberDetails[i].thursdays;
             var sundays = memberDetails[i].sundays;
+            var lastEventAttended = memberDetails[i].lastEventAttended;
             var updatedTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
             // Update the attendance records in the database
             var query = await queryDatabase(`
                 UPDATE Members
-                SET thursdays = ?, sundays = ?, lastUpdate = ?
-                WHERE MemberDiscordID = ?`, [thursdays, sundays, updatedTime, memberDiscordId]);
+                SET thursdays = ?, sundays = ?, lastUpdate = ?, lastEventDate = ?
+                WHERE MemberDiscordID = ?`, [thursdays, sundays, updatedTime, lastEventAttended, memberDiscordId]);
 
             if (query[0].affectedRows > 0) {
                 results.push(query[0].affectedRows);
