@@ -36,7 +36,9 @@
           </a>
           <ul class="dropdown-menu">
             <% if (typeof loggedin !== 'undefined' && loggedin) { %>
-            <li><a href="/dashboard" class="dropdown-item" id="dashEntry">Dashboard</a></li>
+            <li><a href="/profile?=<%= username %>" class="dropdown-item" id="profileEntry">My Profile</a></li>
+              <li><a href="/dashboard" class="dropdown-item" id="dashEntry">Dashboard</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li><a href="/passwordchange" class="dropdown-item" id="passEntry">Change Password</a></li>
             <li><a href="/Logout" class="dropdown-item" id="loginEntry">Log Out</a></li>
             <% } else { %>

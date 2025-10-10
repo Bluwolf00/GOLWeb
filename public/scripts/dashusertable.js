@@ -48,7 +48,7 @@ async function populateTable() {
         }
         row.innerHTML = `
             <td>${member.MemberID}</td>
-            <td>${member.UName}</td>
+            <td><a style="text-decoration: none;" href="/profile?=${member.UName}">${member.UName}</a></td>
             <td data-order="${member.playerRank}">${member.rankName}</td>
             <td>${member.Country}</td>
             <td>${member.parentUName}</td>

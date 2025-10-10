@@ -629,7 +629,7 @@ async function getSeniorMembers() {
         [rows] = await queryDatabase(`
             SELECT MemberID,UName,rankName,nodeId,parentNodeId
             FROM Ranks,Members
-            WHERE Members.playerRank = Ranks.rankID AND Ranks.rankID < 5
+            WHERE Members.playerRank = Ranks.rankID AND Ranks.rankID < 6
             ORDER BY Members.playerRank ASC`);
     } catch (error) {
         console.log(error);
