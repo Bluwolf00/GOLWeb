@@ -46,7 +46,10 @@ async function populate() {
         tableBody.appendChild(row);
     });
 
-    new DataTable('#sopsTable', {
+    if ($.fn.DataTable.isDataTable('#sopsTable')) {
+        $('#sopsTable').DataTable();
+    } else {
+        new DataTable('#sopsTable', {
         paging: true,
         searching: true,
         info: false,
@@ -54,6 +57,7 @@ async function populate() {
         columnDefs: [{ orderable: false, targets: [8, 5, 3] }],
         lengthMenu: [5, 10, 25, 50]
     });
+    }
 }
 
 async function handleCreateSOP() {

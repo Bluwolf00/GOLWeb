@@ -31,7 +31,7 @@
       <div class="container border-bottom text-center">
         <!-- <img src="img/GOLPromo.gif" alt="" id="background-gif"> -->
 
-        <div class="px-4" id="front-hero">
+        <div class="row px-4" id="front-hero">
           <!-- <img id="front-logo" class="d-block mx-auto mb-4" src="/img/logo_new.png" alt=""> -->
           <h1 id="mainTitle">
             Guerrillas of Liberation</h1>
@@ -43,51 +43,64 @@
             <p class="lead mb-5 scaleText">
               An international Arma community with over 20 years of experience!
             </p>
-            <% if (username !== 'undefined' && username) { %>
-            <div class="welcome">
-              <h2>Welcome, <span class="sec-highlight"><%= username %></span></h2>
-            </div>
-            <% } %>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center" id="frontButtons">
-              <% if (userRole === "member" || userRole === "moderator" || userRole === "admin") { %>
-              <button type="button" class="btn btn-primary btn-lg px-6 py-3"><a href="/mission-orbat/select">Next
-                  Operation
-                  ORBAT</a></button>
-              <% if (userRole === "admin" || userRole === "moderator") { %>
-              <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a
-                  href="/dashboard">Dashboard</a></button>
-              <% } %>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mx-auto">
+            <div class="justify-content-center mb-3">
+              <% if (username !== 'undefined' && username) { %>
+              <div class="welcome">
+                <h2>Welcome, <span class="sec-highlight"><%= username %></span></h2>
+              </div>
               <% } else { %>
-              <button type="button" class="btn btn-primary btn-lg px-4 gap-3"><a href="/discord">Join Us!</a></button>
-              <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a href="/about">About
-                  Us</a></button>
+              <h2>OUR NEXT OPERATION STARTS SOON</h2>
+              <hr style="width:25%;text-align:center;margin-left:37.5%">
+              <h1 id="timeUntilMission"></h1>
               <% } %>
+              <div class="d-grid gap-3 d-sm-flex justify-content-sm-center" id="frontButtons">
+                <% if (userRole === "member" || userRole === "moderator" || userRole === "admin") { %>
+                <button type="button" class="btn btn-primary btn-lg px-6 py-3"><a href="/mission-orbat/select">Next
+                    Operation
+                    ORBAT</a></button>
+                <% if (userRole === "admin" || userRole === "moderator") { %>
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a
+                    href="/dashboard">Dashboard</a></button>
+                <% } %>
+                <% } else { %>
+                <button type="button" class="btn btn-tertiary btn-lg px-4 gap-3"><a href="/discord"><i class="bi bi-clipboard-check"></i> Join Us</a></button>
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a href="/about">About
+                    Us</a></button>
+                <% } %>
+              </div>
             </div>
           </div>
         </div>
-        <div class="container" id="arma-logos-container">
-          <div class="row">
-            <div class="col arma-logos-main">
-              <img src="/img/a3_logo.png" alt="ArmA3" />
+        <div class="row">
+          <div class="container" id="arma-logos-container">
+            <div class="row">
+              <div class="col arma-logos-main">
+                <img src="/img/a3_logo.png" alt="ArmA3" />
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col arma-logos">
-              <img src="/img/opf_logo.png" alt="OperationFlashpoint" style="opacity: 0.2;" />
-              <img src="/img/acwa_logo.png" alt="ArmACWA" style="opacity: 0.2; filter: saturate(0);" />
-              <img src="/img/a2_logo.png" alt="ArmA2" style="opacity: 0.2;" />
-              <img src="/img/ar_logo.png" alt="ArmAReforger" style="opacity: 0.2;" />
+            <div class="row">
+              <div class="col arma-logos">
+                <img src="/img/opf_logo.png" alt="OperationFlashpoint" />
+                <img src="/img/acwa_logo.png" alt="ArmACWA" />
+                <img src="/img/a2_logo.png" alt="ArmA2" />
+                <img src="/img/ar_logo.png" alt="ArmAReforger" />
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div style="margin-top: 1%;">
-        <a href="#featured-3"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-            class="bi bi-arrow-down-short" viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-              d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
-          </svg></a>
+      <div class="row">
+        <div style="margin-top: 1%;">
+          <a href="#featured-3"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-arrow-down-short" viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M8 4a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 10.293V4.5A.5.5 0 0 1 8 4" />
+            </svg></a>
+        </div>
       </div>
     </div>
 
@@ -133,12 +146,11 @@
           <h3 class="fs-2">Modifications</h3>
           <p>We use various mods from the community including ACE and TFAR during our operations to enhance the
             experience. We have a large customised framework for our Arma 3 missions that enhance gameplay.</p>
-          <a href="/mods" class="icon-link">
-            Check out our Modlist >
-            <svg class="bi">
-              <use xlink:href="#chevron-right"></use>
-            </svg>
-          </a>
+          <button class="btn btn-tertiary">
+            <a href="/mods" class="icon-link">
+              Check out our Modlist <span style="font-weight: 200;">></span>
+            </a>
+          </button>
         </div>
       </div>
     </div>
@@ -156,7 +168,7 @@
               </div>
               <h3 class=" mb-0 fs-4 text-body-emphasis">Recruitment Period</h3>
               <p>For any new member joining us, they will initially join as a recruit. After completing 2 operations of
-                each type (Thursday & Sunday), they are promoted to a full time member starting at private.</p>
+                each type (Thursday & Sunday), they are promoted to a fully-fledged member starting at private.</p>
             </div>
           </div>
           <div class="col d-flex align-items-start hidden">
@@ -381,11 +393,12 @@
                   <a href="#" id="stream-2-link">
                     <img
                       src="https://yt3.googleusercontent.com/ytc/AIdro_nH-vZeFVHg7AqOvqHR_KUMMmhIdS_2KtVR_28cNkZGjfg=s160-c-k-c0x00ffffff-no-rj"
-                      class="card-img-top" id="stream-1-thumb" alt="Stream Thumbnail" style="max-height: 250px; max-width: 250px;">
+                      class="card-img-top" id="stream-1-thumb" alt="Stream Thumbnail"
+                      style="max-height: 250px; max-width: 250px;">
                   </a>
                   <div class="card-body">
-                    <h3 class="card-title"><a href="https://www.twitch.tv/appletinidl"
-                        id="stream-2-title">Versed</a></h3>
+                    <h3 class="card-title"><a href="https://www.twitch.tv/appletinidl" id="stream-2-title">Versed</a>
+                    </h3>
                     <p class="card-text" id="stream-2-desc">Our in-house cinematographer, capturing all the action!</p>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="btn-group">
@@ -441,6 +454,64 @@
     <script src="/scripts/popvideos.js"></script>
     <script defer src="/scripts/observer.js"></script>
     <script src="/scripts/loader.js"></script>
+
+    <script>
+      // Function to update the time until the next mission
+      function updateTimeUntilMission() {
+        const timeUntilMission = document.getElementById('timeUntilMission');
+        const now = new Date();
+        // const nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 0, 0); // Example: 6 PM today
+
+        // Calculate the time until the next mission
+        // This is either Sunday at 5 PM or Thursday at 7 PM
+        let nextMissionTime;
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+        // If today is either Monday through Wednesday, set the next mission to Thursday at 7 PM
+        if (dayOfWeek > 0 && dayOfWeek < 4) {
+          nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - dayOfWeek), 19, 0,
+            0); // Thursday at 7 PM
+        } else if (dayOfWeek === 0 || dayOfWeek > 4) {
+
+          // If it's past 5 PM on Sunday, set the next mission to the next Thursday at 7 PM
+          if (dayOfWeek === 0 && now.getHours() >= 17) {
+            nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - dayOfWeek + 7),
+              19, 0, 0); // Next Thursday at 7 PM
+          } else {
+            // If today is Sunday or Friday/Saturday, set the next mission to Sunday at 5 PM
+            nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek), 17,
+              0, 0); // Sunday at 5 PM
+          }
+        } else {
+          // If today is Thursday and is past 7 PM, set the next mission to the next Sunday at 5 PM
+          if (now.getHours() >= 19) {
+            nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek), 17,
+              0, 0); // Next Sunday at 5 PM
+          } else {
+            nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 19, 0,
+              0); // Today at 7 PM
+          }
+        }
+
+        // 
+
+        const timeDiff = nextMissionTime - now;
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        if (days < 0) {
+          timeUntilMission.textContent = `T- ${hours}h ${minutes}m ${seconds}s`;
+        } else {
+          timeUntilMission.textContent = `T- ${days}d ${hours % 24}h ${minutes}m ${seconds}s`;
+        }
+      }
+
+      // Update the time every second
+      setInterval(updateTimeUntilMission, 1000);
+      updateTimeUntilMission(); // Initial call to set the time immediately
+    </script>
   </main>
 
   <footer>

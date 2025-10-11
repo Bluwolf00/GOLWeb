@@ -1807,13 +1807,16 @@ async function getMemberSlotInfoFromOrbat(memberID) {
     var memberRole;
     var slotNodeID;
     var memberCallsign;
+;
+    // Set checkDate to 3 hours ahead of current time
+    let checkDate = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
 
     try {
         // Get the missionID of the next scheduled ORBAT
         [rows] = await queryDatabase(`
             SELECT missionID, missionorbattemplates.composition
             FROM missionorbats, missionorbattemplates
-            WHERE dateOfMission > ? AND missionorbats.templateID = missionorbattemplates.templateID`, [new Date().toISOString().slice(0, 19).replace('T', ' ')]);
+            WHERE dateOfMission > ? AND missionorbats.templateID = missionorbattemplates.templateID`, [checkDate]);
         if (rows.length == 0) {
             console.log("No upcoming missions found for ORBAT");
             return null;

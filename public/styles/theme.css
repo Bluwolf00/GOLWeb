@@ -9,6 +9,9 @@
   --blu-bg-lg: #647179;
   --blu-body-color: rgb(145, 168, 189);
   --blu-secondary: rgb(212, 61, 37);
+  --blu-secondary-hover-bg: rgba(153, 45, 28, 1);
+  --blu-secondary-border: rgb(153, 45, 28);
+  --header-height: 4.5rem;
 }
 
 .hidden {
@@ -79,11 +82,18 @@ svg.icon-secondary {
   --bs-btn-border-color: var(--bs-primary) !important;
 }
 
+.btn-tertiary {
+  --bs-btn-bg: var(--blu-secondary) !important;
+  --bs-btn-border-color: var(--blu-secondary) !important;
+  --bs-btn-hover-bg: var(--blu-secondary-hover-bg) !important;
+  --bs-btn-hover-border-color: var(--blu-secondary-border) !important;
+}
+
 #mainTitle {
-  padding-top: 10vh;
   font-weight: 600;
   letter-spacing: normal;
-  font-size: 64px;
+  /* font-size: 64px; */
+  font-size: 5rem;
 }
 
 .nav {
@@ -107,7 +117,7 @@ svg.icon-secondary {
 }
 
 header {
-  height: 85px;
+  height: var(--header-height, 4.5rem);
   padding: 1rem;
   background-color: var(--blu-bg-dark);
   justify-content: space-between;
@@ -239,9 +249,11 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   max-width: 100%;
-  min-height: 95vh;
+  /* Set the minimum height to the size of the screen - the height of the header */
+  min-height: calc(100vh - var(--header-height));
   text-align: center;
   border-image: fill 1 linear-gradient(to bottom right, #212529aa, #0b0c0eaa);
+  padding: 2%;
 }
 
 /* #background-gif::after {
@@ -315,14 +327,7 @@ body {
 }
 
 #arma-logos-container {
-  padding-top: 15vh;
-}
-
-#mainTitle {
-  padding-top: 10vh;
-  font-weight: 600;
-  letter-spacing: normal;
-  font-size: 64px;
+  margin-top: 5%;
 }
 
 .spinner-wrapper {
@@ -376,18 +381,42 @@ body {
 
 .arma-logos>img {
   height: 7.1vh;
+  filter: saturate(0);
+  opacity: 0.2;
   padding: 1vb 1vb;
   margin: 1vh 1vb;
+  transition: opacity 0.3s, filter 0.3s, transform 0.3s;
+}
+
+.arma-logos>img:hover {
+  transform: scale(1.1);
+  filter: saturate(1);
+  opacity: 1;
+  cursor: text;
 }
 
 .arma-logos-main>img {
   height: 10vh;
   margin: 1vh 1vb;
   filter: drop-shadow(2px 4px 6px black);
+  transition: opacity 0.3s, filter 0.3s, transform 0.3s;
+}
+
+.arma-logos-main>img:hover {
+  transform: scale(1.1);
+  cursor: text;
 }
 
 #frontButtons {
   margin-bottom: 5vh;
+}
+
+#frontButtons>.btn {
+  border-radius: 10px;
+  font-size: 1.5rem;
+  /* font-weight: bold; */
+  padding: 0.7rem 1.5rem;
+  margin-top: 0.75rem;
 }
 
 .feature>p,

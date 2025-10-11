@@ -34,13 +34,17 @@ async function populate() {
         tableBody.appendChild(row);
     });
 
-    new DataTable('#ranksTable', {
+    if ($.fn.DataTable.isDataTable('#ranksTable')) {
+        $('#ranksTable').DataTable();
+    } else {
+        new DataTable('#ranksTable', {
         paging: true,
         searching: true,
         info: false,
         order: [[0, 'asc']],
         columnDefs: [{ orderable: false, targets: 5 }]
     });
+    }
 }
 
 // Function that will hold all functions that will be called when the file is called
