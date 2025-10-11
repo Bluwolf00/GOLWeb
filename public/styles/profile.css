@@ -67,3 +67,54 @@
     transform: scale(1.1);
     transition: all 0.1s ease-in-out;
 }
+
+/* Media Queries */
+
+@media (max-width: 768px) {
+
+    .my-5 {
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    #rankImg {
+        left: -0.8rem;
+    }
+
+    #profileInfo {
+        justify-content: center;
+    }
+
+    .col-4 {
+        margin-bottom: 5%;
+    }
+    
+    .col-8 {
+        width: 100%;
+    }
+
+    #badgeDiv > .row {
+        gap: 5vh;
+    }
+
+    #badgeDiv > .row > .col {
+        flex: auto;
+    }
+
+    span {
+        font-size: 0.8rem;
+    }
+
+    #playerRank {
+        font-size: 0.9em;
+    }
+
+    #playerName {
+        font-size: 1em;
+    }
+
+    .profileHero {
+        margin-top: 8vh;
+        margin-bottom: 0;
+    }
+}

@@ -658,10 +658,12 @@ footer {
   filter: drop-shadow(2px 0px 4px black);
   margin: 1% 3%;
   border: 2px solid white;
+  min-height: 70vh;
 }
 
 .chart-container>svg {
-  max-height: 70vh;
+  max-height: 69vh;
+  max-width: 100%;
 }
 
 .name-div {
@@ -982,15 +984,56 @@ footer {
 
 @media only screen and (max-width: 850px) {
 
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  p, a, span, li {
+    font-size: 0.8rem;
+  }
+
+  .btn>a {
+    font-size: 1.2rem;
+  }
+
+  .navbar-brand {
+    font-size: 1em;
+    transition: transform 0.3s ease;
+  }
+
+  #footerText {
+    font-size: 0.5rem;
+  }
+
+  .navbar {
+    padding: 0;
+  }
+
+  .navbar-toggler-icon {
+    font-size: 1.3rem;
+  }
+
   header nav {
     display: none;
   }
 
   #mainTitle {
-    padding-top: 6vh;
     font-weight: 500;
     letter-spacing: normal;
-    font-size: 40px;
+    font-size: 3rem;
+  }
+
+  .dropdown-menu {
+    width: 30vw;
+  }
+
+  .dropdown-menu > .nav-item {
+    padding-left: 0.2rem;
+  }
+
+  #timeUntilMission {
+    text-wrap: nowrap;
+    font-size: 2rem;
   }
 
   .navbar-collapse {
@@ -1012,10 +1055,12 @@ footer {
 
   .dropdown-item {
     min-height: 2.5rem;
+    font-size: 1rem;
+    text-align: center;
   }
 
   .lead {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   #footerRow {
@@ -1052,7 +1097,7 @@ footer {
   .nav-item {
     padding: 0.3rem 0;
     color: rgb(147, 167, 187);
-    width: 40%;
+    width: 45%;
     text-align: center;
     font-size: 1.2rem;
   }
@@ -1136,5 +1181,13 @@ footer {
 
   .toned-down {
     display: none;
+  }
+
+  #orbatStats>* {
+    margin: 0 0;
+  }
+
+  #badgeDiv {
+    gap: 3vh;
   }
 }

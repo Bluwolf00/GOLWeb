@@ -212,3 +212,40 @@ span.bubble-text {
 .rankDescription {
     font-size: smaller;
 }
+
+/* Medias */
+
+@media only screen and (max-width: 850px) {
+
+    main {
+        padding: 0 1%;
+    }
+
+    main > .container {
+        width: 90%;
+    }
+
+    .buttonsDiv {
+        flex-direction: column;
+        align-items: center;
+        gap: 3vh;
+    }
+
+    .nav-pills .nav-link {
+        font-size: 1rem;
+    }
+
+    .btn-secondary {
+        color: #fff;
+    }
+
+    .dt-layout-table {
+        overflow-x: scroll;
+    }
+
+    .badge-dash-image {
+        width: 80%;
+        height: 80%;
+    }
+
+}
