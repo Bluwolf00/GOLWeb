@@ -153,8 +153,8 @@
 
                 // If it's past 5 PM on Sunday, set the next mission to the next Thursday at 7 PM
                 if (dayOfWeek === 0 && now.getHours() >= 17) {
-                    nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4 - dayOfWeek + 7),
-                        19, 0, 0); // Next Thursday at 7 PM
+                    nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4), 19, 0,
+                        0); // Thursday at 7 PM
                 } else {
                     // If today is Sunday or Friday/Saturday, set the next mission to Sunday at 5 PM
                     nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek), 17,

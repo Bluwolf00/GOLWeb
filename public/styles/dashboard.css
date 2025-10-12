@@ -248,4 +248,18 @@ span.bubble-text {
         height: 80%;
     }
 
+    table {
+        width: 100%;
+        overflow: scroll;
+    }
+
+    tbody {
+        width: 100%;
+        overflow: scroll;
+    }
+
+    #bubble-dash > .row {
+        flex-direction: column;
+        gap: 3vh;
+    }
 }
