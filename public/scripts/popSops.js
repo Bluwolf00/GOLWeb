@@ -58,7 +58,7 @@ function createSOPCard(sop, parentDiv) {
 
     var imgDiv = document.createElement('div');
     var img = document.createElement('img');
-    img.src = '/img/logo_new_thumb.png';
+    img.src = '/img/logo_new_thumb.webp';
     img.className = 'img-fluid';
     img.style = 'max-width: 30px; height: auto; float: right;';
     imgDiv.appendChild(img);

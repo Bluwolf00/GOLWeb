@@ -13,6 +13,49 @@
       height: 15rem;
       width: auto;
     }
+
+    .infoHeading {
+      letter-spacing: 0.2rem;
+      font-weight: 350;
+    }
+
+    .ul-list>li {
+      color: var(--blu-body-color);
+    }
+
+    #motorizedImg,
+    #mechanizedImg,
+    #airAssaultImg,
+    #infantryImg {
+      width: auto;
+      height: 19rem;
+    }
+
+    .composition-card {
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .composition-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .imgIcon {
+      height: 3rem;
+      width: auto;
+    }
+
+    /* Must stretch from end to end*/
+    #composition-showcase {
+      background: url('/img/AirAssault.webp') no-repeat center center;
+      background-size: cover;
+    }
+
+    #composition-showcase .container {
+      background-color: rgba(0, 0, 0, 0.151);
+      filter: drop-shadow(2px 4px 6px rgb(34, 34, 34));
+      border-radius: 0.5rem;
+    }
   </style>
 </head>
 
@@ -29,10 +72,7 @@
   <main>
     <div class="container" id="hero">
       <div class="container border-bottom text-center">
-        <!-- <img src="img/GOLPromo.gif" alt="" id="background-gif"> -->
-
         <div class="row px-4" id="front-hero">
-          <!-- <img id="front-logo" class="d-block mx-auto mb-4" src="/img/logo_new.png" alt=""> -->
           <h1 id="mainTitle">
             Guerrillas of Liberation</h1>
 
@@ -67,7 +107,8 @@
                     href="/dashboard">Dashboard</a></button>
                 <% } %>
                 <% } else { %>
-                <button type="button" class="btn btn-tertiary btn-lg px-4 gap-3"><a href="/discord"><i class="bi bi-clipboard-check"></i> Join Us</a></button>
+                <button type="button" class="btn btn-tertiary btn-lg px-4 gap-3"><a href="/discord"><i
+                      class="bi bi-clipboard-check"></i> Join Us</a></button>
                 <button type="button" class="btn btn-outline-secondary btn-lg px-4 btn-secondary"><a href="/about">About
                     Us</a></button>
                 <% } %>
@@ -113,24 +154,25 @@
                 d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5h16V4H0V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5" />
             </svg>
           </div>
-          <h3 class="fs-2">Weekly Operations</h3>
+          <h3 class="infoHeading">Weekly Operations</h3>
           <p>We conduct operations every Sunday night at 5pm GMT and Thursday night at 7pm GMT.<br>Our missions are
             created in-house using our own framework built over decades of work and our missions also put an emphasis
             on realism, action and narrative.</p>
         </div>
         <div class="feature col hidden">
           <div class="feature-icon mb-3 d-inline-flex align-items-center justify-content-center fs-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="bi" viewBox="0 0 576 512">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+              class="bi bi-airplane-fill" viewBox="0 0 16 16">
               <path
-                d="M265.2 192c25.4 0 49.8 7.1 70.8 19.9L336 512l-192 0 0-174.3L90.4 428.3c-11.2 19-35.8 25.3-54.8 14.1s-25.3-35.8-14.1-54.8L97.7 258.8c24.5-41.4 69-66.8 117.1-66.8l50.4 0zM160 80a80 80 0 1 1 160 0A80 80 0 1 1 160 80zM448 0c8.8 0 16 7.2 16 16l0 116.3c9.6 5.5 16 15.9 16 27.7l0 109.3 16-5.3 0-56c0-8.8 7.2-16 16-16l16 0c8.8 0 16 7.2 16 16l0 84.5c0 6.9-4.4 13-10.9 15.2L480 325.3l0 26.7 48 0c8.8 0 16 7.2 16 16l0 16c0 8.8-7.2 16-16 16l-44 0 23 92.1c2.5 10.1-5.1 19.9-15.5 19.9L432 512c-8.8 0-16-7.2-16-16l0-96-16 0c-17.7 0-32-14.3-32-32l0-144c0-17.7 14.3-32 32-32l0-32c0-11.8 6.4-22.2 16-27.7L416 32c-8.8 0-16-7.2-16-16s7.2-16 16-16l16 0 16 0z" />
+                d="M6.428 1.151C6.708.591 7.213 0 8 0s1.292.592 1.572 1.151C9.861 1.73 10 2.431 10 3v3.691l5.17 2.585a1.5 1.5 0 0 1 .83 1.342V12a.5.5 0 0 1-.582.493l-5.507-.918-.375 2.253 1.318 1.318A.5.5 0 0 1 10.5 16h-5a.5.5 0 0 1-.354-.854l1.319-1.318-.376-2.253-5.507.918A.5.5 0 0 1 0 12v-1.382a1.5 1.5 0 0 1 .83-1.342L6 6.691V3c0-.568.14-1.271.428-1.849" />
             </svg>
           </div>
-          <h3 class="fs-2">Factions & Compositions</h3>
+          <h3 class="infoHeading">Dedicated Air Wing</h3>
           <p>
-            We pride ourselves on providing our members with a diverse range of factions and compositions to play as,
-            with our gameplay variety being one of our highest priorities.
-            This ensures that our members can experience different roles, gear and tactics, keeping the gameplay fresh
-            and unique.
+            As well as an infantry element. We also house an air wing which focuses on both rotary and fixed-wing
+            aircraft support, providing logistical and close air support to ground forces.
+            These members are trained to a high standard and are often called upon to provide vital support during our
+            operations.
           </p>
         </div>
         <div class="feature col hidden">
@@ -143,7 +185,7 @@
                 d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.6.6 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0z" />
             </svg>
           </div>
-          <h3 class="fs-2">Modifications</h3>
+          <h3 class="infoHeading">Modifications</h3>
           <p>We use various mods from the community including ACE and TFAR during our operations to enhance the
             experience. We have a large customised framework for our Arma 3 missions that enhance gameplay.</p>
           <button class="btn btn-tertiary">
@@ -155,6 +197,78 @@
       </div>
     </div>
 
+    <div class="my-5" id="featured-4">
+      <div class="p-5 text-center bg-body-tertiary" id="composition-showcase">
+        <div class="container py-5">
+          <h2>What Sets us Apart?</h2>
+          <h1 class="text-body-emphasis">Variety</h1>
+          <p class="col-lg-8 mx-auto lead">
+            We pride ourselves on providing our members with a diverse range of factions and compositions
+            to play as,
+            with our gameplay variety being one of our highest priorities.<br>
+            Roles are not fixed, allowing members to try different roles every mission.<br><br>
+            Tired of the same old infantry patrol? How about participating in a motorized convoy, spearheading with a
+            mechanized infantry IFV, or coordinating an air assault!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container composition-cards my-5">
+      <div class="row feature mb-4 text-center">
+        <h1>Compositions</h1>
+        <p class="lead text-center">So what exactly do we mean by a variety of compositions?<br>Well, to name a few...</p>
+      </div>
+      <div class="row">
+        <div class="col-md hidden">
+          <div class="card shadow-md composition-card">
+            <div class="card-body">
+              <h3 class="card-title">
+                <img src="/img/flyinghellfish.webp" alt="hellfish" class="imgIcon">
+                Infantry</h3>
+              <p class="card-text">Classic infantry gameplay with a focus on teamwork and tactics.</p>
+            </div>
+            <img src="/img/Fields.webp" alt="Infantry" id="infantryImg">
+          </div>
+        </div>
+
+        <div class="col-md hidden">
+          <div class="card shadow-md composition-card">
+            <div class="card-body">
+              <h3 class="card-title"><img src="/img/flyinghellfish.webp" alt="hellfish" class="imgIcon"> Mechanized</h3>
+              <p class="card-text">Hop into the back of an IFV and support your team from the front
+                lines!</p>
+            </div>
+            <img src="/img/Mechanized.webp" alt="Mechanized" id="mechanizedImg">
+          </div>
+        </div>
+      </div>
+
+      <div class="row my-3">
+        <div class="col-md hidden">
+          <div class="card shadow-md composition-card">
+            <div class="card-body">
+              <h3 class="card-title"><img src="/img/flyinghellfish.webp" alt="hellfish" class="imgIcon"> Motorized</h3>
+              <p class="card-text">Take part in fast-paced motorized operations, utilizing a variety of vehicles to
+                outmaneuver the enemy!</p>
+            </div>
+            <img src="/img/Motorized.webp" alt="Motorized" id="motorizedImg">
+          </div>
+        </div>
+
+        <div class="col-md hidden">
+          <div class="card shadow-md composition-card">
+            <div class="card-body">
+              <h3 class="card-title"><img src="/img/armyaircorps.webp" alt="AAC" class="imgIcon"> Air Assault & Airbourne</h3>
+              <p class="card-text">Ready to take to the skies? Insert into a hot HLS behind enemy lines or deploy in a high altitude
+                drop!</p>
+            </div>
+            <img src="/img/Airbourne.webp" alt="Air Assault" id="airAssaultImg">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container" id="second-feature">
       <div class="container px-4 py-5 border-bottom mb-5" id="icon-grid">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5">
@@ -162,13 +276,11 @@
             <div class="feature">
               <div class="feature-icon mb-2 d-inline-flex">
                 <svg xmlns="http://www.w3.org/2000/svg" class="bi icon-secondary" viewBox="0 0 16 16">
-                  <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
-                  <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+                  <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
                 </svg>
               </div>
-              <h3 class=" mb-0 fs-4 text-body-emphasis">Recruitment Period</h3>
-              <p>For any new member joining us, they will initially join as a recruit. After completing 2 operations of
-                each type (Thursday & Sunday), they are promoted to a fully-fledged member starting at private.</p>
+              <h4 class=" mb-0 text-body-emphasis">Fast-Paced Gameplay</h4>
+              <p>Bored of platoon and company level groups moving at a snail's pace? With smaller sizes comes quicker and more intense gameplay!</p>
             </div>
           </div>
           <div class="col d-flex align-items-start hidden">
@@ -179,7 +291,7 @@
                     d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z" />
                 </svg>
               </div>
-              <h3 class=" mb-0 fs-4 text-body-emphasis">Non-Restrictive Ranks</h3>
+              <h4 class=" mb-0 text-body-emphasis">Non-Restrictive Ranks</h4>
               <p>The main purpose of ranks are to reflect a member's experience and knowledge, nothing more. Everyone
                 has a voice, regardless of rank.</p>
             </div>
@@ -192,7 +304,7 @@
                     d="M2 9a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2zm.5 3a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m2 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1M2 2a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm.5 3a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m2 0a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1" />
                 </svg>
               </div>
-              <h3 class="mb-0 fs-4 text-body-emphasis">Dedicated Servers</h3>
+              <h4 class="mb-0 text-body-emphasis">Dedicated Servers</h4>
               <p>Our dedicated game and TeamSpeak servers are available 24 hours a day for our members to have a chat or
                 play
                 some games together. The use of our game servers for games other than ArmA is permitted for any
@@ -203,16 +315,14 @@
           <div class="col d-flex align-items-start hidden">
             <div class="feature">
               <div class="feature-icon mb-2 d-inline-flex">
-                <svg xmlns="http://www.w3.org/2000/svg" class="bi icon-secondary" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                    d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5" />
-                  <path
-                    d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.32a.33.33 0 0 0-.342.338zM2.564 5h-.635V2.924h-.031l-.598.42v-.567l.629-.443h.635z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="bi icon-secondary bi-clock-history" viewBox="0 0 16 16">
+                  <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
+                  <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+                  <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
                 </svg>
               </div>
-              <h3 class=" mb-0 fs-4 text-body-emphasis">No One Composition</h3>
-              <p>As well as a variety of factions. We train for all kinds of compositions, such as, Motorised,
-                Mechanised, Special Forces, Air Assault and Basic Infantry Squads.</p>
+              <h4 class="mb-0 text-body-emphasis">Long Established Group</h4>
+              <p>With over 20 years of experience, we have built a strong community of dedicated members. While members have come and gone, our core values and commitment to teamwork have remained constant.</p>
             </div>
           </div>
           <div class="col d-flex align-items-start hidden">
@@ -455,6 +565,7 @@
     <script defer src="/scripts/observer.js"></script>
     <script src="/scripts/loader.js"></script>
 
+    <% if (username == 'undefined' || username == '') { %>
     <script>
       // Function to update the time until the next mission
       function updateTimeUntilMission() {
@@ -475,8 +586,8 @@
 
           // If it's past 5 PM on Sunday, set the next mission to the next Thursday at 7 PM
           if (dayOfWeek === 0 && now.getHours() >= 17) {
-              nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4), 19, 0,
-                        0); // Thursday at 7 PM
+            nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (4), 19, 0,
+              0); // Thursday at 7 PM
           } else {
             // If today is Sunday or Friday/Saturday, set the next mission to Sunday at 5 PM
             nextMissionTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - dayOfWeek), 17,
@@ -512,6 +623,8 @@
       setInterval(updateTimeUntilMission, 1000);
       updateTimeUntilMission(); // Initial call to set the time immediately
     </script>
+
+    <% } %>
   </main>
 
   <footer>

@@ -94,11 +94,12 @@ async function addVideosDuration(videos) {
         var durations = [];
 
 
-        // Find the duration in minutes, if the duration is shorter than a minute, it will be in seconds
+        // Find the duration in seconds for each video
         // This is caused by the API returning the duration in PT#M#S format
         for (let i = 0; i < 3; i++) {
             indexes[i] = json.items[i].contentDetails.duration.indexOf('M');
-            durations[i] = parseInt(json.items[i].contentDetails.duration.substring(2, indexes[i])) * 60;
+            let duration = parseInt(json.items[i].contentDetails.duration.substring(2, indexes[i]));
+            durations[i] = duration * 60 * 60; // Convert minutes to seconds
             if (indexes[i] == -1) {
                 indexes[i] = json.items[i].contentDetails.duration.indexOf('S');
                 durations[i] = parseInt(json.items[i].contentDetails.duration.substring(2, indexes[i]));

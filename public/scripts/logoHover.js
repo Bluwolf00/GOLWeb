@@ -8,5 +8,5 @@ function onLogoHover() {
 function onLogoOut() {
     logo = document.getElementById("front-logo");
 
-    logo.src = "img/logo.png";
+    logo.src = "/img/logo_new_thumb.webp";
 }

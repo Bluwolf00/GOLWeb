@@ -9,7 +9,11 @@ function updateVideo(title, duration, description, author, videoId, caseNum) {
 
     titleElement.innerHTML = title;
     titleElement.href = "https://www.youtube.com/watch?v=" + videoId;
-    if (duration > 60) {
+    
+    // Duration is in seconds
+    if (duration >= 3600) {
+        durationElement.innerHTML = (duration / 3600) + ' hrs';
+    } else if (duration >= 60) {
         durationElement.innerHTML = (duration / 60) + ' mins';
     } else {
         durationElement.innerHTML = duration + ' secs';
