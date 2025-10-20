@@ -2035,7 +2035,8 @@ async function getDashboardData() {
 
     for (var row of rows) {
 
-        row.numberOfEventsAttended = row.thursdays + row.sundays;
+        // +1 for the next event (assuming they attend)
+        row.numberOfEventsAttended = row.thursdays + row.sundays + 1;
 
         // console.log("Checking member: " + row.UName + " with rank: " + row.rankName + " and events attended: " + row.numberOfEventsAttended);
 
