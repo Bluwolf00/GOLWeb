@@ -244,7 +244,7 @@ body {
 }
 
 #hero {
-  background-image: url("/img/GOLPromo.gif");
+  background-image: url("/img/Fields.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -284,7 +284,7 @@ body {
 }
 
 #second-feature {
-  background-image: url("/img/parker-img.png");
+  background-image: url("/img/parker-img.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

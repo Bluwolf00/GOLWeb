@@ -574,6 +574,21 @@
     </script>
 
     <% } %>
+
+    <script>
+      // Select random hero image on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        const heroImages = [
+          '/img/Fields.webp',
+          '/img/Airbourne.webp',
+          '/img/Motorized.webp',
+          '/img/SunHeli.webp',
+          '/img/Hind.webp'
+        ];
+        const randomIndex = Math.floor(Math.random() * heroImages.length);
+        document.getElementById('hero').style.backgroundImage = `url('${heroImages[randomIndex]}')`;
+      });
+    </script>
   </main>
 
   <footer>
