@@ -208,7 +208,7 @@ async function init() {
     var activeMembers = newdata.filter(function (el) {
         return el.playerStatus == "Active";
     });
-    document.getElementById("activePlayers").innerHTML = (activeMembers.length - 2); // Subtract 2 for the origin nodes
+    document.getElementById("activePlayers").innerHTML = (activeMembers.length - 3); // Subtract 3 for the root and origin nodes
 
     // Get the total number of members from the data
     document.getElementById("membersCount").innerHTML = newdata.length - 3; // Subtract 3 for the root and origin nodes
