@@ -208,20 +208,20 @@ async function init() {
     var activeMembers = newdata.filter(function (el) {
         return el.playerStatus == "Active";
     });
-    document.getElementById("activePlayers").innerHTML = activeMembers.length;
+    document.getElementById("activePlayers").innerHTML = (activeMembers.length - 2); // Subtract 2 for the origin nodes
 
     // Get the total number of members from the data
-    document.getElementById("membersCount").innerHTML = newdata.length - 1;
+    document.getElementById("membersCount").innerHTML = newdata.length - 3; // Subtract 3 for the root and origin nodes
 
     var fullMembers = newdata.filter(function (el) {
         return el.playerStatus == "Active" || el.playerStatus == "Inactive" || el.playerStatus == "LOA";
     });
-    document.getElementById("fullMembers").innerHTML = fullMembers.length;
+    document.getElementById("fullMembers").innerHTML = fullMembers.length - 2; // Subtract 2 for the origin nodes
 
     var reservists = newdata.filter(function (el) {
         return el.playerStatus == "Reserve";
     });
-    document.getElementById("reservistsCount").innerHTML = reservists.length;
+    document.getElementById("reservistsCount").innerHTML = (reservists.length - 1); // Subtract 1 for the origin node
 };
 
 init();
