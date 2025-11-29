@@ -214,7 +214,7 @@ async function init() {
     document.getElementById("membersCount").innerHTML = newdata.length - 3; // Subtract 3 for the root and origin nodes
 
     var fullMembers = newdata.filter(function (el) {
-        return el.playerStatus == "Active" || el.playerStatus == "Inactive" || el.playerStatus == "LOA";
+        return el.playerStatus == "Active" || el.playerStatus == "LOA";
     });
     document.getElementById("fullMembers").innerHTML = fullMembers.length - 2; // Subtract 2 for the origin nodes
 
