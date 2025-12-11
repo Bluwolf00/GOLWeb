@@ -1204,6 +1204,117 @@ async function updateMemberLOAs() {
     return result;
 }
 
+async function postLoa(memberDiscordId, startDate, endDate) {
+    var rows = [null];
+    try {
+        // First get the member ID from the discord ID
+        [rows] = await queryDatabase(`
+            SELECT MemberID
+            FROM Members
+            WHERE MemberDiscordID = ?`, [memberDiscordId]);
+        if (rows.length == 0) {
+            console.log("Member with Discord ID " + memberDiscordId + " not found");
+            return null;
+        }
+
+        var memberID = rows[0].MemberID;
+
+        /* Validate that the dates are valid and in the correct format */
+        var start = new Date(startDate);
+        var end = new Date(endDate);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.log("Invalid date format");
+            return null;
+        }
+
+        // Now insert the LOA into the database
+        [rows] = await queryDatabase(`
+            INSERT INTO loas (MemberID, startDate, endDate)
+            VALUES (?, ?, ?)`, [memberID, startDate, endDate]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return {
+            "loaID": rows.insertId,
+            "memberID": memberID,
+            "startDate": startDate,
+            "endDate": endDate
+        };
+    }
+}
+
+async function removeLoa(memberDiscordId, startDate, endDate) {
+    var rows = [null];
+    try {
+        // First get the member ID from the discord ID
+        [rows] = await queryDatabase(`
+            SELECT MemberID
+            FROM Members
+            WHERE MemberDiscordID = ?`, [memberDiscordId]);
+        if (rows.length == 0) {
+            console.log("Member with Discord ID " + memberDiscordId + " not found");
+            return null;
+        }
+
+        var memberID = rows[0].MemberID;
+
+        /* Validate that the dates are valid and in the correct format */
+        var start = new Date(startDate);
+        var end = new Date(endDate);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.log("Invalid date format");
+            return null;
+        }
+
+        /* Now search for the Loa to remove */
+        [rows] = await queryDatabase(`
+            DELETE FROM loas
+            WHERE MemberID = ? AND startDate = ? AND endDate = ?`, [memberID, startDate, endDate]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
+async function removeLoaById(loaID) {
+    var rows = [null];
+    try {
+        /* Search for the Loa to remove */
+        [rows] = await queryDatabase(`
+            DELETE FROM loas
+            WHERE LoaID = ?`, [loaID]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
+async function getMemberLOAsByDiscordId(memberDiscordId) {
+    var rows = [null];
+    var memberId = -1;
+    try {
+        // First get the member ID from the discord ID
+        memberId = await getMemberByDiscordId(memberDiscordId);
+        if (memberId == null) {
+            console.log("Member with Discord ID " + memberDiscordId + " not found");
+            return null;
+        }
+
+        // Now get the LOAs for the member ID
+        [rows] = await queryDatabase(`
+            SELECT LoaID, MemberID, startDate, endDate
+            FROM loas
+            WHERE MemberID = ?
+            ORDER BY startDate DESC`, [memberId.MemberID]);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        return rows;
+    }
+}
+
 async function getMembersLOAs(isActiveLOA = false) {
     var rows = [null];
     try {
@@ -2252,5 +2363,5 @@ module.exports = {
     getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA, createUser,
     getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
     createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById,
-    deleteSOP, createBadge, getMemberLOAs, getMembersLOAs
+    deleteSOP, createBadge, getMemberLOAs, getMembersLOAs, postLoa, removeLoa, removeLoaById, getMemberLOAsByDiscordId
 };

@@ -50,6 +50,17 @@ const authPage = async (req,res,next) => {
     }
 }
 
+const authToken = (req, res, next) => {
+    const token = req.get('Authorization');
+    const tokenList = process.env.API_TOKEN_LIST ? process.env.API_TOKEN_LIST.split(',') : [];
+
+    if (token && tokenList.includes(token)) {
+        next();
+    } else {
+        res.status(401).send("401 Unauthorized");
+    }
+}
+
 const authMemberPage = async (req,res,next) => {
     if (req.session.loggedin || req.session.passport) {
         var role;
@@ -94,5 +105,6 @@ const authMemberPage = async (req,res,next) => {
 
 module.exports = {
     authPage,
-    authMemberPage
+    authMemberPage,
+    authToken
 };

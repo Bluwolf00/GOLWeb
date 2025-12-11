@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 
 const middle = require('../middle.js');
 const authPage = middle.authPage;
+const authToken = middle.authToken;
 
 const multer = require('multer');
 var store = multer.diskStorage({
@@ -208,9 +209,15 @@ router.get('/updateMemberLOAs', async (req, res) => {
 
 router.get('/getMemberLOAs', async (req, res) => {
     var name = req.query.name;
+    var memberdiscordId = req.query.memberdiscordId;
     var content = [];
     try {
-        content = await db.getMemberLOAs(name);
+        if (memberdiscordId) {
+            content = await db.getMemberLOAsByDiscordId(memberdiscordId);
+        } else {
+            content = await db.getMemberLOAs(name);
+        }
+
         if (content == null || content == false) {
             content = [];
         }
@@ -878,6 +885,29 @@ router.post('/resetPassword', authPage, async (req, res) => {
     }
 });
 
+router.post('/postLoa', authToken, async (req, res) => {
+    var memberDiscordId = req.body.memberDiscordId;
+    var loaStart = req.body.loaStart;
+    var loaEnd = req.body.loaEnd;
+
+    if (!memberDiscordId) {
+        res.status(400).send("Bad Request - Missing Member Discord Id");
+        return;
+    }
+
+    if (!loaStart || !loaEnd) {
+        res.status(400).send("Bad Request - Missing LOA Start or End Date");
+        return;
+    }
+
+    var result = await db.postLoa(memberDiscordId, loaStart, loaEnd);
+    if (result.loaID > 0) {
+        res.status(200).send({ "result": result, "status": 200 });
+    } else {
+        res.status(500).send({ "result": "Failed to submit LOA - Check if the member Discord ID is correct.", "status": 500 });
+    }
+});
+
 // -- PATCH REQUESTS - DATA --
 
 router.patch('/orbatSubmission', async (req, res) => {
@@ -1103,6 +1133,40 @@ router.delete('/deleteSOP', authPage, async (req, res) => {
     } catch (error) {
         console.error("Error deleting SOP:", error);
         res.status(500).send({ "result": "Internal Server Error - Unable to delete SOP." });
+    }
+});
+
+router.delete('/removeLoa', authToken, async (req, res) => {
+    var memberDiscordId = req.body.memberDiscordId;
+    var loaStart = req.body.loaStart;
+    var loaEnd = req.body.loaEnd;
+    var loaID = req.body.loaID;
+
+    if (!memberDiscordId) {
+        res.status(400).send("Bad Request - Missing Member Discord Id");
+        return;
+    }
+
+    if (!loaID && (!loaStart || !loaEnd)) {
+        res.status(400).send("Bad Request - Missing LOA Identification Parameters");
+        return;
+    }
+
+    var result;
+
+    if (loaID) {
+        // If loaID is provided, we will use it to remove the LOA
+        result = await db.removeLoaById(loaID);
+    }
+    else
+    {
+        result = await db.removeLoa(memberDiscordId, loaStart, loaEnd);
+    }
+    
+    if (result) {
+        res.status(200).send({ "result": "LOA removed successfully", "status": 200 });
+    } else {
+        res.status(500).send({ "result": "Failed to remove LOA - Check if the member Discord ID is correct.", "status": 500 });
     }
 });
 
