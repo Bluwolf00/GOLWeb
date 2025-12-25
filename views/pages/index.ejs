@@ -90,13 +90,17 @@
           <div class="col mx-auto">
             <div class="justify-content-center mb-3">
               <% if (username !== 'undefined' && username) { %>
-              <div class="welcome">
-                <h2>Welcome, <span class="sec-highlight"><%= username %></span></h2>
-              </div>
+                <div class="welcome">
+                  <h2>Welcome, <span class="sec-highlight"><%= username %></span></h2>
+                </div>
+              <% } else if (new Date() >= new Date('2025-12-20T00:00:00') && new Date() <= new Date('2026-01-04T23:59:59')) { %>
+                <h1>HAPPY HOLIDAYS!</h1>
+                <hr style="width:25%;text-align:center;margin-left:37.5%">
+                <h2>WE ARE CURRENTLY ON HOLIDAY BREAK<br>Our next operation starts on January 7th 2026!</h2>
               <% } else { %>
-              <h2>OUR NEXT OPERATION STARTS SOON</h2>
-              <hr style="width:25%;text-align:center;margin-left:37.5%">
-              <h1 id="timeUntilMission"></h1>
+                <h2>OUR NEXT OPERATION STARTS SOON</h2>
+                <hr style="width:25%;text-align:center;margin-left:37.5%">
+                <h1 id="timeUntilMission"></h1>
               <% } %>
               <div class="d-grid gap-3 d-sm-flex justify-content-sm-center" id="frontButtons">
                 <% if (userRole === "member" || userRole === "moderator" || userRole === "admin") { %>
