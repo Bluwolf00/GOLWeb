@@ -275,8 +275,10 @@ async function getAttendanceReport() {
     // Set the end time filter to 4 hours ahead of the current time
     // This is to ensure that we get all events that have happened, but also to include same day events
     var unixTimeEnd = Math.floor(Date.now() / 1000) + (4 * 60 * 60); // 4 hours in seconds
+    var data;
 
-    var response = await fetch(`https://raid-helper.dev/api/v3/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
+    try {
+        var response = await fetch(`https://raid-helper.dev/api/v4/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -286,8 +288,13 @@ async function getAttendanceReport() {
             'StartTimeFilter': '',
             'EndTimeFilter': `${unixTimeEnd}`
         }
-    });
-    var data = await response.json();
+        });
+
+        data = await response.json();
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
 
     eventArray = data.postedEvents;
 
@@ -427,7 +434,7 @@ async function getAttendanceReport() {
 async function getScheduledEvents() {
     var data;
     try {
-        response = await fetch(`https://raid-helper.dev/api/v3/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
+        response = await fetch(`https://raid-helper.dev/api/v4/servers/${process.env.RAID_HELPER_SERVER_ID}/events`, {
             method: 'GET',
             headers: {
                 'TagFilter': 'main',
