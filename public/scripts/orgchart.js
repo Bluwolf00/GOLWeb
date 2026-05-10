@@ -84,6 +84,7 @@ async function createOrg(data) {
 
                     case "Airman":
                     case "First Class Airman":
+                    case "Senior Airman":
                         nodeColor = 'rgba(0, 81, 255, 0.2)';
                         break;
 
