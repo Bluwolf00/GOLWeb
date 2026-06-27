@@ -972,33 +972,33 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
     } finally {
         if (created) {
             if (memberDiscordId) {
-                result = await queryDatabase(`
+                [result] = await queryDatabase(`
                 SELECT userID, UName, role, users.memberID
                 FROM users, Members
                 WHERE users.memberID = Members.MemberID AND users.memberID = ?`, [memberID]);
                 // Return the user object with userID, username, and role
 
-                return {
-                    "userID": result[0][0].userID, // Return the user ID of the newly created user
-                    "username": result[0][0].UName,
-                    "role": result[0][0].role,
-                    "memberID": result[0][0].memberID // Return the member ID if available
-                }
-            } else {
-                result = await queryDatabase(`
-                    SELECT userID, username, role, memberID
-                    FROM users
-                    WHERE username = ?`, [username]);
-                // Return the user object with userID, username, and role
-
                 if (result[0].length === 0) {
-                    console.error("Error: User not found after creation:", username);
+                    console.error("Error: User " + username + " with discordId " + memberDiscordId + " not found after creation");
                     return null;
                 }
 
                 return {
                     "userID": result[0].userID, // Return the user ID of the newly created user
-                    "username": result[0].username,
+                    "username": result[0].UName,
+                    "role": result[0].role,
+                    "memberID": result[0].memberID // Return the member ID if available
+                }
+            } else {
+                [result] = await queryDatabase(`
+                    SELECT userID, username, role, memberID
+                    FROM users
+                    WHERE username = ?`, [username]);
+                // Return the user object with userID, username, and role
+
+                return {
+                    "userID": result[0].userID, // Return the user ID of the newly created user
+                    "username": result[0].UName,
                     "role": result[0].role,
                     "memberID": result[0].memberID // Return the member ID if available
                 }
