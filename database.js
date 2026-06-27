@@ -991,11 +991,16 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
                     WHERE username = ?`, [username]);
                 // Return the user object with userID, username, and role
 
+                if (result[0].length === 0) {
+                    console.error("Error: User not found after creation:", username);
+                    return null;
+                }
+
                 return {
-                    "userID": result[0][0].userID, // Return the user ID of the newly created user
-                    "username": result[0][0].username,
-                    "role": result[0][0].role,
-                    "memberID": result[0][0].memberID // Return the member ID if available
+                    "userID": result[0].userID, // Return the user ID of the newly created user
+                    "username": result[0].username,
+                    "role": result[0].role,
+                    "memberID": result[0].memberID // Return the member ID if available
                 }
             }
 
