@@ -983,7 +983,7 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
                 WHERE users.memberID = Members.MemberID AND users.memberID = ?`, [memberID]);
                 // Return the user object with userID, username, and role
 
-                if (result[0].length === 0) {
+                if (result[0] == undefined || result[0] == null) {
                     console.error("Error: User " + username + " with discordId " + memberDiscordId + " not found after creation");
                     return null;
                 }
