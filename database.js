@@ -929,6 +929,11 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
             return false; // User already exists
         }
 
+        if( username == null ) {
+            console.log("Username is null, cannot create user");
+            return false;
+        }
+
         // If the user is signing with a Discord account, lookup the discord ID from the members table
         if (memberDiscordId != null) {
             memberID = await getMemberByDiscordId(memberDiscordId);
