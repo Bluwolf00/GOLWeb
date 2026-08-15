@@ -230,6 +230,7 @@ async function openEditModal(memberID) {
 
     const idelement = document.getElementById('memberid');
     const nameelement = document.getElementById('uname');
+    const discordelement = document.getElementById('discordId');
     const countryelement = document.getElementById('country');
     const parentSelect = document.getElementById('reporting');
     const statuselement = document.getElementById('status');
@@ -239,6 +240,7 @@ async function openEditModal(memberID) {
     idelement.value = data.MemberID;
     idelement.setAttribute("readonly", "true");
     nameelement.value = data.UName;
+    discordelement.value = data.MemberDiscordID == undefined ? "" : data.MemberDiscordID;
     rankSelect.value = data.rankName;
     countryelement.value = data.Country;
 
