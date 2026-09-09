@@ -95,15 +95,21 @@ async function addVideosDuration(videos) {
 
 
         // Find the duration in seconds for each video
-        // This is caused by the API returning the duration in PT#M#S format
+        // This is caused by the API returning the duration in ISO 8601 format
         for (let i = 0; i < 3; i++) {
-            indexes[i] = json.items[i].contentDetails.duration.indexOf('M');
-            let duration = parseInt(json.items[i].contentDetails.duration.substring(2, indexes[i]));
-            durations[i] = duration * 60 * 60; // Convert minutes to seconds
-            if (indexes[i] == -1) {
-                indexes[i] = json.items[i].contentDetails.duration.indexOf('S');
-                durations[i] = parseInt(json.items[i].contentDetails.duration.substring(2, indexes[i]));
+            const duration = json.items[i].contentDetails.duration;
+            const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(duration);
+
+            if (!match) {
+                throw new Error(`Invalid duration: ${duration}`);
             }
+
+            const [, hours = 0, minutes = 0, seconds = 0] = match;
+
+            durations[i] =
+                Number(hours) * 3600 +
+                Number(minutes) * 60 +
+                Number(seconds);
         }
 
         videos.video1.duration = durations[0];

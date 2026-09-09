@@ -14,6 +14,7 @@ function establishPool() {
         user: process.env.MYSQL_USERNAME,
         password: process.env.MYSQL_PASSWORD,
         database: process.env.MYSQL_DATABASE,
+        charset: 'utf8mb4',
         timezone: 'Z', // Set timezone to UTC
         connectionLimit: 14 // Set the maximum number of connections in the pool
 

@@ -12,9 +12,13 @@ function updateVideo(title, duration, description, author, videoId, caseNum) {
     
     // Duration is in seconds
     if (duration >= 3600) {
-        durationElement.innerHTML = (duration / 3600) + ' hrs';
+        if (duration < (3600 * 2 ) ) {
+            durationElement.innerHTML = Math.floor(duration / 3600) + ' hr';
+        } else {
+            durationElement.innerHTML = Math.floor(duration / 3600) + ' hrs';
+        }
     } else if (duration >= 60) {
-        durationElement.innerHTML = (duration / 60) + ' mins';
+        durationElement.innerHTML = Math.floor(duration / 60) + ' mins';
     } else {
         durationElement.innerHTML = duration + ' secs';
     }
