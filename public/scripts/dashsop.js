@@ -22,12 +22,16 @@ async function populate() {
             sop.isAAC = 'No';
         }
 
-        if (sop.isRestricted === 1 || sop.isRestricted === '1') {
-            sop.isRestricted = 'Yes';
-        } else if (sop.isRestricted === 0 || sop.isRestricted === '0') {
-            sop.isRestricted = 'No';
+        if( sop.restrictedLevel === 'everyone' ) {
+            sop.restrictedLevel = 'Everyone';
+        } else if( sop.restrictedLevel === 'active' ) {
+            sop.restrictedLevel = 'Active Only';
+        } else if( sop.restrictedLevel === 'leaders' ) {
+            sop.restrictedLevel = 'Leaders Only';
+        } else if( sop.restrictedLevel === 'members' ) {
+            sop.restrictedLevel = 'Members Only';
         }
-        
+
         row.innerHTML = `
             <th><span>${sop.sopID}</span></th>
             <td><span>${sop.sopTitle}</span></td>
@@ -36,7 +40,7 @@ async function populate() {
             <td><span>${sop.sopType}</span></td>
             <td><span>${sop.sopDocID}</span></td>
             <td><span>${sop.isAAC}</span></td>
-            <td><span>${sop.isRestricted}</span></td>
+            <td><span>${sop.restrictedLevel}</span></td>
             <td>
               <button class="btn btn-primary" onclick="openEditModal(${sop.sopID})">Edit</button>
               <button class="btn btn-danger" onclick="deleteSOP(${sop.sopID})">Delete</button>

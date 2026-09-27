@@ -18,6 +18,14 @@ var store = multer.diskStorage({
 });
 const upload = multer({ storage: store });
 
+// -- UTILITY FUNCTIONS --
+
+function isLeader(rankName) {
+    // If the rankName is one of the following, return true, otherwise return false
+    const leaderRanks = ['Lance Corporal', 'Corporal', 'Sergeant', 'Senior Airman', 'Staff Sergeant', 'Second Lieutenant', 'First Lieutenant'];
+    return leaderRanks.includes(rankName);
+}
+
 function getUserData(req) {
     // Prepare user data
     let role = '';
@@ -257,13 +265,44 @@ router.get('/getSOPs', async (req, res) => {
         console.log("SOPs fetched:", sops.length);
 
         // Check if the logged user has access to restricted SOPs
-        if (userData.loggedIn && userData.role && (userData.role.toLowerCase() === 'member' || userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'moderator')) {
-            console.log("User is a member or has access to restricted SOPs, not modifying SOP URLs.");
+        // if (userData.loggedIn && userData.role && (userData.role.toLowerCase() === 'member' || userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'moderator')) {
+        //     console.log("User is a member or has access to restricted SOPs, not modifying SOP URLs.");
+        // } else {
+        //     console.log("User is not a member or does not have access to restricted SOPs, setting SOP URLs to null.");
+        //     sops.forEach(sop => {
+        //         if (sop.isRestricted === 1) {
+        //             sop.sopUrl = null; // Set SOP URL to null if restricted
+        //         }
+        //     });
+        // }
+
+        // Check if the logged user has access to restricted SOPs based on their rank
+        let userRank = null;
+        if (userData.loggedIn && userData.memberID) {
+            let member = await db.getMember(userData.memberID, true);
+
+            userRank = member.rankName;
+            console.log("User rank fetched:", userRank);
+
+            if (userRank) {
+                sops.forEach(sop => {
+                    if (sop.restrictedLevel && sop.restrictedLevel !== 'everyone') {
+                        // If the SOP has a restricted level, check if the user is active, a member, or a leader based on their rank
+                        if( sop.restrictedLevel === 'leaders' && !isLeader(userRank)) {
+                            sop.sopUrl = null; // Set SOP URL to null if the SOP is restricted to leaders and the user is not a leader
+                        } else if (sop.restrictedLevel === 'members' && userData.role.toLowerCase() === 'public') {
+                            sop.sopUrl = null; // Set SOP URL to null if the SOP is restricted to members and the user is not a member
+                        } else if (sop.restrictedLevel === 'active' && userRank === 'Reserve' ) {
+                            sop.sopUrl = null; // Set SOP URL to null if the SOP is restricted to active members and the user is not active
+                        }
+                    }
+                });
+            }
         } else {
-            console.log("User is not a member or does not have access to restricted SOPs, setting SOP URLs to null.");
+            console.log("User is not logged in or does not have a member ID, setting SOP URLs to null for restricted SOPs.");
             sops.forEach(sop => {
-                if (sop.isRestricted === 1) {
-                    sop.sopUrl = null; // Set SOP URL to null if restricted
+                if (sop.restrictedLevel && sop.restrictedLevel !== 'everyone') {
+                    sop.sopUrl = null; // Set SOP URL to null if the SOP is restricted and the user is not logged in
                 }
             });
         }
