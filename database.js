@@ -1463,7 +1463,7 @@ async function getSOPs() {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
-            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
+            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,restrictedLevel
             FROM sop
             ORDER BY isAAC ASC, sopID ASC;`);
 
@@ -1487,7 +1487,7 @@ async function getSOPbyID(id) {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
-            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted
+            SELECT sopID,sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,restrictedLevel
             FROM sop
             WHERE sopID = ?`, [id]);
     } catch (error) {
@@ -1497,12 +1497,12 @@ async function getSOPbyID(id) {
     }
 }
 
-async function createSOP(sopTitle, authors, sopDescription, sopType, sopDocID, isAAC, isRestricted) {
+async function createSOP(sopTitle, authors, sopDescription, sopType, sopDocID, isAAC, restrictedLevel) {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
-            INSERT INTO sop (sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,isRestricted)
-            VALUES (?,?,?,?,?,?,?)`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted]);
+            INSERT INTO sop (sopTitle,sopDescription,authors,sopType,sopDocID,isAAC,restrictedLevel)
+            VALUES (?,?,?,?,?,?,?)`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, restrictedLevel]);
     } catch (error) {
         console.error(error);
     } finally {
@@ -1510,13 +1510,13 @@ async function createSOP(sopTitle, authors, sopDescription, sopType, sopDocID, i
     }
 }
 
-async function editSOP(sopID, sopTitle, authors, sopDescription, sopType, sopDocID, isAAC, isRestricted) {
+async function editSOP(sopID, sopTitle, authors, sopDescription, sopType, sopDocID, isAAC, restrictedLevel) {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
             UPDATE sop
-            SET sopTitle = ?, sopDescription = ?, authors = ?, sopType = ?, sopDocID = ?, isAAC = ?, isRestricted = ?
-            WHERE sopID = ?`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, isRestricted, sopID]);
+            SET sopTitle = ?, sopDescription = ?, authors = ?, sopType = ?, sopDocID = ?, isAAC = ?, restrictedLevel = ?
+            WHERE sopID = ?`, [sopTitle, sopDescription, authors, sopType, sopDocID, isAAC, restrictedLevel, sopID]);
     } catch (error) {
         console.log(error);
     } finally {
@@ -1539,7 +1539,6 @@ async function deleteSOP(sopID) {
 
 async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock = false) {
     var message = "";
-
     try {
 
         // First, get the latest ORBAT for the mission
