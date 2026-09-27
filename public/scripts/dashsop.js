@@ -229,11 +229,16 @@ async function openEditModal(sopID) {
     else
         isAAC.checked = false;
 
-    var isRestricted = document.getElementById('restrictedDoc');
-    if (sop.isRestricted === 'Yes' || sop.isRestricted === 1)
-        isRestricted.checked = true;
-    else
-        isRestricted.checked = false;
+    var restrictedLevel = document.getElementById('restrictedDoc');
+    if (sop.restrictedLevel === 'everyone' || sop.restrictedLevel === null || sop.restrictedLevel === '' || sop.restrictedLevel === undefined) {
+        restrictedLevel.value = 'everyone';
+    } else if (sop.restrictedLevel === 'active') {
+        restrictedLevel.value = 'active';
+    } else if (sop.restrictedLevel === 'leaders') {
+        restrictedLevel.value = 'leaders';
+    } else if (sop.restrictedLevel === 'members') {
+        restrictedLevel.value = 'members';
+    }
 
     modal.show();
 }
