@@ -264,22 +264,16 @@ router.get('/getSOPs', async (req, res) => {
 
         console.log("SOPs fetched:", sops.length);
 
-        // Check if the logged user has access to restricted SOPs
-        // if (userData.loggedIn && userData.role && (userData.role.toLowerCase() === 'member' || userData.role.toLowerCase() === 'admin' || userData.role.toLowerCase() === 'moderator')) {
-        //     console.log("User is a member or has access to restricted SOPs, not modifying SOP URLs.");
-        // } else {
-        //     console.log("User is not a member or does not have access to restricted SOPs, setting SOP URLs to null.");
-        //     sops.forEach(sop => {
-        //         if (sop.isRestricted === 1) {
-        //             sop.sopUrl = null; // Set SOP URL to null if restricted
-        //         }
-        //     });
-        // }
-
         // Check if the logged user has access to restricted SOPs based on their rank
         let userRank = null;
         if (userData.loggedIn && userData.memberID) {
             let member = await db.getMember(userData.memberID, true);
+
+            if (!member) {
+                console.error("Member not found for memberID:", userData.memberID);
+                res.status(404).send("Not Found - Member not found.");
+                return;
+            }
 
             userRank = member.rankName;
             console.log("User rank fetched:", userRank);
