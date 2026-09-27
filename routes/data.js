@@ -810,9 +810,8 @@ router.post('/assignBadge', authPage, async (req, res) => {
 });
 
 router.post('/createSOP', authPage, async (req, res) => {
-    const { newtitle, newauthors, newdescription, newdocType, newdocId } = req.body;
+    const { newtitle, newauthors, newdescription, newdocType, newdocId, newrestrictedDoc } = req.body;
     const isAAC = req.body.newaacSOP === 'on';
-    const isRestricted = req.body.newrestrictedDoc === 'on';
 
     if (!newtitle || !newauthors || !newdescription || !newdocType || !newdocId) {
         res.status(400).send("Bad Request - Missing Parameters");
@@ -820,7 +819,7 @@ router.post('/createSOP', authPage, async (req, res) => {
     }
 
     try {
-        const result = await db.createSOP(newtitle, newauthors, newdescription, newdocType, newdocId, isAAC, isRestricted);
+        const result = await db.createSOP(newtitle, newauthors, newdescription, newdocType, newdocId, isAAC, newrestrictedDoc );
         if (result) {
             res.status(201).send({ "result": "SOP created successfully", "status": 201 });
         } else {
@@ -833,21 +832,15 @@ router.post('/createSOP', authPage, async (req, res) => {
 });
 
 router.post('/editSOP', authPage, async (req, res) => {
-    const { sopID, title, Authors, description, docType, docId } = req.body;
+    const { sopID, title, Authors, description, docType, docId, restrictedDoc } = req.body;
     var isAAC;
-    var isRestricted;
     if (req.body.aacSOP === 'on') {
         isAAC = 1;
     } else {
         isAAC = 0;
     }
-    if (req.body.restrictedDoc === 'on') {
-        isRestricted = 1;
-    } else {
-        isRestricted = 0;
-    }
 
-    console.log("Parameters: ", { sopID, title, Authors, description, docType, docId, isAAC, isRestricted });
+    console.log("Parameters: ", { sopID, title, Authors, description, docType, docId, isAAC, restrictedDoc });
 
     if (!sopID || !title || !Authors || !description || !docType || !docId) {
         console.error("Missing Parameters");
@@ -871,7 +864,7 @@ router.post('/editSOP', authPage, async (req, res) => {
     }
 
     try {
-        const result = await db.editSOP(sopID, title, Authors, description, docType, docId, isAAC, isRestricted);
+        const result = await db.editSOP(sopID, title, Authors, description, docType, docId, isAAC, restrictedDoc );
         if (result) {
             res.status(200).send({ "result": "SOP updated successfully", "status": 200 });
         } else {
