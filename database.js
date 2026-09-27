@@ -754,9 +754,9 @@ async function performLogin(username, password, fallback) {
         }
     } else {
         if (username == process.env.ADMIN_USERNAME && password == process.env.ADMIN_PASSWORD) {
-            return true;
+            return { "allowed": true, "role": "admin", "memberID": 1 };
         } else {
-            return false;
+            return { "allowed": false, "role": null, "memberID": 1 };
         }
     }
 }
@@ -815,7 +815,12 @@ async function getUserRole(value, key = 'username') {
         console.log(error);
     } finally {
         if (rows.length == 0) {
-            return null;
+            // Check environment admin
+            if (value === process.env.ADMIN_USERNAME) {
+                return "admin";
+            } else {
+                return null;
+            }
         } else {
             return rows[0].role;
         }
