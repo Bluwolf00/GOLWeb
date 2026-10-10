@@ -7,6 +7,7 @@
   <meta property="og:description" content="Official Admin dashboard for the Guerrillas of Liberation Website.">
   <%- include('../../partials/head', {pageTitle: "GOL Dashboard"}) %>
   <link rel="stylesheet" href="/styles/dashboard.css">
+  <script defer src="/scripts/discordRankImport.js"></script>
 </head>
 
 <%- include('../../partials/headernav', {pageTitle: "Dashboard", loggedin: userLogged, username: username}) %>
@@ -71,6 +72,29 @@
 
         <div class="col">
           <button class="btn btn-primary dashboard-extra-buttons" id="updateVideosBtn" onclick="updateLandingVideos()" title="This will force the videos for the landing page to be updated.">Force Update Videos</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-warning dashboard-extra-buttons" id="discordImportBtn" onclick="previewDiscordRankImport()">Preview Discord Rank Import</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="discordImportModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Discord to Website Rank Import</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-warning">This changes website roster status, rank, and reporting relationships. Website permissions are never changed.</p>
+            <div id="discordImportMessage" class="alert d-none"></div>
+            <div id="discordImportResults"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="applyDiscordImportBtn" onclick="applyDiscordRankImport()" disabled>Apply listed changes</button>
+          </div>
         </div>
       </div>
     </div>

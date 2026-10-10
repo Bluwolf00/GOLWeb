@@ -50,6 +50,23 @@ The site contains a variety of different features.
 - Join link - Direct link toward the community discord where most of the organisation and logistics is maintained.
 - Use of Database - The website uses a database for any persistant data and relations such as member details and awards.
 
+### Discord roster synchronisation
+
+Run [`migrations/001_discord_roster_sync.sql`](./migrations/001_discord_roster_sync.sql) before enabling roster synchronisation. Configure the Discord bot and managed roles with:
+
+```env
+DISCORD_BOT_TOKEN=...
+DISCORD_GUILD_ID=...
+DISCORD_MEMBER_ROLE_ID=...
+DISCORD_RESERVE_ROLE_ID=...
+RESERVIST_LEADER_NAMES=Knight,Camel,WHYZE
+DISCORD_AUTO_ROLE_SYNC_ENABLED=false
+```
+
+Set `DISCORD_AUTO_ROLE_SYNC_ENABLED=true` only in an environment where website changes are allowed to update Discord roles. It defaults to disabled, so local test systems will not log in to Discord or write roles through automatic website-to-Discord synchronisation. The website rank mappings are stored in `Ranks.DiscordRoleId`. Website permissions (`users.role`) are never changed by either synchronisation direction. Discord-to-website changes are available only to administrators through the dashboard, where a preview must be reviewed and explicitly applied.
+
+During the manual Discord import, an unlinked Discord user is proposed for creation only when they have both the configured Member role and the mapped Recruit role. They are created as an Active Recruit reporting to `root`, with default country `Unknown`.
+
 > **Important Note**: Sensitive member details such as: Real name, contact details and other personal information are **NOT** stored anywhere within this system. There is no requirement as of yet for this information. However, if the need for such information ever arises, proper processes will be followed to ensure security and protection of said data.
 
 ## Planned Features

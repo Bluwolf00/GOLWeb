@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const middle = require('../middle.js');
 const authPage = middle.authPage;
 const authToken = middle.authToken;
+const discordRosterSync = require('../services/discordRosterSync.js');
 
 const multer = require('multer');
 var store = multer.diskStorage({
@@ -455,7 +456,7 @@ router.post('/forceVideoUpdate', authPage, async (req, res) => {
 
 router.post('/performLogin', async (req, res) => {
     const { username, password } = req.body;
-    var result = await db.performLogin(username, password, false);
+    var result = await db.performLogin(username, password, true);
 
     if (result.allowed) {
         req.session.loggedin = true;
@@ -526,6 +527,11 @@ router.post('/updateMember', authPage, async (req, res) => {
         referer = referer.substring(0, referer.indexOf('?'));
     }
     if (result.affectedRows > 0) {
+        try {
+            await discordRosterSync.syncWebsiteMember(memberID);
+        } catch (error) {
+            console.error(`Website member ${memberID} updated but Discord synchronisation failed:`, error);
+        }
         res.status(200);
         // Note: Compatible with Express 4.x.x
         // But not with Express 5.x.x
@@ -562,6 +568,13 @@ router.post('/changeRank', authPage, async (req, res) => {
     }
     var result = await db.changeRank(member, newRank, bypassParent);
     if (result[0].affectedRows > 0) {
+        try {
+            await discordRosterSync.syncWebsiteMember(member);
+        } catch (error) {
+            console.error(`Website rank for member ${member} changed but Discord synchronisation failed:`, error);
+            res.status(502).send({ "result": "Rank changed on the website, but Discord synchronisation failed." });
+            return;
+        }
         res.status(200).send({ "result": "Member promoted successfully" });
     } else {
         res.status(500).send({ "result": "Failed to promote member - Check if the rank exists or if the member name is correct." });
@@ -589,6 +602,11 @@ router.post('/createMember', authPage, async (req, res) => {
         referer = referer.substring(0, referer.indexOf('?'));
     }
     if (result > 0) {
+        try {
+            await discordRosterSync.syncWebsiteMember(result);
+        } catch (error) {
+            console.error(`Website member ${result} created but Discord synchronisation failed:`, error);
+        }
         res.status(200);
         res.redirect(referer + "?createSuccess=1");
     } else if (!result) {
@@ -1170,6 +1188,32 @@ router.delete('/removeLoa', authToken, async (req, res) => {
     }
 });
 
+router.post('/discord-rank-import/preview', authAdmin, async (req, res) => {
+    try {
+        const preview = await discordRosterSync.createImportPreview();
+        res.status(200).send(preview);
+    } catch (error) {
+        console.error('Error creating Discord rank import preview:', error);
+        res.status(500).send({ message: error.message });
+    }
+});
+
+router.post('/discord-rank-import/apply', authAdmin, async (req, res) => {
+    const previewId = req.body.previewId;
+    if (!previewId || typeof previewId !== 'string') {
+        res.status(400).send({ message: 'A previewId is required.' });
+        return;
+    }
+
+    try {
+        const result = await discordRosterSync.applyImportPreview(previewId);
+        res.status(200).send(result);
+    } catch (error) {
+        console.error('Error applying Discord rank import:', error);
+        res.status(409).send({ message: error.message });
+    }
+});
+
 // Catcher
 
 router.get('*', (req, res) => {
@@ -1193,6 +1237,30 @@ function validatePasswords(password, confirmPassword) {
     }
 
     return { "fullStatus": "SUCCESS: Passwords are valid.", "statusMessage": "Passwords are valid.", "status": 200 };
+}
+
+async function authAdmin(req, res, next) {
+    if (!req.session.loggedin && !req.session.passport) {
+        res.status(401).send({ message: 'Administrator login required.' });
+        return;
+    }
+
+    try {
+        let role;
+        if (req.session.passport && req.session.passport.user) {
+            role = req.session.passport.user.role;
+        } else {
+            role = await db.getUserRole(req.session.username);
+        }
+        if (typeof role === 'string' && role.toLowerCase() === 'admin') {
+            next();
+            return;
+        }
+        res.status(403).send({ message: 'Administrator access required.' });
+    } catch (error) {
+        console.error('Error checking administrator access:', error);
+        res.status(500).send({ message: 'Unable to verify administrator access.' });
+    }
 }
 
 module.exports = router;

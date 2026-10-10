@@ -173,7 +173,7 @@ async function getMemberNames(memberIDs, includeRank = false) {
                 FROM Members, Ranks
                 WHERE Members.playerRank = Ranks.rankID AND MemberID IN (?)`, [members]);
 
-                // console.log(rows);
+            // console.log(rows);
 
             for (let row of rows) {
                 result.push(` ${row.prefix}. ${row.UName}`);
@@ -243,6 +243,102 @@ async function getMemberNodeId(memberName) {
     }
 }
 
+async function getMemberByNodeId(nodeId) {
+    const [rows] = await queryDatabase(`
+                SELECT MemberID, UName, nodeId, parentNodeId, playerStatus
+                FROM Members
+                WHERE nodeId = ?`, [nodeId]);
+    return rows[0] || null;
+}
+
+async function getRecruitParent() {
+    const [rows] = await queryDatabase(`
+                SELECT parent.MemberID, parent.UName, parent.nodeId,
+                       COUNT(child.MemberID) AS childCount
+                FROM Members parent
+                JOIN Ranks parentRank ON parentRank.rankID = parent.playerRank
+                JOIN Members child ON child.parentNodeId = parent.nodeId
+                LEFT JOIN Members grandchild ON grandchild.parentNodeId = child.nodeId
+                WHERE parent.playerStatus = 'Active'
+                  AND parentRank.isAAC = 0
+                  AND parent.nodeId IS NOT NULL
+                GROUP BY parent.MemberID, parent.UName, parent.nodeId
+                HAVING COUNT(child.MemberID) > 1
+                   AND COUNT(grandchild.MemberID) = 0
+                ORDER BY childCount ASC, parent.MemberID ASC
+                LIMIT 1`);
+    return rows[0] || null;
+}
+
+async function wouldCreateParentCycle(memberID, parentNodeId) {
+    const visited = new Set();
+    let currentNodeId = parentNodeId;
+
+    while (currentNodeId && currentNodeId !== 'root') {
+        if (visited.has(currentNodeId)) {
+            return true;
+        }
+        visited.add(currentNodeId);
+
+        const parent = await getMemberByNodeId(currentNodeId);
+        if (!parent) {
+            return false;
+        }
+        if (parent.MemberID === Number(memberID)) {
+            return true;
+        }
+        currentNodeId = parent.parentNodeId;
+    }
+    return false;
+}
+
+async function reparentChildrenForTransition(memberID, oldNodeId, oldParentNodeId) {
+    if (!oldNodeId) {
+        return;
+    }
+
+    const [children] = await queryDatabase(`
+                SELECT MemberID, playerStatus
+                FROM Members
+                WHERE parentNodeId = ? AND MemberID <> ?`, [oldNodeId, memberID]);
+
+    for (const child of children) {
+        const [siblings] = await queryDatabase(`
+                    SELECT s.nodeId, COUNT(c.MemberID) AS childCount
+                    FROM Members s
+                    LEFT JOIN Members c ON c.parentNodeId = s.nodeId
+                    WHERE s.MemberID <> ?
+                      AND s.nodeId IS NOT NULL
+                      AND s.parentNodeId = ?
+                      AND s.playerStatus = ?
+                    GROUP BY s.MemberID, s.nodeId
+                    ORDER BY childCount ASC, s.MemberID ASC
+                    LIMIT 1`, [memberID, oldParentNodeId, child.playerStatus]);
+
+        let replacementNodeId = siblings[0] ? siblings[0].nodeId : oldParentNodeId;
+        const replacement = replacementNodeId
+            ? await getMemberByNodeId(replacementNodeId)
+            : null;
+
+        if (!replacement || replacement.playerStatus !== child.playerStatus) {
+            replacementNodeId = child.playerStatus === 'Reserve' ? null : 'root';
+            if (child.playerStatus === 'Reserve') {
+                const reserveLeader = await getReservistLeader(memberID);
+                replacementNodeId = reserveLeader ? reserveLeader.nodeId : null;
+            }
+        }
+
+        if (!replacementNodeId || replacementNodeId === child.nodeId) {
+            throw new Error(`Unable to find a compatible parent for member ${child.MemberID}.`);
+        }
+
+        await queryDatabase(`
+                    UPDATE Members
+                    SET parentNodeId = ?
+                    WHERE MemberID = ?`, [replacementNodeId, child.MemberID]);
+    }
+}
+
 async function getRankFromName(rankName) {
     var rows = [null];
     try {
@@ -261,7 +357,7 @@ async function getRankByID(rankID) {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
-            SELECT rankID,rankName,prefix,rankPath,rankDescription
+            SELECT rankID,rankName,prefix,rankPath,rankDescription,DiscordRoleId
             FROM Ranks
             WHERE rankID = ?`, [rankID])
     } catch (error) {
@@ -278,6 +374,20 @@ async function getRankByID(rankID) {
 async function updateMember(memberID, memberName, rank, country, parentName, status, dateOfJoin, dateOfPromo) {
     var rows = [null];
     try {
+        const [currentRows] = await queryDatabase(`
+            SELECT m.playerRank, m.playerStatus, m.nodeId, m.parentNodeId,
+                   h.previousPlayerRank, h.previousNodeId, h.previousParentNodeId
+            FROM Members
+            LEFT JOIN MemberRosterHistory h ON h.id = (
+                SELECT history.id FROM MemberRosterHistory history
+                WHERE history.MemberId = Members.MemberID AND history.restoredAt IS NULL
+                ORDER BY history.createdAt DESC, history.id DESC LIMIT 1
+            )
+            WHERE Members.MemberID = ?`, [memberID]);
+        const current = currentRows[0];
+        if (!current) {
+            return rows;
+        }
 
         // Get the parent node ID from the name
         // If the parent name is "None" AKA the top element, set the parent node ID to "root"
@@ -289,6 +399,58 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
         }
         if (parentNodeId == null) { parentNodeId = "root"; }
         var rankID = await getRankFromName(rank);
+        const requestedParent = parentNodeId === 'root' ? null : await getMemberByNodeId(parentNodeId);
+        if (requestedParent && requestedParent.MemberID === Number(memberID)) {
+            throw new Error('A member cannot report to themselves.');
+        }
+        if (await wouldCreateParentCycle(memberID, parentNodeId)) {
+            throw new Error('The selected parent would create an ORBAT cycle.');
+        }
+        if (status === 'Active' && requestedParent && requestedParent.playerStatus === 'Reserve') {
+            throw new Error('Active members cannot report to Reservist members.');
+        }
+        if (status === 'Reserve' && requestedParent && requestedParent.playerStatus !== 'Reserve') {
+            throw new Error('Reservists must report to Reservist members.');
+        }
+        if (status === 'Reserve') {
+            if (current.playerStatus !== 'Reserve') {
+                await reparentChildrenForTransition(memberID, current.nodeId, current.parentNodeId);
+                await queryDatabase(`
+                    INSERT INTO MemberRosterHistory
+                        (MemberId, previousPlayerRank, previousNodeId, previousParentNodeId, reason)
+                    VALUES (?, ?, ?, ?, 'reserve')`, [
+                    memberID, current.playerRank, current.nodeId, current.parentNodeId
+                ]);
+            }
+            rankID = await getRankFromName('Reserve');
+            const reservistLeader = await getReservistLeader(memberID);
+            if (!reservistLeader) {
+                throw new Error('No eligible Reservist leader is available.');
+            }
+            parentNodeId = reservistLeader.nodeId;
+        } else if (status === 'Inactive') {
+            if (current.playerStatus !== 'Inactive' || current.nodeId !== null) {
+                await reparentChildrenForTransition(memberID, current.nodeId, current.parentNodeId);
+                await queryDatabase(`
+                    INSERT INTO MemberRosterHistory
+                        (MemberId, previousPlayerRank, previousNodeId, previousParentNodeId, reason)
+                    VALUES (?, ?, ?, ?, 'off-roster')`, [
+                    memberID, current.playerRank, current.nodeId, current.parentNodeId
+                ]);
+            }
+            rankID = await getRankFromName('Buddy');
+            parentNodeId = null;
+        } else if (status === 'Active' && current.playerStatus === 'Reserve' && current.previousPlayerRank) {
+            rankID = current.previousPlayerRank;
+            parentNodeId = current.previousParentNodeId || parentNodeId;
+            if (current.previousNodeId) {
+                await queryDatabase('UPDATE Members SET nodeId = ? WHERE MemberID = ?', [current.previousNodeId, memberID]);
+            }
+            await queryDatabase(`
+                UPDATE MemberRosterHistory
+                SET restoredAt = CURRENT_TIMESTAMP
+                WHERE MemberId = ? AND restoredAt IS NULL`, [memberID]);
+        }
         if (dateOfJoin == "") {
             dateOfJoin = null;
         }
@@ -304,8 +466,13 @@ async function updateMember(memberID, memberName, rank, country, parentName, sta
                 parentNodeId = ?,
                 playerStatus = ?,
                 DateOfJoin = ?,
-                DateOfPromo = ?
-            WHERE MemberID = ?`, [rankID, memberName, country, parentNodeId, status, dateOfJoin, dateOfPromo, memberID])
+                DateOfPromo = ?,
+                nodeId = ?
+            WHERE MemberID = ?`, [
+            rankID, memberName, country, parentNodeId, status, dateOfJoin, dateOfPromo,
+            status === 'Inactive' ? null : (status === 'Active' && current.previousNodeId ? current.previousNodeId : current.nodeId),
+            memberID
+        ])
     } catch (error) {
         console.log(error);
     } finally {
@@ -349,6 +516,31 @@ async function createMember(memberName, memberdiscordId, rank, country, parentNa
         console.log(error);
         return null;
     }
+}
+
+async function createDiscordRecruitMember(memberName, discordId, parentNodeId) {
+    const existing = await getDiscordRosterMemberByDiscordId(discordId);
+    if (existing) {
+        return { created: false, memberID: existing.MemberID, reason: 'Member already exists.' };
+    }
+
+    const parent = await getMemberByNodeId(parentNodeId);
+    if (!parent || parent.playerStatus !== 'Active') {
+        throw new Error(`Unable to find a valid active parent for Discord recruit ${discordId}.`);
+    }
+
+    const memberID = await createMember(
+        memberName,
+        discordId,
+        'Recruit',
+        'Unknown',
+        parent.UName,
+        new Date().toISOString().slice(0, 10)
+    );
+    if (!memberID) {
+        throw new Error(`Unable to create Discord recruit ${discordId}.`);
+    }
+    return { created: true, memberID };
 }
 
 async function getBadges() {
@@ -569,7 +761,7 @@ async function getRanks(all, aboveOrBelow, currentRank) {
     var rows = null;
     if (all == true) {
         [rows] = await queryDatabase(`
-            SELECT rankID, rankName, prefix
+            SELECT rankID, rankName, prefix, DiscordRoleId
             FROM Ranks
             ORDER BY rankID ASC`);
     } else {
@@ -596,7 +788,7 @@ async function getComprehensiveRanks() {
     var rows = [null];
     try {
         [rows] = await queryDatabase(`
-            SELECT rankID, rankName, prefix, rankPath, rankDescription
+            SELECT rankID, rankName, prefix, rankPath, rankDescription, DiscordRoleId
             FROM Ranks
             ORDER BY rankID ASC`);
     } catch (error) {
@@ -604,6 +796,146 @@ async function getComprehensiveRanks() {
     } finally {
         return rows;
     }
+
+}
+
+async function getDiscordRankMappings() {
+    const [rows] = await queryDatabase(`
+            SELECT rankID, rankName, DiscordRoleId
+            FROM Ranks
+            WHERE DiscordRoleId IS NOT NULL AND DiscordRoleId <> ''
+            ORDER BY rankID ASC`);
+    return rows;
+}
+
+async function getDiscordRosterMembers() {
+    const [rows] = await queryDatabase(`
+            SELECT
+                m.MemberID, m.UName, m.MemberDiscordID, m.playerRank, m.playerStatus,
+                m.nodeId, m.parentNodeId,
+                h.previousPlayerRank, h.previousNodeId, h.previousParentNodeId,
+                r.rankName, r.DiscordRoleId
+            FROM Members m
+            JOIN Ranks r ON r.rankID = m.playerRank
+            LEFT JOIN MemberRosterHistory h
+                ON h.id = (
+                    SELECT history.id
+                    FROM MemberRosterHistory history
+                    WHERE history.MemberId = m.MemberID AND history.restoredAt IS NULL
+                    ORDER BY history.createdAt DESC, history.id DESC
+                    LIMIT 1
+                )
+            WHERE m.MemberDiscordID IS NOT NULL AND m.MemberDiscordID <> ''`);
+    return rows;
+}
+
+async function getDiscordRosterMember(memberID) {
+    const members = await getDiscordRosterMembers();
+    return members.find(member => String(member.MemberID) === String(memberID)) || null;
+}
+
+async function getDiscordRosterMemberByDiscordId(discordId) {
+    const [rows] = await queryDatabase(`
+        SELECT MemberID, UName, MemberDiscordID
+        FROM Members
+        WHERE MemberDiscordID = ?`, [discordId]);
+    return rows[0] || null;
+}
+
+async function getReservistLeader(excludeMemberID = null) {
+    const configuredNames = (process.env.RESERVIST_LEADER_NAMES || '')
+        .split(',')
+        .map(name => name.trim())
+        .filter(Boolean);
+    const nameFilter = configuredNames.length > 0
+        ? 'AND leader.UName IN (?)'
+        : '';
+    const excludeClause = excludeMemberID ? 'AND leader.MemberID <> ?' : '';
+    const params = configuredNames.length > 0 ? [configuredNames] : [];
+    if (excludeMemberID) {
+        params.push(excludeMemberID);
+    }
+    const [rows] = await queryDatabase(`
+            SELECT leader.MemberID, leader.UName, leader.nodeId,
+                   COUNT(child.MemberID) AS childCount
+            FROM Members leader
+            LEFT JOIN Members child ON child.parentNodeId = leader.nodeId
+            WHERE leader.playerStatus = 'Reserve'
+              AND leader.nodeId IS NOT NULL
+              AND leader.nodeId <> 'root'
+              ${nameFilter}
+              ${excludeClause}
+            GROUP BY leader.MemberID, leader.UName, leader.nodeId
+            ORDER BY childCount ASC, leader.MemberID ASC
+            LIMIT 1`, params);
+    return rows[0] || null;
+}
+
+async function applyDiscordRosterChanges(changes) {
+    const results = [];
+    for (const change of changes) {
+        const [currentRows] = await queryDatabase(`
+                SELECT playerRank, playerStatus, nodeId, parentNodeId, UName
+                FROM Members WHERE MemberID = ?`, [change.memberID]);
+        const current = currentRows[0];
+        if (!current) {
+            continue;
+        }
+        const requestedParent = change.parentNodeId === 'root'
+            ? null
+            : await getMemberByNodeId(change.parentNodeId);
+        if (requestedParent && requestedParent.MemberID === Number(change.memberID)) {
+            throw new Error(`Member ${current.UName}(${change.memberID}) cannot report to themselves.`);
+        }
+        if (await wouldCreateParentCycle(change.memberID, change.parentNodeId)) {
+            throw new Error(`The proposed parent (${requestedParent ? requestedParent.UName : 'Root'}) for member ${current.UName}(${change.memberID}) would create an ORBAT cycle.`);
+        }
+        if (change.playerStatus === 'Active' && requestedParent &&
+            requestedParent.playerStatus === 'Reserve') {
+            throw new Error(`Active member ${current.UName}(${change.memberID}) cannot report to a Reservist.`);
+        }
+        if (change.playerStatus === 'Reserve' && requestedParent &&
+            requestedParent.playerStatus !== 'Reserve') {
+            throw new Error(`Reservist ${current.UName}(${change.memberID}) must report to a Reservist.`);
+        }
+        if (current.playerStatus !== change.playerStatus &&
+            (change.playerStatus === 'Reserve' || change.playerStatus === 'Inactive')) {
+            await reparentChildrenForTransition(
+                change.memberID,
+                current.nodeId,
+                current.parentNodeId
+            );
+        }
+        if (change.previousPlayerRank && current.playerStatus !== 'Reserve' &&
+            current.playerStatus !== 'Inactive') {
+            await queryDatabase(`
+                    INSERT INTO MemberRosterHistory
+                        (MemberId, previousPlayerRank, previousNodeId, previousParentNodeId, reason)
+                    VALUES (?, ?, ?, ?, ?)`, [
+                change.memberID, change.previousPlayerRank,
+                change.previousNodeId, change.previousParentNodeId,
+                change.playerStatus === 'Reserve' ? 'reserve' : 'off-roster'
+            ]);
+        }
+        const [rows] = await queryDatabase(`
+                    UPDATE Members
+                    SET playerRank = ?,
+                        playerStatus = ?,
+                        parentNodeId = ?,
+                        nodeId = ?
+                    WHERE MemberID = ?`, [
+            change.playerRank, change.playerStatus, change.parentNodeId,
+            change.nodeId, change.memberID
+        ]);
+        if (change.playerStatus === 'Active' && current.playerStatus === 'Reserve') {
+            await queryDatabase(`
+                    UPDATE MemberRosterHistory
+                    SET restoredAt = CURRENT_TIMESTAMP
+                    WHERE MemberId = ? AND restoredAt IS NULL`, [change.memberID]);
+        }
+        results.push({ memberID: change.memberID, affectedRows: rows.affectedRows });
+    }
+    return results;
 }
 
 // POST REQUESTS
@@ -930,7 +1262,7 @@ async function createUser(username, password, memberDiscordId = null, role = 'pu
             return false; // User already exists
         }
 
-        if( username == null ) {
+        if (username == null) {
             console.log("Username is null, cannot create user");
             return false;
         }
@@ -1568,10 +1900,10 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock 
                 SELECT MemberID
                 FROM missionorbatmembers
                 WHERE memberID = ? AND missionID = ?`, [memberID, missionID]);
-    
+
             if (rows.length > 0) {
                 // If the member is already in the ORBAT, update their role and slotNodeID
-    
+
                 // If the member is to be unassigned, remove them from the ORBAT
                 if (memberRole == "NONE") {
                     try {
@@ -1592,13 +1924,13 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock 
                 } else if (Array.isArray(memberRole)) {
                     // If memberRole is an array, we need to find the next available slot for each role
                     let memberRoleArray = memberRole.map(role => role);
-    
+
                     // Randomly shuffle the memberRoleArray
                     for (let i = memberRoleArray.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
                     }
-    
+
                     for (let i = 0; i < memberRoleArray.length; i++) {
                         let role = memberRoleArray[i];
                         let slotInfo = await getNextAvailableSlot(role, missionID);
@@ -1610,7 +1942,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock 
                         }
                     }
                 }
-    
+
                 // If slotNodeID is null, find the next available slot with the specified role
                 if (slotNodeID == null) {
                     let slotInfo = await getNextAvailableSlot(memberRole, missionID);
@@ -1621,7 +1953,7 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock 
                         message = "No available slot found for role: " + memberRole;
                         return;
                     }
-    
+
                     // Update the member's role and slotNodeID
                     rows = await queryDatabase(`
                         UPDATE missionorbatmembers
@@ -1643,29 +1975,29 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock 
             } else {
                 console.log("Member " + memberID + " is not in the ORBAT for mission ID: " + missionID);
                 // Member is not in the ORBAT
-    
+
                 if (memberRole === "NONE") {
                     console.log("Member " + memberID + " is not in the ORBAT, but role is set to NONE. No action taken.");
                     message = "Member is not in the ORBAT, no action taken.";
                     return;
                 }
-    
+
                 if (slotNodeID == null) {
                     let callsign = "";
                     let slotInfo = null;
-    
+
                     if (Array.isArray(memberRole)) {
                         // If memberRole is an array, we need to find the next available slot for each role
                         let memberRoleArray = memberRole.map(role => role);
-    
+
                         // Randomly shuffle the memberRoleArray
                         for (let i = memberRoleArray.length - 1; i > 0; i--) {
                             const j = Math.floor(Math.random() * (i + 1));
                             [memberRoleArray[i], memberRoleArray[j]] = [memberRoleArray[j], memberRoleArray[i]];
                         }
-    
+
                         console.log(memberRoleArray);
-    
+
                         for (let i = 0; i < memberRoleArray.length; i++) {
                             let role = memberRoleArray[i];
                             let slotInfo = await getNextAvailableSlot(role, missionID);
@@ -1683,13 +2015,13 @@ async function updateMissionORBAT(memberID, memberRole, slotNodeID = null, lock 
                         slotNodeID = slotInfo ? slotInfo.slotNodeID : null;
                         callsign = slotInfo ? slotInfo.callsign : null;
                     }
-    
+
                     if (slotNodeID == null) {
                         console.log("No available slot found for member: " + memberID + " with role: " + memberRole);
                         message = "No available slot found for role: " + memberRole;
                         return;
                     }
-    
+
                     // Insert the member into the ORBAT with the specified role and slotNodeID
                     rows = await queryDatabase(`
                         INSERT INTO missionorbatmembers (memberID, missionID, memberRole, memberCallsign, slotNodeID, updatedAt)
@@ -1929,7 +2261,7 @@ async function getMemberSlotInfoFromOrbat(memberID) {
     var memberRole;
     var slotNodeID;
     var memberCallsign;
-;
+    ;
     // Set checkDate to 3 hours ahead of current time
     let checkDate = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
 
@@ -2372,7 +2704,9 @@ module.exports = {
     getMemberBadges, getMembersAssignedToBadge, getBadges, getBadge, getVideos, getRanks, getRankByID, getComprehensiveRanks,
     changeRank, performLogin, getMemberAttendance, updateMemberAttendance, updateMemberLOAs,
     getPool, closePool, performRegister, getUserRole, getUserMemberID, createMember, getDashboardData, getMemberLOA, createUser,
-    getSeniorMembers, updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
+    getSeniorMembers, getMemberByNodeId, getDiscordRankMappings, getDiscordRosterMembers, getDiscordRosterMember, getDiscordRosterMemberByDiscordId,
+    getReservistLeader, getRecruitParent, applyDiscordRosterChanges, createDiscordRecruitMember,
+    updateBadge, getAllBadgePaths, assignBadgeToMembers, removeBadgeFromMembers, resetPassword, getSOPs, getSOPbyID, getUsername,
     createSOP, editSOP, updateMissionORBAT, getLiveOrbat, getMemberSlotInfoFromOrbat, getMissions, getMissionCompositions, patchMissions, deleteMission, checkIfUserExists, getUserById,
     deleteSOP, createBadge, getMemberLOAs, getMembersLOAs, postLoa, removeLoa, removeLoaById, getMemberLOAsByDiscordId
 };
